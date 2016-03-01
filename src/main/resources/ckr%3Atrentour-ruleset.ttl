@@ -1,0 +1,624 @@
+#=========================================================================
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix ckr:  <http://dkm.fbk.eu/ckr/meta#> .
+@prefix spr:  <http://dkm.fbk.eu/springles/ruleset#> .
+@prefix :     <http://dkm.fbk.eu/springles/trentour_ckr_sparql_rules_plan#> .
+
+#-------------------------------------------------------------------------
+# PROFILE DEFINITION #
+
+<ckr:trentour-ruleset> a spr:Ruleset ;
+    rdfs:label "CKR OWL RL rules: optimized for Trentour KB" ;
+    spr:prologue """
+        PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX owl:  <http://www.w3.org/2002/07/owl#>
+        PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+        PREFIX ckr:  <http://dkm.fbk.eu/ckr/meta#>
+        PREFIX spr:  <http://dkm.fbk.eu/springles/trentour_ckr_sparql_rules_plan#>
+        PREFIX sys:  <sys:> """ ;
+    spr:closurePlan :plan ;
+    spr:macro 
+        """ INF_IRI(iri) = IRI(concat(?prefix, encode_for_uri(str(#iri)))) """ .
+
+#-------------------------------------------------------------------------
+# PLAN DEFINITION #    
+    
+:plan
+    spr:bind "?global_inf = #INF_IRI(ckr:global)" ;
+    spr:sequenceOf (
+        :step1_global_dependencies 
+        :step2_global_closure
+        :step3_module_dependencies
+        :step4_module_closure 
+    ) .
+    
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+# Inference steps definition #
+
+:step1_global_dependencies spr:evalOf ( :dep-global ) .
+
+:step2_global_closure
+    spr:bind "?g_inf = ?global_inf" ;
+    spr:sequenceOf (
+        :task_add_axioms
+        [ spr:fixPointOf [ spr:sequenceOf (
+            :task_compute_rl_closure 
+            :task_compute_glob_closure ) ] ]
+    ) .
+    
+:step3_module_dependencies spr:evalOf ( :dep-local-ctx :dep-local-gl ) .
+
+:step4_module_closure spr:fixPointOf [ spr:sequenceOf (
+        :task_compute_rl_closure
+        :task_compute_loc_closure ) ].
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+# Inference subtasks definition #    
+
+:task_add_axioms spr:evalOf ( :prp-ap :cls-thing :cls-nothing :dt-type ) . 
+    
+## [LB] New definition of rules for Trentour (# marks rules excluded from closure)
+
+:task_compute_rl_closure spr:fixPointOf [ spr:evalOf (
+        # :cls-int-ax1 :prp-spo2-2ax
+        :prl-ntriple
+        # :prl-eq1-s :prl-eq1-o # TODO: TEST # 
+        :prl-eq2 
+        # :prl-eq3 
+        :prl-eq4 :prl-eq5 :prl-eq6
+        :prl-neq
+        # :prl-top  # TODO: TEST #
+        :prl-subc 
+        :prl-not
+        :prl-subcnj :prl-subex
+        :prl-supex
+        :prl-supforall
+        :prl-leqone
+        :prl-subr :prl-subrc
+        :prl-dis :prl-inv1 :prl-inv2 :prl-irr
+        ) ] .
+        
+:task_compute_glob_closure spr:evalOf (
+        :pgl-i-addmod 
+        ) .
+
+:task_compute_loc_closure spr:fixPointOf [ spr:evalOf ( 
+        #:plc-subevalat :plc-subevalr
+        :plc-eq-s :plc-eq-o
+        ) ] .
+        	
+#-------------------------------------------------------------------------
+# INFERENCE RULES DEFINITION #    
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -     
+# Graph dependency rules #
+
+# Global inference graph
+:dep-global a spr:Rule ; 
+    spr:head """ GRAPH ?global_inf { ?global_inf ckr:derivedFrom ?global_inf, ckr:global } """ ; 
+    spr:body """ """ .    
+
+# Local module dependency rules
+:dep-local-ctx a spr:Rule ; # associates a context with its modules
+    spr:head """ GRAPH ?m_inf { ?m_inf ckr:derivedFrom ?m } """ ;
+    spr:body """ GRAPH ?g { ?c ckr:hasModule ?m }
+                 GRAPH ?global_inf { ?global_inf ckr:derivedFrom ?g.
+                                     ?m_inf ckr:closureOf ?c }
+                 FILTER NOT EXISTS {
+                   GRAPH ?m_inf { ?m_inf ckr:derivedFrom ?m }
+                 } """ .
+
+# associates every context with the modules of global
+:dep-local-gl a spr:Rule ;
+    spr:head """ GRAPH ?m_inf { ?m_inf ckr:derivedFrom ?global_inf } """ ;
+    spr:body """ GRAPH ?global_inf { ?global_inf ckr:derivedFrom ?g.
+                                     ?m_inf ckr:closureOf ?c }
+                 FILTER NOT EXISTS {
+                   GRAPH ?m_inf { ?m_inf ckr:derivedFrom ?global_inf }
+                 } """ .
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Local deduction rules Prl #
+
+:prl-ntriple a spr:Rule ;
+    spr:head """ GRAPH ?g_inf { ?x rdf:type owl:Nothing } """ ;
+    spr:body """ GRAPH ?g1 { ?x1 a owl:NegativePropertyAssertion;
+                                owl:sourceIndividual ?x;
+                                owl:assertionProperty ?v;
+                                owl:targetIndividual ?y. }
+                 GRAPH ?g2 { ?x rdf:type ?y }
+                 GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g1, ?g2 }
+                 FILTER NOT EXISTS {
+                   GRAPH ?g0 { ?x rdf:type owl:Nothing}
+                   GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g0 }
+                 } """ .                 
+                 
+:prl-eq1-s a spr:Rule ;
+    spr:head """ GRAPH ?g_inf { ?s owl:sameAs ?s } """ ;
+    spr:body """ GRAPH ?g1 { ?s ?p ?o }
+                 GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g1 }
+                 FILTER NOT EXISTS {
+                   GRAPH ?g0 { ?s owl:sameAs ?s }
+                   GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g0 }
+                 } """ .
+                 
+#:prl-eq1-p a spr:Rule ;
+#    spr:head """ GRAPH ?g_inf { ?p owl:sameAs ?p } """ ;
+#    spr:body """ GRAPH ?g1 { ?s ?p ?o }
+#                 FILTER (?p != owl:sameAs)
+#                 GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g1 }
+#                 FILTER NOT EXISTS {
+#                   GRAPH ?g0 { ?p owl:sameAs ?p }
+#                   GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g0 }
+#                 } """ .
+
+:prl-eq1-o a spr:Rule ;
+    spr:head """ GRAPH ?g_inf { ?o owl:sameAs ?o } """ ;
+    spr:body """ GRAPH ?g1 { ?s ?p ?o }
+                 FILTER (?p != rdf:type)
+                 GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g1 }
+                 FILTER NOT EXISTS {
+                   GRAPH ?g0 { ?o owl:sameAs ?o }
+                   GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g0 }
+                 } """ .                 
+
+:prl-eq2 a spr:Rule ;
+    spr:head """ GRAPH ?g_inf { ?y owl:sameAs ?x } """ ;
+    spr:body """ GRAPH ?g1 { ?x owl:sameAs ?y }
+                 FILTER (?x != ?y)
+                 GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g1 }
+                 FILTER NOT EXISTS {
+                   GRAPH ?g0 { ?y owl:sameAs ?x }
+                   GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g0 }
+                 } """ .                 
+
+# :prl-eq3 a spr:Rule ;
+#     spr:head """ GRAPH ?g_inf { ?y rdf:type ?z } """ ;
+#     spr:body """ GRAPH ?g1 { ?x owl:sameAs ?y }
+#                  GRAPH ?g2 { ?x rdf:type ?z }
+#                  GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g1, ?g2 }
+#                  FILTER NOT EXISTS {
+#                    GRAPH ?g0 { ?y rdf:type ?z }
+#                    GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g0 }
+#                  } """ .                 
+ 
+:prl-eq4 a spr:Rule ;
+    spr:head """ GRAPH ?g_inf { ?y ?u ?z } """ ;
+    spr:body """ GRAPH ?g1 { ?x owl:sameAs ?y }
+                 GRAPH ?g2 { ?x ?u ?z }
+                 GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g1, ?g2 }
+                 FILTER NOT EXISTS {
+                   GRAPH ?g0 { ?y ?u ?z }
+                   GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g0 }
+                 } """ .                                  
+
+:prl-eq5 a spr:Rule ;
+    spr:head """ GRAPH ?g_inf { ?z ?u ?y } """ ;
+    spr:body """ GRAPH ?g1 { ?x owl:sameAs ?y }
+                 GRAPH ?g2 { ?z ?u ?x }
+                 GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g1, ?g2 }
+                 FILTER NOT EXISTS {
+                   GRAPH ?g0 { ?z ?u ?y }
+                   GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g0 }
+                 } """ .                                  
+
+:prl-eq6 a spr:Rule ;
+    spr:head """ GRAPH ?g_inf { ?x owl:sameAs ?z } """ ;
+    spr:body """ GRAPH ?g1 { ?x owl:sameAs ?y }
+                 GRAPH ?g2 { ?y owl:sameAs ?z }
+                 GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g1, ?g2 }
+                 FILTER NOT EXISTS {
+                   GRAPH ?g0 { ?x owl:sameAs ?z }
+                   GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g0 }
+                 } """ .               
+
+:prl-neq a spr:Rule ;
+    spr:head """ GRAPH ?g_inf { ?x rdf:type owl:Nothing } """ ;
+    spr:body """ GRAPH ?g1 { ?x owl:sameAs ?y }
+                 GRAPH ?g2 { ?x owl:differentFrom ?y }
+                 GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g1, ?g2 }
+                 FILTER NOT EXISTS {
+                   GRAPH ?g0 { ?x rdf:type owl:Nothing }
+                   GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g0 }
+                 } """ .               
+
+:prl-top a spr:Rule ;
+    spr:head """ GRAPH ?g_inf { ?x rdf:type owl:Thing } """ ;
+    spr:body """ GRAPH ?g1 { ?x rdf:type ?z }
+                 GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g1 }
+                 FILTER NOT EXISTS {
+                   GRAPH ?g0 { ?x rdf:type owl:Thing }
+                   GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g0 }
+                 } """ .               
+                                  
+:prl-subc a spr:Rule ;
+    spr:head """ GRAPH ?g_inf { ?x rdf:type ?z } """ ;
+    spr:body """ GRAPH ?g1 { ?y rdfs:subClassOf ?z }
+                 GRAPH ?g2 { ?x rdf:type ?y }
+                 GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g1, ?g2 }
+                 FILTER NOT EXISTS {
+                   GRAPH ?g0 { ?x rdf:type ?z }
+                   GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g0 }
+                 } """ .
+
+:prl-not a spr:Rule ;
+    spr:head """ GRAPH ?g_inf { ?x rdf:type owl:Nothing } """ ;
+    spr:body """ GRAPH ?g1 { ?y rdfs:subClassOf ?nz.
+                             ?nz owl:complementOf ?z }
+                 GRAPH ?g2 { ?x rdf:type ?y }
+                 GRAPH ?g3 { ?x rdf:type ?z }
+                 GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g1, ?g2, ?g3 }
+                 FILTER NOT EXISTS {
+                   GRAPH ?g0 { ?x rdf:type owl:Nothing }
+                   GRAPH ?g_inf { ?x rdf:type owl:Nothing }
+                 } """ .                 
+                 
+# intersection of size 2
+:prl-subcnj a spr:Rule ; 
+    spr:head """ GRAPH ?g_inf { ?x rdf:type ?z } """ ;
+    spr:body """ GRAPH ?g1 {?z1 owl:intersectionOf ?l.
+                             ?l rdf:first ?y1;
+                             rdf:rest [rdf:first ?y2; rdf:rest rdf:nil].}
+                 GRAPH ?g2 { ?z1 rdfs:subClassOf ?z }
+                 FILTER (?y1 != ?y2) 
+                 GRAPH ?g3 { ?x rdf:type ?y1 }
+                 GRAPH ?g4 { ?x rdf:type ?y2 }
+                 GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g1, ?g2, ?g3, ?g4 }
+                 FILTER NOT EXISTS {
+                   GRAPH ?g0 { ?x rdf:type ?z }
+                   GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g0 }
+                 } """ .
+
+:prl-subex a spr:Rule ;
+    spr:head """ GRAPH ?g_inf { ?x rdf:type ?z } """ ;
+    spr:body """ GRAPH ?g1 { ?z1 owl:someValuesFrom ?y;
+                                 owl:onProperty ?v;
+                                 rdfs:subClassOf ?z }
+                 GRAPH ?g2 { ?x ?v ?x1 }
+                 GRAPH ?g3 { ?x1 rdf:type ?y }
+                 GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g1, ?g2, ?g3 }
+                 FILTER(?v != rdf:type)
+                 FILTER NOT EXISTS {
+                   GRAPH ?g0 { ?x rdf:type ?z }
+                   GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g0 }
+                 } """ .
+
+:prl-supex a spr:Rule ;
+    spr:head """ GRAPH ?g_inf { ?x ?r ?x1 } """ ;
+    spr:body """ GRAPH ?g1 { ?z owl:hasValue ?x1; owl:onProperty ?r.
+                             ?y rdfs:subClassOf ?z }
+                 GRAPH ?g2 { ?x a ?y }
+                 GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g1, ?g2 }
+                 FILTER NOT EXISTS {
+                   GRAPH ?g0 { ?x ?r ?x1 }
+                   GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g0 }
+                 } """ .
+
+:prl-supforall a spr:Rule ;
+    spr:head """ GRAPH ?g_inf { ?y rdf:type ?z1 } """ ;
+    spr:body """ GRAPH ?g1 { ?y owl:allValuesFrom ?z1; owl:onProperty ?r.
+                             ?z rdfs:subClassOf ?y }
+    		 GRAPH ?g2 { ?x rdf:type ?z }
+                 GRAPH ?g3 { ?x ?r ?y }
+                 GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g1, ?g2, ?g3 }
+                 FILTER NOT EXISTS {
+                   GRAPH ?g0 { ?y rdf:type ?z1 }
+                   GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g0 }
+                 } """ .                 
+
+:prl-leqone a spr:Rule ;
+    spr:head """ GRAPH ?g_inf { ?x1 owl:sameAs ?x2 } """ ;
+    spr:body """ GRAPH ?g1 { ?y owl:maxQualifiedCardinality '1'^^xsd:nonNegativeInteger; 
+                                owl:onProperty ?r;
+                                owl:onClass ?z1.
+                             ?z rdfs:subClassOf ?y }
+    		 GRAPH ?g2 { ?x rdf:type ?z }
+                 GRAPH ?g3 { ?x ?r ?x1 }
+                 GRAPH ?g4 { ?x1 rdf:type ?z1 }
+                 GRAPH ?g5 { ?x ?r ?x2 }
+                 GRAPH ?g6 { ?x2 rdf:type ?z1 }
+                 GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g1,?g2,?g3,?g4,?g5,?g6 }
+                 FILTER NOT EXISTS {
+                   GRAPH ?g0 { ?x1 owl:sameAs ?x2 }
+                   GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g0 }
+                 } """ .                                  
+                 
+:prl-subr a spr:Rule ; 
+    spr:head """ GRAPH ?g_inf { ?x ?w ?x1 } """ ;
+    spr:body """ GRAPH ?g1 { ?v rdfs:subPropertyOf ?w }
+                 GRAPH ?g2 { ?x ?v ?x1 }
+                 GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g1, ?g2 }
+                 FILTER NOT EXISTS {
+                   GRAPH ?g0 { ?x ?w ?x1 }
+                   GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g0 }
+                 } """ .                 
+
+#sub property chains: rule for chains of length 2
+:prl-subrc a spr:Rule ; 
+    spr:head """ GRAPH ?g_inf { ?x ?w ?z } """ ;
+    spr:body """ GRAPH ?g1 { ?w owl:propertyChainAxiom ?l.
+                             ?l rdf:first ?u;
+                             rdf:rest [rdf:first ?v; rdf:rest rdf:nil].}   
+                 GRAPH ?g2 { ?x ?u ?y }
+                 GRAPH ?g3 { ?y ?v ?z }
+                 GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g1, ?g2, ?g3 }
+                 FILTER NOT EXISTS {
+                   GRAPH ?g0 { ?x ?w ?z }
+                   GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g0 }
+                 } """ .
+
+:prl-dis a spr:Rule ; 
+    spr:head """ GRAPH ?g_inf { ?x rdf:type owl:Nothing } """ ;
+    spr:body """ GRAPH ?g1 { ?u owl:propertyDisjointWith ?v }
+                 GRAPH ?g2 { ?x ?u ?y }
+                 GRAPH ?g3 { ?x ?v ?y }
+                 GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g1, ?g2, ?g3 }
+                 FILTER NOT EXISTS {
+                   GRAPH ?g0 { ?x rdf:type owl:Nothing }
+                   GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g0 }
+                 } """ .
+
+:prl-inv1 a spr:Rule ; 
+    spr:head """ GRAPH ?g_inf { ?y ?v ?x } """ ;
+    spr:body """ GRAPH ?g1 { ?u owl:inverseOf ?v }
+                 GRAPH ?g2 { ?x ?u ?y }
+                 GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g1, ?g2 }
+                 FILTER NOT EXISTS {
+                   GRAPH ?g0 { ?y ?v ?x }
+                   GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g0 }
+                 } """ .
+
+:prl-inv2 a spr:Rule ; 
+    spr:head """ GRAPH ?g_inf { ?y ?u ?x } """ ;
+    spr:body """ GRAPH ?g1 { ?u owl:inverseOf ?v }
+                 GRAPH ?g2 { ?x ?v ?y }
+                 GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g1, ?g2 }
+                 FILTER NOT EXISTS {
+                   GRAPH ?g0 { ?y ?u ?x }
+                   GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g0 }
+                 } """ .                 
+
+:prl-irr a spr:Rule ; 
+    spr:head """ GRAPH ?g_inf { ?x rdf:type owl:Nothing } """ ;
+    spr:body """ GRAPH ?g1 { ?u rdf:type owl:IrreflexiveProperty }
+                 GRAPH ?g2 { ?x ?u ?x }
+                 GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g1, ?g2 }
+                 FILTER NOT EXISTS {
+                   GRAPH ?g0 { ?x rdf:type owl:Nothing }
+                   GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g0 }
+                 } """ .                             
+                 
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -     
+# Global deduction rules Pglob #
+
+:pgl-i-addmod a spr:Rule ; # associates each context to its inferred module
+    spr:head """ GRAPH ?global_inf { ?c ckr:hasModule ?m_inf.
+                                     ?m_inf ckr:closureOf ?c } """ ;
+    spr:body """ GRAPH ?g { ?c a ckr:Context }
+                 GRAPH ?global_inf { ?global_inf ckr:derivedFrom ?g }
+                 BIND (#INF_IRI(?c) AS ?m_inf)
+                 FILTER NOT EXISTS {
+                   GRAPH ?global_inf { ?m_inf ckr:closureOf ?c } 
+                 } """ .
+    
+#:pgl-c-submodc a spr:Rule ;
+#    spr:head """ GRAPH ?g_inf { ?x ckr:hasModule ?m } """ ;
+#    spr:body """ GRAPH ?g1 { ?z owl:hasValue ?m; owl:onProperty ckr:hasModule }
+#                 GRAPH ?g2 { ?c rdfs:subClassOf ?z }
+#                 GRAPH ?g3 { ?x a ?c }
+#                 GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g1, ?g2, ?g3 }
+#                 FILTER NOT EXISTS {
+#                   GRAPH ?g0 { ?x ckr:hasModule ?m }
+#                   GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g0 }
+#                 } """ .
+#                    
+#:pgl-c-subattc a spr:Rule ;
+#    spr:head """ GRAPH ?g_inf { ?x ?a ?d } """ ;
+#    spr:body """ GRAPH ?g1 { ?z owl:hasValue ?d; owl:onProperty ?a.
+#                             ?a rdfs:subPropertyOf ckr:hasAttribute }
+#                 GRAPH ?g2 { ?c rdfs:subClassOf ?z }
+#                 GRAPH ?g3 { ?x a ?c }
+#                 GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g1, ?g2, ?g3 }
+#                 FILTER NOT EXISTS {
+#                   GRAPH ?g0 { ?x ?a ?d }
+#                   GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g0 }
+#                 } """ .
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Local deduction rules Ploc #
+
+:plc-subevalat a spr:Rule ; # [FC] I think we may merge ?g1 and ?g2 pattern and require subEval axioms to be written in a single graph ?g
+    spr:head """ GRAPH ?g_inf { ?x rdf:type ?b } """ ;
+    spr:body """ GRAPH ?g1 { ?z ckr:hasEvalObject ?a; ckr:hasEvalMeta ?c1;
+                                rdfs:subClassOf ?b }                    
+                 GRAPH ?g2 { ?cp a ?c1 }
+                 GRAPH ?g3 { ?cp ckr:hasModule ?m }
+                 GRAPH ?m  { ?x a ?a }
+                 GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g1 }
+                 GRAPH ?global_inf { ?global_inf ckr:derivedFrom ?g3, ?g4 }
+                 FILTER NOT EXISTS {
+                    GRAPH ?g0 { ?x rdf:type ?b }
+                    GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g0 }
+                 } """ .
+
+:plc-subevalr a spr:Rule ;
+    spr:head """ GRAPH ?g_inf { ?x ?t ?y } """ ;
+    spr:body """ GRAPH ?g1 { ?v rdfs:subPropertyOf ?t;
+                                ckr:hasEvalObject ?r; ckr:hasEvalMeta ?c1. }
+                 GRAPH ?g2 { ?cp a ?c1 }
+                 GRAPH ?g3 { ?cp ckr:hasModule ?m }
+                 GRAPH ?m  { ?x ?r ?y }
+                 GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g1 }
+                 GRAPH ?global_inf { ?global_inf ckr:derivedFrom ?g2, ?g3 }
+                 FILTER NOT EXISTS {
+                    GRAPH ?g0 { ?x ?t ?y }
+                    GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g0 }
+                 } """ .
+
+## [LB] Splitted rules to recognize equality of individuals in
+## 	triples.
+
+:plc-eq-s a spr:Rule ;
+    spr:head """ GRAPH ?g_inf { ?x owl:sameAs ?y } """ ;
+    spr:body """ GRAPH ?g1 { ?x ?p ?o }
+                 GRAPH ?g2 { ?cp a ckr:Context }
+                 GRAPH ?g3 { ?cp ckr:hasModule ?m }
+                 GRAPH ?m  { ?x owl:sameAs ?y }
+                 GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g1 }
+                 GRAPH ?global_inf { ?global_inf ckr:derivedFrom ?g2, ?g3 }
+                 FILTER NOT EXISTS {
+                    GRAPH ?g0 { ?x owl:sameAs ?y }
+                    GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g0 }
+                 } """ .
+
+:plc-eq-o a spr:Rule ;
+    spr:head """ GRAPH ?g_inf { ?x owl:sameAs ?y } """ ;
+    spr:body """ GRAPH ?g1 { ?s ?p ?x }
+                 FILTER (?p != rdf:type)
+                 GRAPH ?g2 { ?cp a ckr:Context }
+                 GRAPH ?g3 { ?cp ckr:hasModule ?m }
+                 GRAPH ?m  { ?x owl:sameAs ?y }
+                 GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g1 }
+                 GRAPH ?global_inf { ?global_inf ckr:derivedFrom ?g2, ?g3 }
+                 FILTER NOT EXISTS {
+                    GRAPH ?g0 { ?x owl:sameAs ?y }
+                    GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g0 }
+                 } """ .
+
+### [LB] These rules are not necessary, as this condition is enforced
+###	 by equality rules in the global context (see completeness proof).                 
+# 
+# :plc-eq2 a spr:Rule;
+#     spr:head """ GRAPH ?g_inf { ?x rdf:type ?a } """ ;
+#     spr:body """ GRAPH ?g1 { ?x rdf:type ?a }
+#                  GRAPH ?g2 { ?cp ckr:hasModule ?g1 }
+#                  GRAPH ?g3 { ?c owl:sameAs ?cp }
+#                  GRAPH ?g4 { ?c ckr:hasModule ?m1 }
+#                  GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?m1 }
+#                  GRAPH ?global_inf { ?global_inf ckr:derivedFrom ?g2, ?g3, ?g4 }
+#                  FILTER NOT EXISTS {
+#                     GRAPH ?g0 { ?x rdf:type ?a }
+#                     GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g0 }
+#                  } """ .
+#                                   
+# :plc-eq3 a spr:Rule;
+#     spr:head """ GRAPH ?g_inf { ?x ?v ?y } """ ;
+#     spr:body """ GRAPH ?g1 { ?x ?v ?y }
+#                  GRAPH ?g2 { ?cp ckr:hasModule ?g1 }
+#                  GRAPH ?g3 { ?c owl:sameAs ?cp }
+#                  GRAPH ?g4 { ?c ckr:hasModule ?m1 }
+#                  GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?m1 }
+#                  GRAPH ?global_inf { ?global_inf ckr:derivedFrom ?g2, ?g3, ?g4 }
+#                  FILTER NOT EXISTS {
+#                     GRAPH ?g0 { ?x ?v ?y }
+#                     GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g0 }
+#                  } """ .                 
+                 
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -     
+# (OWL2 auxiliary axioms) #
+# NOTE: (Check where needed)
+
+# Axiomatic triples for OWL properties
+:prp-ap a spr:Rule ; 
+    spr:head """ GRAPH ?g_inf {
+                   rdfs:label a owl:AnnotationProperty.
+                   rdfs:comment a owl:AnnotationProperty.
+                   rdfs:seeAlso a owl:AnnotationProperty.
+                   rdfs:isDefinedBy a owl:AnnotationProperty.
+                   owl:deprecated a owl:AnnotationProperty.
+                   owl:versionInfo a owl:AnnotationProperty.
+                   owl:priorVersion a owl:AnnotationProperty.
+                   owl:backwardCompatibleWith a owl:AnnotationProperty.
+                   owl:incompatibleWith a owl:AnnotationProperty. 
+                 } """ ;
+    spr:body """ """ .                 
+
+# Axiomatic triples for owl:Thing and owl:Nothing
+:cls-thing a spr:Rule ; 
+    spr:head """ GRAPH ?g_inf {
+                   owl:Thing a owl:Class.
+                 } """ ;
+    spr:body """ """ .
+
+:cls-nothing a spr:Rule ;
+    spr:head """ GRAPH ?g_inf {
+                   owl:Nothing a owl:Class.
+                 } """ ;
+    spr:body """ """ .
+
+# Axiomatic triples for datatypes
+:dt-type a spr:Rule ; 
+    spr:head """ GRAPH ?g_inf {
+                   rdf:PlainLiteral a rdfs:Datatype.
+                   rdf:XMLLiteral a rdfs:Datatype.
+                   rdfs:Literal a rdfs:Datatype.
+                   xsd:decimal a rdfs:Datatype.
+                   xsd:integer a rdfs:Datatype.
+                   xsd:nonNegativeInteger a rdfs:Datatype.
+                   xsd:nonPositiveInteger a rdfs:Datatype.
+                   xsd:positiveInteger a rdfs:Datatype.
+                   xsd:negativeInteger a rdfs:Datatype.
+                   xsd:long a rdfs:Datatype.
+                   xsd:int a rdfs:Datatype.
+                   xsd:short a rdfs:Datatype.
+                   xsd:byte a rdfs:Datatype.
+                   xsd:unsignedLong a rdfs:Datatype.
+                   xsd:unsignedInt a rdfs:Datatype.
+                   xsd:unsignedShort a rdfs:Datatype.
+                   xsd:unsignedByte a rdfs:Datatype.
+                   xsd:float a rdfs:Datatype.
+                   xsd:double a rdfs:Datatype.
+                   xsd:string a rdfs:Datatype.
+                   xsd:normalizedString a rdfs:Datatype.
+                   xsd:token a rdfs:Datatype.
+                   xsd:language a rdfs:Datatype.
+                   xsd:Name a rdfs:Datatype.
+                   xsd:NCName a rdfs:Datatype.
+                   xsd:NMTOKEN a rdfs:Datatype.
+                   xsd:boolean a rdfs:Datatype.
+                   xsd:hexBinary a rdfs:Datatype.
+                   xsd:base64Binary a rdfs:Datatype.
+                   xsd:anyURI a rdfs:Datatype.
+                   xsd:dateTime a rdfs:Datatype.
+                   xsd:dateTimeStamp a rdfs:Datatype.
+                 } """ ;
+    spr:body """ """ .
+    
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -     
+# (Auxiliary rules) #
+
+# (auxiliary, required by :pel-c-subcnj) ADDS sys:intersectionOfMember
+# :cls-int-ax1 a spr:Rule ; 
+#     spr:head """ GRAPH ?g_inf {
+#                    ?l sys:intersectionOfResult ?c;
+#                       sys:intersectionOfMember ?ci.
+#                  } """ ;
+#     spr:body """ GRAPH ?g { ?c owl:intersectionOf ?l. }
+#                  { SELECT DISTINCT ?ci { GRAPH ?g { ?l rdf:rest*/rdf:first ?ci } } }
+#                  GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g }
+#                  FILTER NOT EXISTS {
+#                    GRAPH ?g0 { ?l sys:intersectionOfMember ?ci }
+#                    GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g0 }
+#                  } """ .
+# 
+# :prp-spo2-2ax a spr:Rule ; # (auxiliary, required by :pel-r-subrc)
+#     spr:head """ GRAPH ?g_inf {
+#                    ?l sys:chainUnique2SegmentOf ?p;
+#                       sys:chainP1 ?p1; sys:chainP2 ?p2.
+#                  } """ ;
+#     spr:body """ GRAPH ?g {
+#                    ?p owl:propertyChainAxiom ?l.
+#                    ?l rdf:first ?p1;
+#                       rdf:rest [rdf:first ?p2; rdf:rest rdf:nil].
+#                  }
+#                  GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g }
+#                  FILTER NOT EXISTS {
+#                    GRAPH ?g0 { ?l sys:chainUnique2SegmentOf ?p }
+#                    GRAPH ?g_inf { ?g_inf ckr:derivedFrom ?g0 }
+#                  } """ .
+# 
+#=========================================================================

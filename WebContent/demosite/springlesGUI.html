@@ -1,0 +1,291 @@
+<html>
+<head>
+<title>SPRINGLES GUI</title>
+<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap-theme.min.css">
+<style type="text/css">
+.json-key {
+	color: brown;
+}
+
+.json-value {
+	color: navy;
+}
+
+.json-string {
+	color: olive;
+}
+</style>
+
+</head>
+<body style="padding: 20px">
+	<div class="row">
+	
+	<div class="col-md-10">
+  	<!--img src="http://www.toolisse.com/immagini/toolisse-logo.png" class="pull-left">
+  			<img src="https://dkm.fbk.eu/skins/dkmfbk/images/it.gif" class="pull-left"-->
+  			<span class="pull-left"> 
+  				<h1>-SPRINGLES GUI<small>  Service Testing Interface</small></h1>
+  			</span>
+  			
+  			
+  		</div>
+	
+	
+		<div class="col-md-4">
+		
+	
+			<div class="panel-group" id="accordion">
+	
+	
+		
+					<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#accordion" href="#collapse11"> Create repository</a>
+						</h4>
+					</div>
+					<div id="collapse11" class="panel-collapse collapse">
+						<div class="panel-body">
+						
+							<form id="form11" role="form" method="GET">
+				
+								<div class="form-group">	
+			<label style="padding: 20px for="springlesrepositoryID">Springles Repository ID</label>
+							
+				<input type="text" class="form-control" value="test-springles-5" id="springlesrepositoryID" >
+	     		
+	    	<label style="padding: 20px for="springlesrepositorytitle">Springles Repository TITLE</label>
+							
+				<input type="text" class="form-control" value="test-springles-5" id="springlesrepositorytitle" >
+	    
+	     		<label style="padding: 20px for="springlesserverURL">Springles Server URL</label>
+				<input type="text" class="form-control" value="http://localhost:8080/openrdf-sesame" id="springlesserverURL" >
+				<label style="padding: 20px for="restURL">REST Server URL</label>
+				<input type="text" class="form-control" value="http://localhost:8080/SpringlesREST/rest/rest/" id="restURL" >
+				
+					<label style="padding: 20px for="rulesetURI">rulesetURI</label>
+				<input type="text" class="form-control" value="http://dkm.fbk.eu/ckr/meta#trentour-ruleset" id="rulesetURI" >		
+					<p class="help-block"></p>	
+						</div>		
+								<button type="submit" class="btn btn-default btn-primary">Submit</button>
+							</form>
+
+						</div>
+					</div>
+				</div>	
+					
+
+
+
+
+			<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#accordion" href="#collapse12">Upload RDF</a>
+						</h4>
+					</div>
+					<div id="collapse12" class="panel-collapse collapse">
+						<div class="panel-body">
+							<form id="form12" role="form" method="GET"  enctype="multipart/form-data">
+				
+							<div class="form-group">	
+			<label style="padding: 20px for="springlesrepositoryID">Springles Repository ID</label>
+							
+				<input type="text" class="form-control" value="test-springles-100" id="springlesrepositoryID" >
+	     		<label style="padding: 20px for="springlesserverURL">Springles Server URL</label>
+				<input type="text" class="form-control" value="http://localhost:8080/openrdf-sesame" id="springlesserverURL" >
+				<label style="padding: 20px for="restURL">REST Server URL</label>
+				<input type="text" class="form-control" value="http://localhost:8080/SpringlesREST/rest/rest/" id="restURL" >
+				<label style="padding: 20px for="fileURI">fileURI</label>
+				<input type="text" class="form-control" value="abcd" id="fileURI" >
+			    <label style="padding: 20px for="filetoupload">filetoupload</label>
+				<input type="file" class="form-control" value="toolisse-kb-test-with-synonyms-finale-nolocation.trig" id="filetoupload" >		
+					<p class="help-block">toolisse-kb-test-with-synonyms-finale-nolocation.trig</p>	
+						</div>		
+								<button type="submit" class="btn btn-default btn-primary">Submit</button>
+							</form>
+
+						</div>
+					</div>
+				</div>	
+
+		<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#accordion" href="#collapse13">FULL EXPORT</a>
+						</h4>
+					</div>
+					<div id="collapse13" class="panel-collapse collapse">
+						<div class="panel-body">
+							<form id="form13" role="form" method="GET"  enctype="multipart/form-data">
+				
+							<div class="form-group">	
+			<label style="padding: 20px for="springlesrepositoryID">Springles Repository ID</label>
+							
+				<input type="text" class="form-control" value="test-springles-100" id="springlesrepositoryID" >
+	     		<label style="padding: 20px for="springlesserverURL">Springles Server URL</label>
+				<input type="text" class="form-control" value="http://localhost:8080/openrdf-sesame" id="springlesserverURL" >
+				<label style="padding: 20px for="restURL">REST Server URL</label>
+				<input type="text" class="form-control" value="http://localhost:8080/SpringlesREST/rest/rest/" id="restURL" >
+				<label style="padding: 20px for="contextURI">ContextURI</label>
+				<input type="text" class="form-control" value="http://dkm.fbk.eu/ckr/meta#global" id="contextURI" >
+			    <label style="padding: 20px for="exportformat">Export Format</label>
+				<input type="text" class="form-control" value="trig" id="exportformat" >		
+					<p class="help-block">trig,xml</p>	
+						</div>		
+								<button type="submit" class="btn btn-default btn-primary">Submit</button>
+							</form>
+
+						</div>
+					</div>
+				</div>	
+
+
+
+
+
+
+
+
+
+
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#accordion" href="#collapse9"> Get Number of Statements</a>
+						</h4>
+					</div>
+					<div id="collapse9" class="panel-collapse collapse">
+						<div class="panel-body">
+							<form id="form9" role="form" method="GET">
+				
+							<div class="form-group">		
+			<label style="padding: 20px for="springlesrepositoryID">Springles Repository ID</label>
+						
+				<input type="text" class="form-control" value="test-springles-5" id="springlesrepositoryID" >
+	     		<label style="padding: 20px for="springlesserverURL">Springles Server URL</label>
+				<input type="text" class="form-control" value="http://localhost:8080/openrdf-sesame" id="springlesserverURL" >
+				<label style="padding: 20px for="restURL">REST Server URL</label>
+				<input type="text" class="form-control" value="http://localhost:8080/SpringlesREST/rest/rest/" id="restURL" >
+						</div>		
+								<button type="submit" class="btn btn-default btn-primary">Submit</button>
+							</form>
+
+						</div>
+					</div>
+				</div>	
+				
+			
+			<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#accordion" href="#collapse10">Query SPARQL</a>
+						</h4>
+					</div>
+					<div id="collapse10" class="panel-collapse collapse">
+						<div class="panel-body">
+							<form id="form10" role="form" method="GET">
+						
+					<div class="form-group">	
+		<label style="padding: 20px for="springlesrepositoryID">Springles Repository ID</label>
+							
+				<input type="text" class="form-control" value="test-springles-100" id="springlesrepositoryID" >
+	     		<label style="padding: 20px for="springlesserverURL">Springles Server URL</label>
+				<input type="text" class="form-control" value="http://localhost:8080/openrdf-sesame" id="springlesserverURL" >
+				<label style="padding: 20px for="restURL">REST Server URL</label>
+				<input type="text" class="form-control" value="http://localhost:8080/SpringlesREST/rest/rest/" id="restURL" >
+						
+		
+			
+	
+									<label for="querySPARQL">query SPARQL</label>
+									<input type="text" class="form-control" value="SELECT ?s ?p ?o WHERE { ?s ?p ?o }" id="querySPARQL" >
+									<p class="help-block">Exampe:SELECT ?s ?p ?o WHERE { ?s ?p ?o }</p>
+								</div>
+				
+								
+								
+								<button type="submit" class="btn btn-default btn-primary">Submit</button>
+							</form>
+
+						</div>
+					</div>
+				</div>	
+			
+			
+			
+				   
+			</div>
+		</div>
+		<div class="col-md-8">
+			<div>
+				<pre>
+					<h3 class="center text-center">Request</h3>
+					<div id="request" class="text-left">
+					</div>
+					<hr />
+					<h3 class="center text-center">Response</h3>
+					<div id="result" class="text-left">
+						
+					</div>
+				</pre>
+			</div>
+		</div>
+	</div>
+	<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+	<script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
+	<script type="text/javascript">
+		/*INSERT THE CORRECT URL*/
+		
+		
+		//var server="http://dkmlab.fbk.eu";
+		
+		var url = ":http://localhost:8081/SpringlesREST/rest/rest/";
+    	var url2 = ":8080/ToolisseSemanticQueryAnswering/toolisse/sqa/";
+    	
+		if($.isEmptyObject(url))
+			alert("Insert correct url at line 106");
+
+		if (!library)
+			var library = {};
+
+		library.json = {
+			replacer : function(match, pIndent, pKey, pVal, pEnd) {
+				var key = '<span class=json-key>';
+				var val = '<span class=json-value>';
+				var str = '<span class=json-string>';
+				var r = pIndent || '';
+				if (pKey)
+					r = r + key + pKey.replace(/[": ]/g, '') + '</span>: ';
+				if (pVal)
+					r = r + (pVal[0] == '"' ? str : val) + pVal + '</span>';
+				return r + (pEnd || '');
+			},
+			prettyPrint : function(obj) {
+				var jsonLine = /^( *)("[\w]+": )?("[^"]*"|[\w.+-]*)?([,[{])?$/mg;
+				return JSON.stringify(obj, null, 3).replace(/&/g, '&amp;')
+						.replace(/\\"/g, '&quot;').replace(/</g, '&lt;')
+						.replace(/>/g, '&gt;').replace(jsonLine,
+								library.json.replacer);
+			}
+		};
+	</script>
+	<script src="function1.js"></script>
+	<script src="function2.js"></script>
+	<script src="function3.js"></script>
+	<script src="function4.js"></script>
+  	<script src="function5.js"></script>
+  	 	<script src="function6.js"></script>
+  	 	<script src="function61.js"></script>
+  	 	<script src="function7.js"></script>
+  	 	<script src="function9.js"></script>
+  	 	<script src="function10.js"></script>
+  	 	<script src="function11.js"></script>
+  	 		<script src="function12.js"></script>
+  	 		<script src="function13.js"></script>
+</body>
+</body>
+</html>
