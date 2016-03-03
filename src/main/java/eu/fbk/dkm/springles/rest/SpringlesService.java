@@ -46,10 +46,13 @@ import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.URIImpl;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.query.BindingSet;
+import org.openrdf.query.MalformedQueryException;
+import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
 import org.openrdf.query.Update;
+import org.openrdf.query.UpdateExecutionException;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -512,31 +515,86 @@ con.close();
 		     
 		   
 	  }
-
 	  @GET
 	  @Path("/computeclosure")
 	  @Produces(MediaType.APPLICATION_JSON)
-	  public String computeClosure() {
+	  public String computeClosure2(
+			  
+			  @QueryParam("springlesrepositoryID") String springlesrepositoryID,
+			  @QueryParam("springlesserverURL") String springlesserverURL
+			  
+			  
+			  ) {
 
 	  	String result = "FAIL";
 	  	
 	  	  
 	  	try {
-	  		myRepository.initialize();
-	  		RepositoryConnection con = myRepository.getConnection();
+	  		
+	  	Repository	myRepository2 = new HTTPRepository(springlesserverURL, springlesrepositoryID);
+	  		myRepository2.initialize();
+	  		RepositoryConnection con = myRepository2.getConnection();
 
 	  		// result= result+""+con.size();
 	  		try {
 
-	  			
-	  			
-	  			
-	  			
+	  			String queryString = "clear graph <springles:update-closure>";
+	  				con.begin();
+	  				//	conn.prepareUpdate(QueryLanguage.SPARQL, updateQuery);
+	  					Update insert = con.prepareUpdate(QueryLanguage.SPARQL,
+	  							queryString);
+	  					insert.execute();
+	  					 con.commit();
+	  					 con.close();
+	  					 result="200 OK";
+	  					// tupleQuery.setIncludeInferred(true);
+	  					//TupleQueryResult qresult = tupleQuery.evaluate();
+	  					try {
+	  						
+
+	  					} finally {
+	  						//qresult.close();
+
+	  					}
+	  					
+	  		
+	  		} finally {
+	  			con.close();
+
+	  		}
+
+	  	} catch (OpenRDFException e) {
+	  		// TODO Auto-generated catch block
+	  		e.printStackTrace();
+	  	}
+
+	  	
+	  	return result;
+	  }
+
+	  @GET
+	  @Path("/computeclosure2")
+	  @Produces(MediaType.TEXT_HTML)
+	  public String computeClosure(
+			  @QueryParam("springlesrepositoryID") String springlesrepositoryID,
+			  @QueryParam("springlesserverURL") String springlesserverURL)
+			
+			   {
+
+		  
+		  String result="Fail";
+			myRepository = new HTTPRepository(springlesserverURL, springlesrepositoryID);
+			try {
+				myRepository.initialize();
+			
+	  		RepositoryConnection con = myRepository.getConnection();
+	  		// result= result+""+con.size();
+	  	
+	  		System.out.println(springlesrepositoryID);
+	  		System.out.println(springlesserverURL);	
 	  			
 	  			long numberOfStatements= con.size();
-				System.out.println(" Computo inferenze........");
-                    
-                    
+				System.out.println(" Computo inferenze........");     
 	  			
 	  			String queryString = "clear graph <springles:update-closure>";
 	  				
@@ -564,28 +622,21 @@ con.close();
 						                     .longValue();
 				//	logger.info("Number of total statement= "+number);
 					System.out.println("Number of total statement= "+numberOfTotalStatements);
+								
 								} finally {
 			  						con.close();
 
 			  					}
-	  					try {
-	  						
-
-	  					} finally {
-	  						//qresult.close();
-
-	  					}
-	  					
+	  				
 	  		
-	  		} finally {
-	  			con.close();
-
-	  		}
-
-	  	} catch (OpenRDFException e) {
-	  		// TODO Auto-generated catch block
-	  		e.printStackTrace();
-	  	}
+			
+		
+			} catch (RepositoryException | MalformedQueryException |QueryEvaluationException | UpdateExecutionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+	  		
+			}
+	  
 
 	  	
 	  	return result;
