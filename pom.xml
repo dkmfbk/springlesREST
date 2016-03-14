@@ -52,11 +52,7 @@
 	<artifactId>sesame-runtime</artifactId>
 	<version>2.8.9</version>
 </dependency>
-<dependency>
-    <groupId>org.openrdf.sesame</groupId>
-    <artifactId>sesame-rio-api</artifactId>
-    <version>2.8.9</version>
-</dependency>
+
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
@@ -82,7 +78,7 @@
 				<configuration>
 					<warSourceDirectory>WebContent</warSourceDirectory>
 					<failOnMissingWebXml>false</failOnMissingWebXml>
-					 <warName>${artifactId}</warName>
+					 <warName>${project.artifactId}</warName>
 				    <archive>
                       <manifest>
                       <addClasspath>true</addClasspath>
@@ -97,8 +93,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.5.1</version>
 				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
+					<source>1.7</source>
+					<target>1.7</target>
 				</configuration>
 			</plugin>
 

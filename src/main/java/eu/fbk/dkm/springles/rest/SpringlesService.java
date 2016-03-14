@@ -1,9 +1,10 @@
 package eu.fbk.dkm.springles.rest;
 
+
 import java.io.BufferedWriter;
 import java.io.File;
 
-import java.io.FileOutputStream;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -69,7 +70,7 @@ import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
 
 import org.openrdf.rio.Rio;
-import org.openrdf.rio.rdfxml.RDFXMLWriter;
+import org.openrdf.rio.rdfxml.util.RDFXMLPrettyWriter;
 import org.openrdf.rio.trig.TriGParser;
 import org.openrdf.rio.trig.TriGWriter;
 
@@ -78,7 +79,6 @@ import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
 
 import eu.fbk.dkm.internal.springles.config.SpringlesRepositoryFactory;
-
 import info.aduna.io.IOUtil;
 import info.aduna.iteration.Iterations;
 
@@ -180,7 +180,7 @@ public class SpringlesService {
 				ConfigTemplate ct= new ConfigTemplate(template);
 				Map<String, String> valueMap =new HashMap<String, String>();
 				valueMap.put("Repository ID", springlesrepositoryID);
-				//valueMap.put("Ruleset", rulesetURI);
+				valueMap.put("Ruleset", rulesetURI);
 				valueMap.put("Repository title", springlesrepositorytitle);
 				
 				String configString = ct.render(valueMap);
@@ -249,7 +249,7 @@ public class SpringlesService {
 			URL url = new URL(location);
 			URI context = f.createURI(location);
 
-			RDFHandler rdfxmlWriter = new RDFXMLWriter(System.out);
+			RDFHandler rdfxmlWriter = new RDFXMLPrettyWriter(System.out);
 		//	con.export(rdfxmlWriter,context);
 			 con.exportStatements(null, null, null, true, rdfxmlWriter, context);
 		} catch (RepositoryException | RepositoryConfigException | MalformedURLException | RDFHandlerException  e) {
@@ -338,7 +338,7 @@ public class SpringlesService {
 				
 				
 				Writer writer = new BufferedWriter(new FileWriter(tempFile));
-				RDFHandler rdfxmlWriter = new RDFXMLWriter(writer);
+				RDFHandler rdfxmlWriter = new RDFXMLPrettyWriter(writer);
 				TriGWriter trigWriter= new TriGWriter(writer);
 				
 			//	con.export(rdfxmlWriter,context);
@@ -429,8 +429,8 @@ TriGParser parser = (TriGParser) Rio.createParser(RDFFormat.TRIG);
  
 // add our own custom RDFHandler to the parser. This handler takes care of adding
 // triples to our repository and doing intermittent commits
-
- parser.setRDFHandler(new ChunkCommitter1(con));
+RDFHandler cc=new ChunkCommitter1(con) ;
+ parser.setRDFHandler(cc );
 // System.out.println("chunked");
  
 
@@ -516,7 +516,7 @@ con.close();
 		   
 	  }
 	  @GET
-	  @Path("/computeclosure")
+	  @Path("/computeclosure2")
 	  @Produces(MediaType.APPLICATION_JSON)
 	  public String computeClosure2(
 			  
@@ -537,15 +537,20 @@ con.close();
 
 	  		// result= result+""+con.size();
 	  		try {
-
+	  			System.out.println(springlesrepositoryID);
+		  		System.out.println(springlesserverURL);	
+		  			
+		  			long numberOfStatements= con.size();
+					System.out.println(" Computo inferenze........");   
 	  			String queryString = "clear graph <springles:update-closure>";
-	  				con.begin();
+	  			
+	  			//	con.begin();
 	  				//	conn.prepareUpdate(QueryLanguage.SPARQL, updateQuery);
 	  					Update insert = con.prepareUpdate(QueryLanguage.SPARQL,
 	  							queryString);
 	  					insert.execute();
 	  					 con.commit();
-	  					 con.close();
+	  					// con.close();
 	  					 result="200 OK";
 	  					// tupleQuery.setIncludeInferred(true);
 	  					//TupleQueryResult qresult = tupleQuery.evaluate();
@@ -573,7 +578,7 @@ con.close();
 	  }
 
 	  @GET
-	  @Path("/computeclosure2")
+	  @Path("/computeclosure")
 	  @Produces(MediaType.TEXT_HTML)
 	  public String computeClosure(
 			  @QueryParam("springlesrepositoryID") String springlesrepositoryID,
