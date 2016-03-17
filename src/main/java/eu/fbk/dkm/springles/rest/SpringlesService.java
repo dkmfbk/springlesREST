@@ -73,7 +73,7 @@ import org.openrdf.rio.Rio;
 import org.openrdf.rio.rdfxml.util.RDFXMLPrettyWriter;
 import org.openrdf.rio.trig.TriGParser;
 import org.openrdf.rio.trig.TriGWriter;
-
+import org.openrdf.rio.turtle.TurtleWriter;
 
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
@@ -96,11 +96,11 @@ public class SpringlesService {
 	Request request;
 
 	//String sesameServer = "http://stettler.fbk.eu:50000";
-	 String sesameServer;
+	// String sesameServer;
 	// String sesameServer = "http://localhost:50000";
-     String repositoryID="test-springles-100";;
+    // String repositoryID="test-springles-100";;
 	 //String repositoryID = "trentour-4-12-2013";	
-     Repository myRepository ;
+    // Repository myRepository ;
      public  SpringlesService (){
  		
  		
@@ -111,9 +111,9 @@ public class SpringlesService {
  			
  			//sesameServer = properties.getProperty("sesameServer");
  		//	repositoryID = properties.getProperty("repositoryID");
- 			 sesameServer="http://localhost:8080/openrdf-sesame";
- 			 repositoryID="test-springles-100";
- 		 myRepository = new HTTPRepository(sesameServer, repositoryID);
+ 		//	 sesameServer="http://localhost:8080/openrdf-sesame";
+ 			// repositoryID="test-springles-100";
+ 		 //myRepository = new HTTPRepository(sesameServer, repositoryID);
 
  			
  	//	} catch (IOException e) {
@@ -148,7 +148,8 @@ public class SpringlesService {
 			  @QueryParam("springlesrepositoryID") String springlesrepositoryID,
 			  @QueryParam("springlesserverURL") String springlesserverURL,
 			  @QueryParam("rulesetURI") String rulesetURI,
-			  @QueryParam("springlesrepositorytitle") String springlesrepositorytitle
+			  @QueryParam("springlesrepositorytitle") String springlesrepositorytitle,
+			  @QueryParam("inferencer") String inferencer
 		
 				
 				
@@ -182,6 +183,7 @@ public class SpringlesService {
 				valueMap.put("Repository ID", springlesrepositoryID);
 				valueMap.put("Ruleset", rulesetURI);
 				valueMap.put("Repository title", springlesrepositorytitle);
+				valueMap.put("Inferencer type", inferencer);
 				
 				String configString = ct.render(valueMap);
 				System.out.println(configString);
@@ -216,43 +218,44 @@ public class SpringlesService {
 	  @Path("/export")
 	 
 	  @Produces(MediaType.TEXT_HTML)
-	  public String export()
-		//	  @QueryParam("springlesrepositoryID") String springlesrepositoryID,
-		//	  @QueryParam("springlesserverURL") String springlesserverURL
-		//	  @QueryParam("rulesetURI") String rulesetURI,
-		//	  @QueryParam("springlesrepositorytitle") String springlesrepositorytitle
+	  public String export(
+			  @QueryParam("springlesrepositoryID") String springlesrepositoryID,
+			  @QueryParam("springlesserverURL") String springlesserverURL,
+			  @QueryParam("contextURI") String contextURI,
+			  @QueryParam("exportformat") String exportformat
 		
-				
+				)
 				
 			  //)
 {
 		//  String serverUrl = "http://localhost:8080/openrdf-sesame";
 		  
-		String springlesserverURL = "http://localhost:8080/openrdf-sesame";
+	//	String springlesserverURL = "http://localhost:8080/openrdf-sesame";
 			// String sesameServer;
 			//// String sesameServer = "http://localhost:50000";
-		String      springlesrepositoryID="test-springles-100";;
+//		String      springlesrepositoryID="test-springles-100";;
 		System.out.println(springlesrepositoryID);
 		System.out.println(springlesserverURL);	
 		  
 		  RemoteRepositoryManager manager = new RemoteRepositoryManager(springlesserverURL);
-		  ValueFactory f = myRepository.getValueFactory();
+		 
 		  try {
 			manager.initialize();
 			//String repositoryId = "test-springles-"+ruleset;
 			boolean persist = true;
 			manager.initialize();
 			Repository repository = manager.getRepository(springlesrepositoryID);
+			 ValueFactory f = repository.getValueFactory();
 			RepositoryConnection con = repository.getConnection();
-			String location = "http://dkm.fbk.eu/ckr/meta#global";
-			String baseURI = location;
-			URL url = new URL(location);
-			URI context = f.createURI(location);
+		//	String location = "http://dkm.fbk.eu/ckr/meta#global";
+		///	String baseURI = contextURI;
+		//	URL url = new URL(contextURI);
+			URI context = f.createURI(contextURI);
 
 			RDFHandler rdfxmlWriter = new RDFXMLPrettyWriter(System.out);
 		//	con.export(rdfxmlWriter,context);
 			 con.exportStatements(null, null, null, true, rdfxmlWriter, context);
-		} catch (RepositoryException | RepositoryConfigException | MalformedURLException | RDFHandlerException  e) {
+		} catch (RepositoryException | RepositoryConfigException  | RDFHandlerException  e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -319,15 +322,18 @@ public class SpringlesService {
 			
 			  
 			  RemoteRepositoryManager manager = new RemoteRepositoryManager(springlesserverURL);
-			  ValueFactory f = myRepository.getValueFactory();
+			  
 			 
 				manager.initialize();
 				//String repositoryId = "test-springles-"+ruleset;
 				boolean persist = true;
 				manager.initialize();
 				Repository repository = manager.getRepository(springlesrepositoryID);
+				ValueFactory f = repository.getValueFactory();
 				RepositoryConnection con = repository.getConnection();
-				String context = "http://dkm.fbk.eu/ckr/meta#global";
+				//String context = "http://dkm.fbk.eu/ckr/meta#global";
+				String context = contextURI;
+			
 				//String baseURI = location;
 				//URL url = new URL(location);
 				URI contextURI_ = f.createURI(context);
@@ -340,12 +346,14 @@ public class SpringlesService {
 				Writer writer = new BufferedWriter(new FileWriter(tempFile));
 				RDFHandler rdfxmlWriter = new RDFXMLPrettyWriter(writer);
 				TriGWriter trigWriter= new TriGWriter(writer);
-				
+				TurtleWriter ttlWriter = new TurtleWriter(writer);
 			//	con.export(rdfxmlWriter,context);
 				if(exportformat.equals("trig")){
-				 con.exportStatements(null, null, null, true, trigWriter, contextURI_);
-				}else{
-					 con.exportStatements(null, null, null, true, rdfxmlWriter, contextURI_);
+				 con.exportStatements(null, null, null, persist, trigWriter);
+				}else if(exportformat.equals("ttl")){
+					 con.exportStatements(null, null, null, persist, ttlWriter);
+					}{
+					 con.exportStatements(null, null, null, persist, rdfxmlWriter);
 					
 				}
 				 ResponseBuilder response = Response.ok((Object) tempFile);
@@ -398,11 +406,11 @@ public class SpringlesService {
 	  
 	  
 	  @POST
-	  @Path("/upload")
+	  @Path("/upload_old")
 	  @Consumes(MediaType.MULTIPART_FORM_DATA)
 
 	  @Produces(MediaType.TEXT_HTML)
-	  public String addData(
+	  public String addData_old(
 			  @FormDataParam("springlesrepositoryID") String springlesrepositoryID,
 			  @FormDataParam("springlesserverURL") String springlesserverURL,
 			  @FormDataParam("baseURI") String baseURI,
@@ -429,8 +437,8 @@ TriGParser parser = (TriGParser) Rio.createParser(RDFFormat.TRIG);
  
 // add our own custom RDFHandler to the parser. This handler takes care of adding
 // triples to our repository and doing intermittent commits
-RDFHandler cc=new ChunkCommitter1(con) ;
- parser.setRDFHandler(cc );
+//RDFHandler cc=new ChunkCommitter1(con) ;
+ //parser.setRDFHandler(cc );
 // System.out.println("chunked");
  
 
@@ -515,6 +523,66 @@ con.close();
 		     
 		   
 	  }
+	  
+	  
+	  
+	  
+	  
+	  @POST
+	  @Path("/upload")
+	  @Consumes(MediaType.MULTIPART_FORM_DATA)
+
+	  @Produces(MediaType.TEXT_HTML)
+	  public String addData(
+			  @FormDataParam("springlesrepositoryID") String springlesrepositoryID,
+			  @FormDataParam("springlesserverURL") String springlesserverURL,
+			  @FormDataParam("baseURI") String baseURI,
+			 @FormDataParam("filetoupload") InputStream filetoupload,
+		     @FormDataParam("filetoupload") FormDataContentDisposition fileDetail)
+			   {
+		
+	System.out.println(springlesrepositoryID);
+	System.out.println(springlesserverURL);	  
+	System.out.println(baseURI);	  
+	System.out.println(filetoupload);	 
+		  
+
+	String result ="FAIL";
+	
+	
+	//String baseURI = "http://example.org/example/local";	
+
+	
+	
+RemoteRepositoryManager manager = new RemoteRepositoryManager(springlesserverURL);
+	  
+String repositoryId = springlesrepositoryID;
+
+try {
+	manager.initialize();
+
+	Repository repository = manager.getRepository(repositoryId);
+	RepositoryConnection con = repository.getConnection();
+
+    con.add(filetoupload, baseURI, RDFFormat.TRIG);
+	//con.add(file, baseURI, RDFFormat.TRIG);
+	result="200 OK";
+
+
+
+
+} catch (RepositoryException | RepositoryConfigException | RDFParseException | IOException e) {
+	// TODO Auto-generated catch block
+	e.printStackTrace();
+}
+
+  
+	  return result;
+			   }
+	  
+	  
+	  
+	  
 	  @GET
 	  @Path("/computeclosure2")
 	  @Produces(MediaType.APPLICATION_JSON)
@@ -549,6 +617,7 @@ con.close();
 	  					Update insert = con.prepareUpdate(QueryLanguage.SPARQL,
 	  							queryString);
 	  					insert.execute();
+	  					insert.clearBindings();
 	  					 con.commit();
 	  					// con.close();
 	  					 result="200 OK";
@@ -588,7 +657,7 @@ con.close();
 
 		  
 		  String result="Fail";
-			myRepository = new HTTPRepository(springlesserverURL, springlesrepositoryID);
+	Repository		myRepository = new HTTPRepository(springlesserverURL, springlesrepositoryID);
 			try {
 				myRepository.initialize();
 			
@@ -602,13 +671,16 @@ con.close();
 				System.out.println(" Computo inferenze........");     
 	  			
 	  			String queryString = "clear graph <springles:update-closure>";
-	  				
+	  				//if (!con.isActive()){
+	  					con.begin();
+	  				//}
 	  				//	conn.prepareUpdate(QueryLanguage.SPARQL, updateQuery);
 	  					Update insert = con.prepareUpdate(QueryLanguage.SPARQL,
 	  							queryString);
 	  					long startTime = System.currentTimeMillis();
 	  					insert.execute();
 	  					 con.commit();
+	  					 
 	  				//	 con.close();
 	  					 result="200 OK";
 	  					long estimatedTime = System.currentTimeMillis() - startTime;
@@ -627,7 +699,7 @@ con.close();
 						                     .longValue();
 				//	logger.info("Number of total statement= "+number);
 					System.out.println("Number of total statement= "+numberOfTotalStatements);
-								
+								con.close();
 								} finally {
 			  						con.close();
 
@@ -669,7 +741,7 @@ con.close();
 	  	
 	  	  
 	  	try {
-	  		myRepository = new HTTPRepository(springlesserverURL, springlesrepositoryID);
+	  	Repository	myRepository = new HTTPRepository(springlesserverURL, springlesrepositoryID);
 	  		myRepository.initialize();
 	  		RepositoryConnection con = myRepository.getConnection();
 
@@ -724,7 +796,7 @@ con.close();
 				List<BindingSet> tuples = new ArrayList<BindingSet>();
 				String result="";
 				try {
-					myRepository = new HTTPRepository(springlesserverURL, springlesrepositoryID);
+			Repository		myRepository = new HTTPRepository(springlesserverURL, springlesrepositoryID);
 					myRepository.initialize();
 			  		RepositoryConnection connection = myRepository.getConnection();
 				//	RepositoryConnection connection = repo.getConnection();

@@ -8,10 +8,12 @@ $(function() {
 		var springlesserverURL= oElements["springlesserverURL"];
 		var springlesrepositoryID=oElements["springlesrepositoryID"];
 		var springlesrepositorytitle=oElements["springlesrepositorytitle"];
+		var inferencer=oElements["inferencer"];
 		
 		var url_=oElements["restURL"]+"create";
 	    var rulesetURI=escape(oElements["rulesetURI"]);
-		var dataSend ="springlesrepositoryID=" +springlesrepositoryID+"&springlesrepositorytitle="+springlesrepositorytitle+"&springlesserverURL="+springlesserverURL+"&rulesetURI="+rulesetURI;
+		var dataSend ="springlesrepositoryID=" +springlesrepositoryID+"&springlesrepositorytitle="+springlesrepositorytitle+
+		"&springlesserverURL="+springlesserverURL+"&rulesetURI="+rulesetURI+"&inferencer="+inferencer;
 		
 		e.preventDefault();
 		$("#request").empty();
