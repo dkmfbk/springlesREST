@@ -1,24 +1,26 @@
 $(function() {	
-	$("#form10").submit(function(e) {
+	$("#form14").submit(function(e) {
 		//var queryType = "curatorsources";
 		var oElements = {};
-		$('#form10 [id]').each(function(){
-		    oElements[this.id] = this.value;
+		 var filetoupload="";
+		$('#form14 [id]').each(function(){
+		    oElements[this.id] = this.value;    
 		});
-		var springleserverURL= oElements["springlesserverURL"];
+		var springlesserverURL= oElements["springlesserverURL"];
 		var springlesrepositoryID=oElements["springlesrepositoryID"];
-		var url_=oElements["restURL"]+"querysparql";
-	   var querySPARQL=oElements["querySPARQL"];
-        var includeinferred = $("#form10 #includeinferred:checked").length;
+		var url_=oElements["restURL"]+"computeclosure";
 
-		var dataSend ="repositoryID=" +springlesrepositoryID+"&serverURL="+springleserverURL+"&querySPARQL="+querySPARQL+"&includeinferred="+includeinferred ;
+	
+	    var documentData = new FormData();
+	    documentData.append("springlesrepositoryID",springlesrepositoryID);
+	    documentData.append("springlesserverURL",springlesserverURL);
+		var dataSend ="springlesrepositoryID=" +springlesrepositoryID+"&springlesserverURL="+springlesserverURL;
 		
-		e.preventDefault();
+	   e.preventDefault();
 		$("#request").empty();
 		$("#result").empty();
 		$('#request').html("<span>GET " + url_ + "</span><br />" + library.json.prettyPrint(dataSend));
 		dataSend.fieldValueJsonString = JSON.stringify(oElements);
- //  alert(url_+dataSend.processID);
 		$.ajax({
 			url : url_ , 
 			data : dataSend, 

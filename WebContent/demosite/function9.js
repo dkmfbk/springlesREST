@@ -8,8 +8,8 @@ $(function() {
 		var springleserverURL= oElements["springlesserverURL"];
 		var springlesrepositoryID=oElements["springlesrepositoryID"];
 		var url_=oElements["restURL"]+"nstatements";
-	
-		var dataSend ="repositoryID=" +springlesrepositoryID+"&serverURL="+springleserverURL;
+	   var includeinferred = $("#form9 #includeinferred:checked").length;
+		var dataSend ="repositoryID=" +springlesrepositoryID+"&serverURL="+springleserverURL + "&includeinferred="+includeinferred;
 		
 		e.preventDefault();
 		$("#request").empty();
