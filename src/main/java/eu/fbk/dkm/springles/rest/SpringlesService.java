@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -30,8 +31,11 @@ import org.apache.commons.io.IOUtils;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Model;
+import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.impl.URIImpl;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.query.BindingSet;
@@ -45,6 +49,7 @@ import org.openrdf.query.UpdateExecutionException;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.config.ConfigTemplate;
 import org.openrdf.repository.config.RepositoryConfig;
 import org.openrdf.repository.config.RepositoryConfigException;
@@ -57,7 +62,6 @@ import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.Rio;
 import org.openrdf.rio.rdfxml.util.RDFXMLPrettyWriter;
-import org.openrdf.rio.trig.TriGParser;
 import org.openrdf.rio.trig.TriGWriter;
 import org.openrdf.rio.turtle.TurtleWriter;
 
@@ -295,141 +299,7 @@ public class SpringlesService {
 	    	  
 	 }
 	      
-	  
-	  
-	  
-	  
-	  
-	  
-	  
-	  
-	  
-	  
-	  
-	  
-	  @POST
-	  @Path("/upload_old")
-	  @Consumes(MediaType.MULTIPART_FORM_DATA)
 
-	  @Produces(MediaType.TEXT_HTML)
-	  public String addData_old(
-			  @FormDataParam("springlesrepositoryID") String springlesrepositoryID,
-			  @FormDataParam("springlesserverURL") String springlesserverURL,
-			  @FormDataParam("baseURI") String baseURI,
-			 @FormDataParam("filetoupload") InputStream filetoupload,
-		     @FormDataParam("filetoupload") FormDataContentDisposition fileDetail)
-			   {
-		
-	System.out.println(springlesrepositoryID);
-	System.out.println(springlesserverURL);	  
-	System.out.println(baseURI);	  
-	System.out.println(filetoupload);	 
-		  
-		  
-RemoteRepositoryManager manager = new RemoteRepositoryManager(springlesserverURL);
-		  
-String repositoryId = springlesrepositoryID;
-try{
-
-manager.initialize();
-Repository repository = manager.getRepository(repositoryId);
-RepositoryConnection con = repository.getConnection();
-
-TriGParser parser = (TriGParser) Rio.createParser(RDFFormat.TRIG);
- 
-// add our own custom RDFHandler to the parser. This handler takes care of adding
-// triples to our repository and doing intermittent commits
-//RDFHandler cc=new ChunkCommitter1(con) ;
- //parser.setRDFHandler(cc );
-// System.out.println("chunked");
- 
-
-try {
-    parser.parse(filetoupload,"file://"+ baseURI);
-    System.out.println("parsed");
-    con.commit();
-} catch (IOException e) {
-	// TODO Auto-generated catch block
-	e.printStackTrace();
-}
-finally {
-    con.close();
-
-}
-
-
-
-
-
-
-
-try {
-	
-
-ValueFactory f = repository.getValueFactory();
-
-// create some resources and literals to make statements out of
-//URI alice = f.createURI("http://example.org/people/alice");
-//URI bob = f.createURI("http://example.org/people/bob");
-//URI name = f.createURI("http://example.org/ontology/name");
-//URI person = f.createURI("http://example.org/ontology/Person");
-//Literal bobsName = f.createLiteral("Bob");
-//Literal alicesName = f.createLiteral("Alice");
-
-try {
-  // RepositoryConnection con = myRepository.getConnection();
-
-   try {
-      // alice is a person
- //     con.add(alice, RDF.TYPE, person);
-      // alice's name is "Alice"
-  //    con.add(alice, name, alicesName);
-
-      // bob is a person
-  //    con.add(bob, RDF.TYPE, person);
-      // bob's name is "Bob"
-   //   con.add(bob, name, bobsName);
-   }
-   finally {
-      con.close();
-   }
-}
-catch (OpenRDFException e) {
-   // handle exception
-}
-	
-   
-    //  con.add(file, baseURI, RDFFormat.TRIG);
-//      URL url = new URL("http://example.org/example/remote.rdf");
- //     con.add(url, url.toString(), RDFFormat.RDFXML);
-    //  URL url = new URL("http://example.org/example/remote.rdf");
-      //con.add(url, url.toString(), RDFFormat.RDFXML);
-
-}finally{
-	
-con.close();	
-}   
-
-}catch (OpenRDFException e) {
-   // handle exception
-
-}
-	  
-	    return "<html> " + "<title>" + "Hello Jersey" + "</title>"
-	        + "<body><h1>" + "Hello Jersey" + "</body></h1>" + "</html> ";
-	 
-
-  
-	  
-
-		     
-		   
-	  }
-	  
-	  
-	  
-	  
-	  
 	  @POST
 	  @Path("/upload")
 	  @Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -485,69 +355,7 @@ con.close();
 	  
 	  
 	  
-	  @GET
-	  @Path("/computeclosure2")
-	  @Produces(MediaType.APPLICATION_JSON)
-	  public String computeClosure2(
-			  
-			  @QueryParam("springlesrepositoryID") String springlesrepositoryID,
-			  @QueryParam("springlesserverURL") String springlesserverURL
-			  
-			  
-			  ) {
-
-	  	String result = "FAIL";
-	  	
-	  	  
-	  	try {
-	  		
-	  	Repository	myRepository2 = new HTTPRepository(springlesserverURL, springlesrepositoryID);
-	  		myRepository2.initialize();
-	  		RepositoryConnection con = myRepository2.getConnection();
-
-	  		// result= result+""+con.size();
-	  		try {
-	  			System.out.println(springlesrepositoryID);
-		  		System.out.println(springlesserverURL);	
-		  			
-		  			long numberOfStatements= con.size();
-					System.out.println(" Computo inferenze........");   
-	  			String queryString = "clear graph <springles:update-closure>";
-	  			
-	  			//	con.begin();
-	  				//	conn.prepareUpdate(QueryLanguage.SPARQL, updateQuery);
-	  					Update insert = con.prepareUpdate(QueryLanguage.SPARQL,
-	  							queryString);
-	  					insert.execute();
-	  					insert.clearBindings();
-	  					 con.commit();
-	  					// con.close();
-	  					 result="200 OK";
-	  					// tupleQuery.setIncludeInferred(true);
-	  					//TupleQueryResult qresult = tupleQuery.evaluate();
-	  					try {
-	  						
-
-	  					} finally {
-	  						//qresult.close();
-
-	  					}
-	  					
-	  		
-	  		} finally {
-	  			con.close();
-
-	  		}
-
-	  	} catch (OpenRDFException e) {
-	  		// TODO Auto-generated catch block
-	  		e.printStackTrace();
-	  	}
-
-	  	
-	  	return result;
-	  }
-
+	  
 	  @GET
 	  @Path("/computeclosure")
 	  @Produces(MediaType.TEXT_HTML)
@@ -622,6 +430,181 @@ con.close();
 	  }	  
 
 	  	  
+	  
+	  @GET
+	  @Path("/clear")
+	  @Produces(MediaType.TEXT_HTML)
+	  public String clear(
+			  @QueryParam("springlesrepositoryID") String springlesrepositoryID,
+			  @QueryParam("springlesserverURL") String springlesserverURL,
+			  @QueryParam("includenotinferred") int includenotinferred)
+	  {
+
+		  
+		  String result="Fail";
+		  Repository	myRepository = new HTTPRepository(springlesserverURL, springlesrepositoryID);
+		  try {
+				myRepository.initialize();
+				RepositoryConnection con = myRepository.getConnection();	  	
+		  		System.out.println(springlesrepositoryID);
+		  		System.out.println(springlesserverURL);	
+		  		System.out.println(includenotinferred);
+	  			long numberOfStatements= con.size(); 
+	  			
+	  			String queryString = "clear graph <springles:clear-closure>";
+	  			con.begin();
+	  			Update insert = con.prepareUpdate(QueryLanguage.SPARQL,
+	  							queryString);
+	  			long startTime = System.currentTimeMillis();
+	  			insert.execute();
+	  			con.commit();
+	  			result="200 OK";
+	  				
+				
+	  			
+	  			if(includenotinferred == 1){
+	  				 con.begin();
+	  				startTime = System.currentTimeMillis();
+	  				RepositoryResult<Statement> st =  con.getStatements(null, null, null, true);
+	  				Model mod  = Iterations.addAll(st, new LinkedHashModel());
+	  				con.remove(mod);
+  					con.commit();
+  					result="200 OK";
+	  			}
+	  			
+	  			long estimatedTime = System.currentTimeMillis() - startTime;
+	  			System.out.println("elapsed time in millisecondi= "+estimatedTime);
+				System.out.println("Number of statement= "+numberOfStatements);
+	  			try {
+					 final TupleQuery query =
+					 con.prepareTupleQuery(QueryLanguage.SPARQL,
+					                     "SELECT (COUNT(*) AS ?n) WHERE { ?s ?p ?o }");
+					 query.setIncludeInferred(true);
+					 long numberOfTotalStatements= ((Literal) Iterations.asList(query.evaluate()).get(0).getValue("n"))
+						                     .longValue();
+				
+					System.out.println("Number of total statement= "+numberOfTotalStatements);
+					con.close();
+				} finally {
+			  		con.close();
+
+			  	}
+			
+		
+			} catch (RepositoryException | MalformedQueryException |QueryEvaluationException | UpdateExecutionException e) {
+					// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	  
+
+	  	
+	  		return result;
+	  }	 
+	  
+	  
+	  
+	  @GET
+	  @Path("/delete")
+	  @Produces(MediaType.TEXT_HTML)
+	  public String delete(
+			  @QueryParam("springlesrepositoryID") String springlesrepositoryID,
+			  @QueryParam("springlesserverURL") String springlesserverURL) 
+	  {
+
+		  
+		  String result="Fail";
+		  Repository	myRepository = new HTTPRepository(springlesserverURL, springlesrepositoryID);
+		  File dataRepo = myRepository.getDataDir();
+		  RemoteRepositoryManager manager = new RemoteRepositoryManager(springlesserverURL);
+		  try {
+			manager.initialize();
+			manager.removeRepository(springlesrepositoryID);
+			
+		}catch (RepositoryException | RepositoryConfigException e) {
+		
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally{
+			System.out.println("Repository deleted!");
+			result = "200 OK";
+		}
+		  
+		   
+	  	  return result;
+	  }	 
+	  
+	  @GET
+	  @Path("/contexts")
+	  @Produces(MediaType.TEXT_HTML)
+	  public String contexts(
+			  @QueryParam("springlesrepositoryID") String springlesrepositoryID,
+			  @QueryParam("springlesserverURL") String springlesserverURL,
+			  @QueryParam("includeinferred") int includeinferred) 
+	  {
+
+		  
+		  String result="Fail";
+		  Repository	myRepository = new HTTPRepository(springlesserverURL, springlesrepositoryID);
+		  Set<Resource> ct = null;
+		  try {
+			myRepository.initialize();
+			RepositoryConnection con = myRepository.getConnection();
+			RepositoryResult<Statement> st = con.getStatements(null, null, null, includeinferred == 1 ? true:false);
+			Model mod = Iterations.addAll(st, new LinkedHashModel());
+			ct = mod.contexts();
+			
+		} catch (RepositoryException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally{
+			result = "\n";
+			for(Resource r:ct){
+				result += r.toString() + "\n";
+			}
+		}
+		  
+		   
+	  	  return result;
+	  }	 
+	  
+	  
+	  
+	  @GET
+	  @Path("/types")
+	  @Produces(MediaType.TEXT_HTML)
+	  public String types(
+			  @QueryParam("springlesrepositoryID") String springlesrepositoryID,
+			  @QueryParam("springlesserverURL") String springlesserverURL,
+			  @QueryParam("includeinferred") int includeinferred) 
+	  {
+
+		  
+		  String result="Fail";
+		  Repository	myRepository = new HTTPRepository(springlesserverURL, springlesrepositoryID);
+		  Set<Resource> ct = null;
+		  try {
+			myRepository.initialize();
+			RepositoryConnection con = myRepository.getConnection();
+			RepositoryResult<Statement> st = con.getStatements(null, null, null, includeinferred == 1 ? true:false);
+			Model mod = Iterations.addAll(st, new LinkedHashModel());
+			ct = mod.contexts();
+			
+		} catch (RepositoryException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally{
+			result = "\n";
+			for(Resource r:ct){
+				result += r.toString() + "\n";
+			}
+		}
+		  
+		   
+	  	  return result;
+	  }	 
+	  
+	  
+	  
 	  
 	  
 	  

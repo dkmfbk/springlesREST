@@ -22,13 +22,7 @@ $(function() {
 	    documentData.append("springlesserverURL",springlesserverURL);
 	    documentData.append("baseURI",fileURI);
 	   documentData.append("filetoupload",$('input#filetoupload')[0].files[0]);
-	 //   alert(url_);
-	//	e.preventDefault();
-	//	$("#request").empty();
-	//	$("#result").empty();
-	//	$('#request').html("<span>POST " + url_ + "</span><br />" + library.json.prettyPrint(documentData));
-	//	$("#request").html("<span>POST " + url_ + "</span><br />" );
-		//dataSend.fieldValueJsonString = JSON.stringify(oElements);
+	 
  
 		$.ajax({
 			url : url_ , 
