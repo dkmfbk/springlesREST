@@ -1,26 +1,23 @@
+var repoID;
+var restURL = "http://localhost:8080/SpringlesREST/rest/rest/";
+var serverURL = "";
 $(function() {	
-	$("#form16").submit(function(e) {
+	$("#loadRepo").on("click",function() {
 		//var queryType = "curatorsources";
 		var oElements = {};
 		 var filetoupload="";
-		$('#form16 [id]').each(function(){
-		    oElements[this.id] = this.value;    
-		});
+		
 		var springlesserverURL= $("#form18 #springlesserverURL").val();
-		var springlesrepositoryID= $("#form16 .springlesrepositoryID").val();
-		var url_=restURL+"delete";
+		var url_=restURL+"getRepositories";
 
 	
 	    var documentData = new FormData();
-	    documentData.append("springlesrepositoryID",springlesrepositoryID);
 	    documentData.append("springlesserverURL",springlesserverURL);
-		var dataSend ="springlesrepositoryID=" +springlesrepositoryID+"&springlesserverURL="+springlesserverURL ;
-		
-	   e.preventDefault();
-		$("#request").empty();
+		var dataSend ="springlesserverURL="+springlesserverURL ;
+		serverURL = $("#form18 #springlesserverURL").val();
+
 		$("#result").empty();
-		$('#request').html("<span>GET " + url_ + "</span><br />" + library.json.prettyPrint(dataSend));
-		dataSend.fieldValueJsonString = JSON.stringify(oElements);
+
 		$.ajax({
 			url : url_ , 
 			data : dataSend, 
@@ -31,8 +28,14 @@ $(function() {
 		}).done(function(data, textStatus, jqXHR) {			
 			//var print = eval("(" + data + ')'); 
 			$("#result").empty();
-			$('#result').html( data);
-            $("#loadRepo").click();
+			$('#repoChoice').html(data);
+            $(".springlesrepositoryID").each(function(){
+                $(this).html(data);
+            });
+            $(".hide-repo").each(function(){
+                    $(this).show();
+                });
+            $("#summaryPanel").click();
 		}).fail(function(jqXHR, textStatus, errorThrown) { 
 			$("#result").empty();
 			$('#result').html("<span> " + jqXHR.status + " " + jqXHR.responseText + "</span><br />");

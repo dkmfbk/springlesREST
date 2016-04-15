@@ -7,15 +7,15 @@ $(function() {
 		    oElements[this.id] = this.value;    
 		});
 		var springlesserverURL= oElements["springlesserverURL"];
-		var springlesrepositoryID=oElements["springlesrepositoryID"];
-		var url_=oElements["restURL"]+"contexts";
+		var springlesrepositoryID=$("#repoChoice").val();
+		var url_=restURL+"contexts";
         var includeinferred = $("#form17 #includeinferred:checked").length;
 
 	
 	    var documentData = new FormData();
 	    documentData.append("springlesrepositoryID",springlesrepositoryID);
-	    documentData.append("springlesserverURL",springlesserverURL);
-		var dataSend ="springlesrepositoryID=" +springlesrepositoryID+"&springlesserverURL="+springlesserverURL +"&includeinferred="+ includeinferred  ;
+	    documentData.append("springlesserverURL",serverURL);
+		var dataSend ="springlesrepositoryID=" +springlesrepositoryID+"&springlesserverURL="+serverURL +"&includeinferred="+ includeinferred  ;
 		
 	   e.preventDefault();
 		$("#request").empty();
@@ -26,13 +26,14 @@ $(function() {
 			url : url_ , 
 			data : dataSend, 
       contentType: "application/json; charset=utf-8",
-      dataType: "json",
+      dataType: "html",
 			type : "GET"
 		
 		}).done(function(data, textStatus, jqXHR) {			
 			//var print = eval("(" + data + ')'); 
 			$("#result").empty();
-			$('#result').html("<span> " + jqXHR.status + " " + jqXHR.statusText + "</span><br />" + library.json.prettyPrint(data));
+			$('#result').html(data);
+            defineClickListerner();
 		}).fail(function(jqXHR, textStatus, errorThrown) { 
 			$("#result").empty();
 			$('#result').html("<span> " + jqXHR.status + " " + jqXHR.responseText + "</span><br />");

@@ -17,6 +17,9 @@
 .json-string {
 	color: olive;
 }
+.graph, .obj, .pred, .subj{
+    cursor: pointer;
+}
 </style>
 
 </head>
@@ -35,265 +38,128 @@
 	
 	
 		<div class="col-md-4">
-		
-	
+		        
+	       <div class="panel-body" >
+                            <form id="form18" role="form" method="GET">				
+                                <div class="form-group">
+                                    <label style="padding-top: 20px" for="springlesserverURL">Springles Server URL</label>
+                                    <input type="text" class="form-control" value="http://localhost:8080/openrdf-sesame" id="springlesserverURL" >
+                                    <label style="padding-top: 20px" for="repoChoice">Select Repositories</label>
+									<select id="repoChoice" class="springlesrepositoryID form-control">
+									</select> 
+                                    
+                                  </div>		
+                                    <button id="loadRepo" type="button" class="btn btn-default btn-primary">Load Repositories</button>
+                            </form>
+
+                        </div>
 			<div class="panel-group" id="accordion">
-	
-	
+	           
+	            <div class="panel panel-default hide-repo" id="summaryPanel" style="display:none;">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a  href="#collapse18" >Summary</a>
+                        </h4>
+                    </div>
+                    
+                </div>
 		
 				<div class="panel panel-default">
 					<div class="panel-heading">
 						<h4 class="panel-title">
-							<a data-toggle="collapse" data-parent="#accordion" href="#collapse11"> Create Repository</a>
+							<a  href="#collapse11"> Create Repository</a>
 						</h4>
 					</div>
-					<div id="collapse11" class="panel-collapse collapse">
-						<div class="panel-body">
-						
-							<form id="form11" role="form" method="GET">
-				
-								<div class="form-group">	
-			                        <label style="padding-top: 20px" for="springlesrepositoryID">Springles Repository ID</label>
-                                    <input type="text" class="form-control" value="test-springles-5" id="springlesrepositoryID" >
-	    	                        <label style="padding-top: 20px" for="springlesrepositorytitle">Springles Repository TITLE</label>
-				                    <input type="text" class="form-control" value="test-springles-5" id="springlesrepositorytitle" >
-	     		                    <label style="padding-top: 20px" for="springlesserverURL">Springles Server URL</label>
-                                    <input type="text" class="form-control" value="http://localhost:8080/openrdf-sesame" id="springlesserverURL" >
-                                    <label style="padding-top: 20px" for="restURL">REST Server URL</label>
-                                    <input type="text" class="form-control" value="http://localhost:8080/SpringlesREST/rest/rest/" id="restURL" >
-                                    <label style="padding-top: 20px" for="rulesetURI">rulesetURI</label>
-                                    <input type="text" class="form-control" value="ckr:toolisse-ruleset" id="rulesetURI" >
-				    	            <label style="padding-top: 20px" for="inferencer">Inferencer</label>
-                                    <input type="text" class="form-control" value="NaiveInferencer" id="inferencer" >		
-                                    <p class="help-block"></p>	
-                                </div>		
-                                <button type="submit" class="btn btn-default btn-primary">Submit</button>
-                            </form>
-
-                        </div>
-					</div>
+					
 				</div>	
 					
 
-                <div class="panel panel-default">
+                <div class="panel panel-default  hide-repo"  style="display:none;">
                     <div class="panel-heading">
                         <h4 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse16">Delete Repository</a>
+                            <a  href="#collapse16 ">Delete Repository</a>
                         </h4>
                     </div>
-                    <div id="collapse16" class="panel-collapse collapse">
-                        <div class="panel-body">
-                            <form id="form16" role="form" method="GET">				
-                                <div class="form-group">		
-                                     <label style="padding-top: 20px" for="springlesrepositoryID">Springles Repository ID</label>						
-                                    <input type="text" class="form-control" value="test-springles-5" id="springlesrepositoryID" >
-                                    <label style="padding-top: 20px" for="springlesserverURL">Springles Server URL</label>
-                                    <input type="text" class="form-control" value="http://localhost:8080/openrdf-sesame" id="springlesserverURL" >
-                                    <label style="padding-top: 20px" for="restURL">REST Server URL</label>
-                                    <input type="text" class="form-control" value="http://localhost:8080/SpringlesREST/rest/rest/" id="restURL" >
-                                  </div>		
-                                <button type="submit" class="btn btn-default btn-primary">Submit</button>
-                            </form>
-
-                        </div>
-                    </div>
+                    
                 </div>	
 
 
-			<div class="panel panel-default">
+			<div class="panel panel-default hide-repo" style="display:none;">
 					<div class="panel-heading">
 						<h4 class="panel-title">
-							<a data-toggle="collapse" data-parent="#accordion" href="#collapse12">Upload RDF</a>
+							<a href="#collapse12" >Upload RDF</a>
 						</h4>
 					</div>
-					<div id="collapse12" class="panel-collapse collapse">
-						<div class="panel-body">
-							<form id="form12" role="form" method="GET"  enctype="multipart/form-data">
-				
-							     <div class="form-group">	
-                                    <label style="padding-top: 20px" for="springlesrepositoryID">Springles Repository ID</label>
-
-                                    <input type="text" class="form-control" value="test-springles-100" id="springlesrepositoryID" >
-                                    <label style="padding-top: 20px" for="springlesserverURL">Springles Server URL</label>
-                                    <input type="text" class="form-control" value="http://localhost:8080/openrdf-sesame" id="springlesserverURL" >
-                                    <label style="padding-top: 20px" for="restURL">REST Server URL</label>
-                                    <input type="text" class="form-control" value="http://localhost:8080/SpringlesREST/rest/rest/" id="restURL" >
-                                    <label style="padding-top: 20px" for="fileURI">fileURI</label>
-                                    <input type="text" class="form-control" value="abcd" id="fileURI" >
-                                    <label style="padding-top: 20px" for="filetoupload">filetoupload</label>
-                                    <input type="file" class="form-control" value="toolisse-kb-test-with-synonyms-finale-nolocation.trig" id="filetoupload" >		
-                                    <p class="help-block">toolisse-kb-test-with-synonyms-finale-nolocation.trig</p>	
-                                </div>		
-                                <button type="submit" class="btn btn-default btn-primary">Submit</button>
-                            </form>
-
-                        </div>
-                    </div>
+					
                 </div>	
 
-                <div class="panel panel-default">
+                <div class="panel panel-default hide-repo" style="display:none;">
                     <div class="panel-heading">
                         <h4 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse17">Graphs</a>
+                            <a href="#collapse17" >Graphs</a>
                         </h4>
                     </div>
-                    <div id="collapse17" class="panel-collapse collapse">
-                        <div class="panel-body">
-                            <form id="form17" role="form" method="GET">				
-                                <div class="form-group">		
-                                     <label style="padding-top: 20px" for="springlesrepositoryID">Springles Repository ID</label>						
-                                    <input type="text" class="form-control" value="RDFPro" id="springlesrepositoryID" >
-                                    <label style="padding-top: 20px" for="springlesserverURL">Springles Server URL</label>
-                                    <input type="text" class="form-control" value="http://localhost:8080/openrdf-sesame" id="springlesserverURL" >
-                                    <label style="padding-top: 20px" for="restURL">REST Server URL</label>
-                                    <input type="text" class="form-control" value="http://localhost:8080/SpringlesREST/rest/rest/" id="restURL" >
-                                    <label style="padding-top: 20px" for="includeinferred">
-                                        <input type="checkbox" style="background-color: #fff;background-image: none;border: 1px solid #ccc;" id="includeinferred" value="Includi contexts inferiti" checked></input>
-                                        Include inferred graphs
-                                    </label>
-                                  </div>		
-                                <button type="submit" class="btn btn-default btn-primary">Submit</button>
-                            </form>
-                            
-                        </div>
-                    </div>
+                    
                 </div>	
 
                 
                 
-                <div class="panel panel-default">
+                <div class="panel panel-default hide-repo" style="display:none;">
                     <div class="panel-heading">
                         <h4 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse13">Full Export</a>
+                            <a href="#collapse13"  >Full Export</a>
                         </h4>
                     </div>
-                    <div id="collapse13" class="panel-collapse collapse">
-                        <div class="panel-body">
-                            <form id="form13" role="form" method="GET"  enctype="multipart/form-data">
-                                <div class="form-group">	
-			                         <label style="padding-top: 20px" for="springlesrepositoryID">Springles Repository ID</label>
-                                    <input type="text" class="form-control" value="test-springles-100" id="springlesrepositoryID" >
-                                    <label style="padding-top: 20px" for="springlesserverURL">Springles Server URL</label>
-                                    <input type="text" class="form-control" value="http://localhost:8080/openrdf-sesame" id="springlesserverURL" >
-                                    <label style="padding-top: 20px" for="restURL">REST Server URL</label>
-                                    <input type="text" class="form-control" value="http://localhost:8080/SpringlesREST/rest/rest/" id="restURL" >
-                                    <label style="padding-top: 20px" for="contextURI">ContextURI</label>
-                                    <input type="text" class="form-control" value="http://dkm.fbk.eu/ckr/meta#global" id="contextURI" >
-                                    <label style="padding-top: 20px" for="exportformat">Export Format</label>
-                                    <input type="text" class="form-control" value="trig" id="exportformat" >
-                                    <p class="help-block">trig,xml</p>	
-                                    <label style="padding-top: 20px" for="includeinferred">
-                                        <input type="checkbox" style="background-color: #fff;background-image: none;border: 1px solid #ccc;" id="includeinferred" value="Includi statements inferiti" checked></input>
-                                        Include inferred statements
-                                    </label>
-                                </div>		
-                                <button type="submit" class="btn btn-default btn-primary">Submit</button>
-                            </form> 
-                        </div>
-                    </div>
+                    
                 </div>	
 
 
-                 <div class="panel panel-default">
+                 <div class="panel panel-default hide-repo" style="display:none;" id="closurePanel">
                      <div class="panel-heading">
                         <h4 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse14"> Compute Closure</a>
+                            <a href="#collapse14" >Compute Closure</a>
                         </h4>
                     </div>
-                    <div id="collapse14" class="panel-collapse collapse">
-                        <div class="panel-body">
-                            <form id="form14" role="form" method="GET">
-                                <div class="form-group">		
-                                    <label style="padding-top: 20px" for="springlesrepositoryID">Springles Repository ID</label>		
-                                    <input type="text" class="form-control" value="test-springles-5" id="springlesrepositoryID" >
-                                    <label style="padding-top: 20px" for="springlesserverURL">Springles Server URL</label>
-                                    <input type="text" class="form-control" value="http://localhost:8080/openrdf-sesame" id="springlesserverURL" >
-                                    <label style="padding-top: 20px" for="restURL">REST Server URL</label>
-                                    <input type="text" class="form-control" value="http://localhost:8080/SpringlesREST/rest/rest/" id="restURL" >
-                              </div>		
-                                    <button type="submit" class="btn btn-default btn-primary">Submit</button>
-                            </form>
-
-                        </div>
-                    </div>
+                   
                 </div>	
 
 
 
-                <div class="panel panel-default">
+                <div class="panel panel-default hide-repo" style="display:none;">
                     <div class="panel-heading">
                         <h4 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse15">Clear Statements</a>
+                            <a href="#collapse15" >Clear Statements</a>
                         </h4>
                     </div>
-                    <div id="collapse15" class="panel-collapse collapse">
-                        <div class="panel-body">
-                            <form id="form15" role="form" method="GET"  enctype="multipart/form-data">
-                                <div class="form-group">	
-			                         <label style="padding-top: 20px" for="springlesrepositoryID">Springles Repository ID</label>
-                                    <input type="text" class="form-control" value="test-springles-100" id="springlesrepositoryID" >
-                                    <label style="padding-top: 20px" for="springlesserverURL">Springles Server URL</label>
-                                    <input type="text" class="form-control" value="http://localhost:8080/openrdf-sesame" id="springlesserverURL" >
-                                    <label style="padding-top: 20px" for="restURL">REST Server URL</label>
-                                    <input type="text" class="form-control" value="http://localhost:8080/SpringlesREST/rest/rest/" id="restURL" >
-                                    <label style="padding-top: 20px" for="includeinferred">
-                                        <input type="checkbox" style="background-color: #fff;background-image: none;border: 1px solid #ccc;" id="includenotinferred" ></input>
-                                        Delete also not-inferred statements
-                                    </label>
-                                </div>		
-                                <button type="submit" class="btn btn-default btn-primary">Submit</button>
-                            </form> 
-                        </div>
-                    </div>
+                    
                 </div>	
 
 
 
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h4 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse9"> Get Number of Statements</a>
-                        </h4>
-                    </div>
-                    <div id="collapse9" class="panel-collapse collapse">
-                        <div class="panel-body">
-                            <form id="form9" role="form" method="GET">				
-                                <div class="form-group">		
-                                     <label style="padding-top: 20px" for="springlesrepositoryID">Springles Repository ID</label>						
-                                    <input type="text" class="form-control" value="test-springles-5" id="springlesrepositoryID" >
-                                    <label style="padding-top: 20px" for="springlesserverURL">Springles Server URL</label>
-                                    <input type="text" class="form-control" value="http://localhost:8080/openrdf-sesame" id="springlesserverURL" >
-                                    <label style="padding-top: 20px" for="restURL">REST Server URL</label>
-                                    <input type="text" class="form-control" value="http://localhost:8080/SpringlesREST/rest/rest/" id="restURL" >
-                                    <label style="padding-top: 20px" for="includeinferred">
-                                        <input type="checkbox" style="background-color: #fff;background-image: none;border: 1px solid #ccc;" id="includeinferred" value="Includi statements inferiti" checked></input>
-                                        Include inferred statements
-                                    </label>
-                                  </div>		
-                                <button type="submit" class="btn btn-default btn-primary">Submit</button>
-                            </form>
-
-                        </div>
-                    </div>
-                </div>	
 				
 			
-                <div class="panel panel-default">
+                <div class="panel panel-default hide-repo" style="display:none;">
                     <div class="panel-heading">
                         <h4 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse10">Query SPARQL</a>
+                            <a href="#collapse10">Query SPARQL</a>
                         </h4>
                     </div>
-                    <div id="collapse10" class="panel-collapse collapse">
+                    
+                </div>	
+			 
+
+            <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse19">Ruleset</a>
+                        </h4>
+                    </div>
+                    <div id="collapse19" class="panel-collapse collapse">
                         <div class="panel-body">
-                            <form id="form10" role="form" method="GET">
+                            <form id="form19" role="form" method="GET">
                                 <div class="form-group">	
                                       <label style="padding-top: 20px" for="springlesrepositoryID">Springles Repository ID</label>
                                         <input type="text" class="form-control" value="test-springles-100" id="springlesrepositoryID" >
-                                        <label style="padding-top: 20px" for="springlesserverURL">Springles Server URL</label>
-                                        <input type="text" class="form-control" value="http://localhost:8080/openrdf-sesame" id="springlesserverURL" >
-                                        <label style="padding-top: 20px" for="restURL">REST Server URL</label>
-                                        <input type="text" class="form-control" value="http://localhost:8080/SpringlesREST/rest/rest/" id="restURL" >
                                         <label for="querySPARQL">query SPARQL</label>
                                         <input type="text" class="form-control" value="SELECT ?s ?p ?o WHERE { ?s ?p ?o }" id="querySPARQL" >
                                         <p class="help-block">Exampe:SELECT ?s ?p ?o WHERE { ?s ?p ?o }</p>
@@ -310,23 +176,144 @@
                 </div>	
 			
 			
-			
 				   
 			</div>
 		</div>
+        
 		<div class="col-md-8">
-			<div>
-				<pre>
-					<h3 class="center text-center">Request</h3>
-					<div id="request" class="text-left">
-					</div>
-					<hr />
-					<h3 class="center text-center">Response</h3>
-					<div id="result" class="text-left">
+                <div id="collapse11" class="panel-collapse collapse col-md-12">
+						<div class="panel-body">
 						
+							<form id="form11" role="form" method="GET">
+				
+								<div class="form-group">	
+			                        <label style="padding-top: 20px" for="springlesrepositoryID">Springles Repository ID</label>
+                                    <input type="text" class="form-control" value="test-springles-5" id="springlesrepositoryID" >
+	    	                        <label style="padding-top: 20px" for="springlesrepositorytitle">Springles Repository TITLE</label>
+				                    <input type="text" class="form-control" value="test-springles-5" id="springlesrepositorytitle" >
+                                    <label style="padding-top: 20px" for="rulesetURI">rulesetURI</label>
+                                    <input type="text" class="form-control" value="ckr:toolisse-ruleset" id="rulesetURI" >
+                                    <label style="padding-top: 20px" for="rulesetURI">Inferred context prefix</label>
+                                    <input type="text" class="form-control" value="springles:inf:*" id="inferenceprefix" >
+				    	            <label style="padding-top: 20px" for="inferencer">Inferencer</label>
+                                    <select id="inferencer" class="form-control">
+                                        <option val="RDFProInferencer" >RDFProInferencer</option>
+                                        <option val="RDFProInferencer" >NaiveInferencer</option>
+									</select> 		
+                                    <p class="help-block"></p>	
+                                </div>		
+                                <button type="submit" class="btn btn-default btn-primary">Submit</button>
+                            </form>
+
+                        </div>
 					</div>
+                    <div id="collapse16" class="panel-collapse col-md-12 collapse">
+                                <h4>Delete Repository</h4>
+                                <div class="panel-body">
+                                    <form id="form16" role="form" method="GET">				
+                                        <div class="form-group">		
+                                             <label style="padding-top: 20px" for="springlesrepositoryID">Springles Repository ID</label>						
+                                            <select class="springlesrepositoryID form-control"></select> 
+                                          </div>		
+                                        <button type="submit" class="btn btn-default btn-primary">Submit</button>
+                                    </form>
+
+                                </div>
+                            </div>
+            
+                    <div id="collapse12" class="panel-collapse col-md-12 collapse">
+						<div class="panel-body">
+                            <h4>Upload RDF</h4>
+							<form id="form12" role="form" method="GET"  enctype="multipart/form-data">
+				
+							     <div class="form-group">	
+                                    <label style="padding-top: 20px" for="fileURI">fileURI</label>
+                                    <input type="text" class="form-control" value="abcd" id="fileURI" >
+                                    <label style="padding-top: 20px" for="filetoupload">filetoupload</label>
+                                    <input type="file" class="form-control" value="toolisse-kb-test-with-synonyms-finale-nolocation.trig" id="filetoupload" >		
+                                    <p class="help-block">toolisse-kb-test-with-synonyms-finale-nolocation.trig</p>	
+                                </div>		
+                                <button type="submit" class="btn btn-default btn-primary">Submit</button>
+                            </form>
+
+                        </div>
+                    </div>
+                        <div id="collapse17" class="panel-collapse col-md-12 collapse">
+                            
+                                <div class="panel-body">
+                                    <h4>Graphs</h4>
+                                    <form id="form17" role="form" method="GET">				
+                                        <div class="form-group">
+                                            <label style="padding-top: 20px" for="includeinferred">
+                                                <input type="checkbox" style="background-color: #fff;background-image: none;border: 1px solid #ccc;" id="includeinferred" value="Includi contexts inferiti" checked></input>
+                                                Include inferred graphs
+                                            </label>
+                                          </div>		
+                                        <button type="submit" class="btn btn-default btn-primary">Submit</button>
+                                    </form>
+
+                                </div>
+                            </div>
+                            <div id="collapse13" class="panel-collapse col-md-12 collapse">
+                        <div class="panel-body">
+                            <h4>Full Export</h4>
+                            <form id="form13" role="form" method="GET"  enctype="multipart/form-data">
+                                <div class="form-group">	
+			                         
+                                    <label style="padding-top: 20px" for="exportformat">Export Format</label>
+                                    <select class="form-control"  id="exportformat" >
+                                        <option value="trig">trig</option> 
+                                        <option value="xml">xml</option>
+                                        <option value="ttl">ttl</option>
+                                    </select>
+                                    <label style="padding-top: 20px" for="includeinferred">
+                                        <input type="checkbox" style="background-color: #fff;background-image: none;border: 1px solid #ccc;" id="includeinferred" value="Includi statements inferiti" checked></input>
+                                        Include inferred statements
+                                    </label>
+                                </div>		
+                                <button type="submit" class="btn btn-default btn-primary">Submit</button>
+                            </form> 
+                        </div>
+                    </div>
+                    <div id="collapse15" class="panel-collapse col-md-12 collapse">
+                        <div class="panel-body">
+                            <h4>Clear Statements</h4>
+                            <form id="form15" role="form" method="GET"   enctype="multipart/form-data">
+                                <div class="form-group">	
+                                    <label style="padding-top: 20px" for="includeinferred">
+                                        <input type="checkbox" style="background-color: #fff;background-image: none;border: 1px solid #ccc;" id="includenotinferred" ></input>
+                                        Delete also not-inferred statements
+                                    </label>
+                                </div>		
+                                <button type="submit" class="btn btn-default btn-primary">Submit</button>
+                            </form> 
+                        </div>
+                    </div>
+                    <div id="collapse10" class="panel-collapse col-md-12 collapse">
+                        <div class="panel-body">
+                            <h4>Query SPARQL</h4>
+                            <form id="form10" role="form" method="GET">
+                                <div class="form-group">	
+                                        <label for="querySPARQL">query SPARQL</label>
+                                        <input type="text" class="form-control" value="SELECT ?s ?p ?o WHERE { ?s ?p ?o }" id="querySPARQL" >
+                                        <p class="help-block">Exampe:SELECT ?s ?p ?o WHERE { ?s ?p ?o }</p>
+                                        <label style="padding-top: 20px" for="includeinferred">
+                                            <input type="checkbox" style="background-color: #fff;background-image: none;border: 1px solid #ccc;" id="includeinferred" value="Includi statements inferiti" checked></input>
+                                            Include inferred statements
+                                        </label>
+                                </div>
+                                <button type="submit" class="btn btn-default btn-primary">Submit</button>
+                            </form>
+
+                        </div>
+                    </div>
+				<pre class="col-md-12" >
+                    
+					<div id="result" class="text-left col-md-12">
+                    
+                    </div>
+                    
 				</pre>
-			</div>
 		</div>
 	</div>
 	<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
@@ -334,9 +321,30 @@
 	<script type="text/javascript">
 		/*INSERT THE CORRECT URL*/
 		
-		
-		//var server="http://dkmlab.fbk.eu";
-		
+        $(".panel-heading").click(function(){
+            $("#result").empty();
+            $(".panel-collapse").hide();
+            showPanel($(this).find('h4 a').attr("href"));
+        });
+		$("#repoChoice").on("change",function(){
+            $(".panel-collapse").hide();
+            $(".springlesrepositoryID").each(function(){
+                $(this).val($("#repoChoice").val())
+            });
+            $("#summaryPanel").click();
+            if($(this).val() == undefined)
+            {
+                $(".hide-repo").each(function(){
+                    $(this).hide();
+                });
+            }
+            else{
+                $(".hide-repo").each(function(){
+                    $(this).show();
+                });
+            }
+        });
+        
 		var url = ":http://localhost:8081/SpringlesREST/rest/rest/";
     	var url2 = ":8080/ToolisseSemanticQueryAnswering/toolisse/sqa/";
     	
@@ -367,7 +375,8 @@
 			}
 		};
 	</script>
-	
+	   <script src="loadRepositories.js"></script>
+        <script src="utilities.js"></script>
   	 	<script src="function9.js"></script>
   	 	<script src="function10.js"></script>
   	 	<script src="function11.js"></script>
@@ -376,7 +385,8 @@
   	     <script src="function14.js"></script>
         <script src="function15.js"></script>
         <script src="function16.js"></script>
-  	 	<script src="function17.js"></script>	
+  	 	<script src="function17.js"></script>
+        <script src="function18.js"></script>
 </body>
 </body>
 </html>

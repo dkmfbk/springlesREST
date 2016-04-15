@@ -1,42 +1,36 @@
 $(function() {	
-	$("#form14").submit(function(e) {
-		//var queryType = "curatorsources";
-		var oElements = {};
-		 var filetoupload="";
-		$('#form14 [id]').each(function(){
-		    oElements[this.id] = this.value;    
-		});
-		var springlesserverURL= oElements["springlesserverURL"];
-		var springlesrepositoryID=oElements["springlesrepositoryID"];
-		var url_=oElements["restURL"]+"computeclosure";
+	$("#closurePanel").click(function() {
+		
+		var springlesrepositoryID=$("#repoChoice").val();
+		var url_=restURL+"computeclosure";
 
 	
 	    var documentData = new FormData();
 	    documentData.append("springlesrepositoryID",springlesrepositoryID);
-	    documentData.append("springlesserverURL",springlesserverURL);
-		var dataSend ="springlesrepositoryID=" +springlesrepositoryID+"&springlesserverURL="+springlesserverURL;
+	    documentData.append("springlesserverURL",serverURL);
+		var dataSend ="springlesrepositoryID=" +springlesrepositoryID+"&springlesserverURL="+serverURL;
 		
-	   e.preventDefault();
-		$("#request").empty();
-		$("#result").empty();
-		$('#request').html("<span>GET " + url_ + "</span><br />" + library.json.prettyPrint(dataSend));
-		dataSend.fieldValueJsonString = JSON.stringify(oElements);
-		$.ajax({
-			url : url_ , 
-			data : dataSend, 
-      contentType: "application/json; charset=utf-8",
-      dataType: "json",
-			type : "GET"
-		
-		}).done(function(data, textStatus, jqXHR) {			
-			//var print = eval("(" + data + ')'); 
-			$("#result").empty();
-			$('#result').html("<span>OK " + jqXHR.status + " " + jqXHR.statusText + "</span><br />" + library.json.prettyPrint(data));
-		}).fail(function(jqXHR, textStatus, errorThrown) { 
-			$("#result").empty();
-			$('#result').html("<span> " + jqXHR.status + " " + jqXHR.responseText + "</span><br />");
-		});
-		return false;
-	});
+	   if(closureStatus != "CURRENT")
+            $.ajax({
+                url : url_ , 
+                data : dataSend, 
+          contentType: "application/json; charset=utf-8",
+          dataType: "html",
+                type : "GET"
 
+            }).done(function(data, textStatus, jqXHR) {			
+                //var print = eval("(" + data + ')'); 
+                $("#result").empty();
+                $('#result').html(data);
+                getClosureStatus();
+            }).fail(function(jqXHR, textStatus, errorThrown) { 
+                $("#result").empty();
+                $('#result').html("<span> " + jqXHR.status + " " + jqXHR.responseText + "</span><br />");
+            });
+          else
+                $('#result').html("Closure status is just CURRENT");
+            
+            return false;
+        });
+  
 });

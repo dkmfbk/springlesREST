@@ -1,15 +1,19 @@
 $(function() {	
-	$("#form15").submit(function(e) {
+	$("#summaryPanel").on("click",function() {
+		//var queryType = "curatorsources";
 		
-		var springlesrepositoryID=$("#repoChoice").val();
-		var url_=restURL+"clear";
-        var includenotinferred = $("#form15 #includenotinferred:checked").length;
+		var springlesserverURL= $("#form18 #springlesserverURL").val();
+		var springlesrepositoryID= $("#form18 #repoChoice").val();
+		var url_=restURL+"summary";
 
 	
-	   
-		var dataSend ="springlesrepositoryID=" +springlesrepositoryID+"&springlesserverURL="+serverURL + "&includenotinferred=" + includenotinferred;
+
+		var dataSend ="springlesrepositoryID=" +springlesrepositoryID+"&springlesserverURL="+springlesserverURL ;
 		
-	  
+	   
+		$("#request").empty();
+		$("#result").empty();
+		
 		$.ajax({
 			url : url_ , 
 			data : dataSend, 
@@ -18,7 +22,6 @@ $(function() {
 			type : "GET"
 		
 		}).done(function(data, textStatus, jqXHR) {			
-			//var print = eval("(" + data + ')'); 
 			$("#result").empty();
 			$('#result').html(data);
             getClosureStatus();

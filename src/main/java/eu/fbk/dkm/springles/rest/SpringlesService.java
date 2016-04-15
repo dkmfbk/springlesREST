@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,12 +30,13 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.io.IOUtils;
 import org.openrdf.OpenRDFException;
+import org.openrdf.model.Graph;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.GraphImpl;
 import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.impl.URIImpl;
 import org.openrdf.model.vocabulary.RDF;
@@ -56,6 +58,7 @@ import org.openrdf.repository.config.RepositoryConfigException;
 import org.openrdf.repository.config.RepositoryImplConfig;
 import org.openrdf.repository.http.HTTPRepository;
 import org.openrdf.repository.manager.RemoteRepositoryManager;
+import org.openrdf.repository.manager.RepositoryInfo;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
@@ -139,8 +142,8 @@ public class SpringlesService {
 			  @QueryParam("springlesserverURL") String springlesserverURL,
 			  @QueryParam("rulesetURI") String rulesetURI,
 			  @QueryParam("springlesrepositorytitle") String springlesrepositorytitle,
-			  @QueryParam("inferencer") String inferencer
-		
+			  @QueryParam("inferencer") String inferencer,
+			  @QueryParam("inferenceprefix") String inferenceprefix
 				
 				
 			  ) {
@@ -174,7 +177,7 @@ public class SpringlesService {
 				valueMap.put("Ruleset", rulesetURI);
 				valueMap.put("Repository title", springlesrepositorytitle);
 				valueMap.put("Inferencer type", inferencer);
-				
+				valueMap.put("Inferred context prefix", inferenceprefix);
 				String configString = ct.render(valueMap);
 				System.out.println(configString);
 	           g = Rio.parse(IOUtils.toInputStream(configString, "UTF-8"),"",RDFFormat.TURTLE);		
@@ -229,7 +232,6 @@ public class SpringlesService {
 					
 				@QueryParam("springlesrepositoryID") String springlesrepositoryID,
 				@QueryParam("springlesserverURL") String springlesserverURL,
-				@QueryParam("contextURI") String contextURI,
 				@QueryParam("exportformat") String exportformat,
 				@QueryParam("includeinferred") int includeinferred
 				 
@@ -254,9 +256,7 @@ public class SpringlesService {
 				Repository repository = manager.getRepository(springlesrepositoryID);
 				ValueFactory f = repository.getValueFactory();
 				RepositoryConnection con = repository.getConnection();
-				String context = contextURI;
-
-				URI contextURI_ = f.createURI(context);
+				
 				
 			
 				
@@ -273,7 +273,7 @@ public class SpringlesService {
 				 con.exportStatements(null, null, null, persist, trigWriter);
 				}else if(exportformat.equals("ttl")){
 					 con.exportStatements(null, null, null, persist, ttlWriter);
-					}{
+					}else{
 					 con.exportStatements(null, null, null, persist, rdfxmlWriter);
 					
 				}
@@ -392,7 +392,7 @@ public class SpringlesService {
 	  					 con.commit();
 	  					 
 	  				//	 con.close();
-	  					 result="200 OK";
+	  					
 	  					long estimatedTime = System.currentTimeMillis() - startTime;
 	  					// tupleQuery.setIncludeInferred(true);
 	  					//TupleQueryResult qresult = tupleQuery.evaluate();
@@ -409,6 +409,7 @@ public class SpringlesService {
 						                     .longValue();
 				//	logger.info("Number of total statement= "+number);
 					System.out.println("Number of total statement= "+numberOfTotalStatements);
+					 result="Inferred statements: " + (numberOfTotalStatements - numberOfStatements);
 								con.close();
 								} finally {
 			  						con.close();
@@ -526,7 +527,7 @@ public class SpringlesService {
 			e.printStackTrace();
 		} finally{
 			System.out.println("Repository deleted!");
-			result = "200 OK";
+			result = "Repository deleted!";
 		}
 		  
 		   
@@ -557,10 +558,11 @@ public class SpringlesService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}finally{
-			result = "\n";
+			result = "<table  border='1'><th style='text-align:center;'>Graphs</th>";
 			for(Resource r:ct){
-				result += r.toString() + "\n";
+				result += "<tr><td class='graph'>"+r.toString() + "<tr><td>";
 			}
+			result +="</table>";
 		}
 		  
 		   
@@ -570,34 +572,70 @@ public class SpringlesService {
 	  
 	  
 	  @GET
-	  @Path("/types")
+	  @Path("/summary")
 	  @Produces(MediaType.TEXT_HTML)
 	  public String types(
 			  @QueryParam("springlesrepositoryID") String springlesrepositoryID,
-			  @QueryParam("springlesserverURL") String springlesserverURL,
-			  @QueryParam("includeinferred") int includeinferred) 
+			  @QueryParam("springlesserverURL") String springlesserverURL)
 	  {
 
 		  
 		  String result="Fail";
 		  Repository	myRepository = new HTTPRepository(springlesserverURL, springlesrepositoryID);
-		  Set<Resource> ct = null;
 		  try {
 			myRepository.initialize();
-			RepositoryConnection con = myRepository.getConnection();
-			RepositoryResult<Statement> st = con.getStatements(null, null, null, includeinferred == 1 ? true:false);
-			Model mod = Iterations.addAll(st, new LinkedHashModel());
-			ct = mod.contexts();
+			result = "";
+			RemoteRepositoryManager manager = new RemoteRepositoryManager(springlesserverURL);
+			manager.initialize();
+			RepositoryInfo ri = manager.getRepositoryInfo(springlesrepositoryID);
+			Repository r = manager.getRepository(springlesrepositoryID);
+			RepositoryConfig rc = manager.getRepositoryConfig(springlesrepositoryID);
 			
-		} catch (RepositoryException e) {
+			RepositoryResult<Statement> st =  myRepository.getConnection().getStatements(null, null, null, true);
+				Model mod  = Iterations.addAll(st, new LinkedHashModel());
+			
+			Graph g = new GraphImpl();
+			rc.export(g);
+			Iterator<Statement> conf = g.iterator();
+			ArrayList<Statement> sts = new ArrayList<Statement>();
+			RepositoryConnection con = myRepository.getConnection();
+			TupleQuery query;
+			String status="";
+			try {
+				query = con.prepareTupleQuery(QueryLanguage.SPARQL,
+				                     "SELECT ?closurestatus {}");
+				TupleQueryResult qresult = query.evaluate();
+				status = qresult.next().getValue("closurestatus").stringValue();
+				
+			} catch (MalformedQueryException | QueryEvaluationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+					            
+			
+			
+			while(conf.hasNext())
+				sts.add(conf.next());
+			
+			System.out.println(sts.toString());
+			result ="<table style='font-size:0.9em;' >";
+			result += "<tr><th>ID:</th><td>" + ri.getId()+
+					"</td></tr><tr><th>Title:</th><td>" + ri.getDescription()+
+					"</td></tr><tr><th>Location:</th><td>"+ri.getLocation()+
+					"</td></tr><tr><th>Server:</th><td>"+manager.getServerURL()+
+					"</td></tr><tr><th>Total statements:</th><td>"+ mod.size()+
+					"</td></tr><tr><th>Explicit statements:</th><td>"+ myRepository.getConnection().size()+
+					"</td></tr><tr><th>Inferred statements:</th><td>"+ (mod.size()-myRepository.getConnection().size())+
+					"</td></tr><tr><th>Closure status:</th><td>"+status+
+					"</td></tr><tr><th>Inferencer:</th><td>"+ sts.get(23).getObject().stringValue().split("#")[1] +
+					"</td></tr><tr><th>Ruleset:</th><td>"+ sts.get(22).getObject().stringValue() +
+					"</td></tr><tr><th>Inferred context prefix:</th><td>"+ sts.get(6).getObject().stringValue()+"</td></tr></table>";
+					
+		} catch (RepositoryException | RepositoryConfigException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}finally{
-			result = "\n";
-			for(Resource r:ct){
-				result += r.toString() + "\n";
-			}
 		}
+		  
 		  
 		   
 	  	  return result;
@@ -705,8 +743,11 @@ public class SpringlesService {
 					ex.printStackTrace();
 				}
 				
-				for (BindingSet bindingSet : tuples) {
-					result=result+bindingSet.toString()+"\n";
+				System.out.println(query);
+				System.out.println("RES:"+tuples.size());
+				
+				for (BindingSet s : tuples) {
+					result+="<tr><td class='subj'>"+(s.getValue("s") != null ? s.getValue("s").toString() : "")+"</td><td class='pred'>"+(s.getValue("p") != null ? s.getValue("p").toString() : " ")+"</td><td class='obj'>"+(s.getValue("o") != null ? s.getValue("o").toString() : " ")+"</td></tr>";
 				}
 				
 				
@@ -715,4 +756,86 @@ public class SpringlesService {
 	  
 	  	  
 	  
+
+
+			@GET
+			@Path("/getRepositories")
+			@Produces(MediaType.TEXT_HTML)
+			public String getRepositories(
+					  @QueryParam("springlesserverURL") String springlesserverURL)
+			{
+				 String result = "Fail";
+				  RemoteRepositoryManager man = new RemoteRepositoryManager(springlesserverURL);
+				  Iterator<RepositoryInfo> rs;
+				try {
+					man.initialize();
+					rs = man.getAllRepositoryInfos().iterator();
+					result="";
+					int i=0;
+					while(rs.hasNext()){
+						RepositoryInfo ri = rs.next();
+						if(i!=0)
+							result += "<option value="+ri.getId()+">"+ri.getDescription()+"</option>";
+						i++;
+					}
+				} catch (RepositoryException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				System.out.println("RESULT"+result);
+				return result;
+			}	 
+			
+			
+			 @GET
+			  @Path("/getClosureStatus")
+			  @Produces(MediaType.TEXT_HTML)
+			 		  		
+				  public String getTuples(
+						  @QueryParam("repositoryID") String springlesrepositoryID,
+						  @QueryParam("serverURL") String springlesserverURL) {
+						List<BindingSet> tuples = new ArrayList<BindingSet>();
+						String result="";
+						try {
+					Repository		myRepository = new HTTPRepository(springlesserverURL, springlesrepositoryID);
+							myRepository.initialize();
+					  		RepositoryConnection connection = myRepository.getConnection();
+						//	RepositoryConnection connection = repo.getConnection();
+					  	//	RDFWriter writer = Rio.createWriter(RDFFormat.TURTLE, System.out);
+							try {
+							//	query="SELECT ?s ?p ?o WHERE { ?s ?p ?o }";
+								TupleQuery tupleQuery = connection.prepareTupleQuery(QueryLanguage.SPARQL,  "SELECT ?closurestatus {}");
+								TupleQueryResult qresult = tupleQuery.evaluate();
+								try {
+									while (qresult.hasNext()) {
+										tuples.add(qresult.next());
+									}
+								} finally {
+									qresult.close();
+								}
+							} finally {
+								connection.close();
+							}
+						} catch (OpenRDFException ex) {
+							ex.printStackTrace();
+						}
+						
+				
+						
+						for (BindingSet s : tuples) {
+							result+= s.getValue("closurestatus").stringValue();
+						}
+						
+						
+						return result;
+					}  
+			   
+			
+			
+			
+			
+			
+			
+			
+			
 }
