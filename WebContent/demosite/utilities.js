@@ -10,14 +10,21 @@ function defineClickListerner(){
                    var context = $(this).text();
                     var url2_=restURL+"querysparql";
                     var q = "SELECT ?s ?p ?o FROM <"+ context + "> WHERE { ?s ?p ?o }";
-                    var dataSend2 = "serverURL="+serverURL+"&repositoryID="+$("#repoChoice").val()+ "&querySPARQL=" +q +"&includeinferred=1" ;
-                    dataSend2 = dataSend2.replace("#","%23");
+                    var dataSend2 = new FormData();
+                    dataSend2.append("repositoryID",$("#repoChoice").val());
+                    dataSend2.append("serverURL",serverURL);
+                    dataSend2.append("querySPARQL",q);
+                    dataSend2.append("includeinferred","1" );
+		
+                    //dataSend2 = dataSend2.replace("#","%23");
                     $.ajax({
                     url : url2_ , 
                     data : dataSend2, 
-                      contentType: "application/json; charset=utf-8",
+                     contentType : false,
+                  processData : false,
+                  cache: false,
                       dataType: "html",
-                    type : "GET"
+                    type : "POST"
 
                     }).done(function(data, textStatus, jqXHR) {	
                             $("#result").empty();
@@ -34,14 +41,18 @@ function defineClickListerner(){
                    var subject = $(this).text();
                      var url2_=restURL+"querysparql";
                     var q = "SELECT ?s ?p ?o WHERE { <"+subject+"> ?p ?o}";
-                    var dataSend2 = "serverURL="+serverURL+"&repositoryID="+$("#repoChoice").val()+ "&querySPARQL=" +q +"&includeinferred=1" ;
-                    dataSend2 = dataSend2.replace("#","%23");
+                    var dataSend2 = new FormData();
+                    dataSend2.append("repositoryID",$("#repoChoice").val());
+                    dataSend2.append("serverURL",serverURL);
+                    dataSend2.append("querySPARQL",q);
+                    dataSend2.append("includeinferred","1" );
                     $.ajax({
                     url : url2_ , 
-                    data : dataSend2, 
-                      contentType: "application/json; charset=utf-8",
+                    data : dataSend2,contentType : false,
+                      processData : false,
+                      cache: false,
                       dataType: "html",
-                    type : "GET"
+                    type : "POST"
 
                     }).done(function(data, textStatus, jqXHR) {	
                             $("#result").empty();
@@ -57,14 +68,19 @@ function defineClickListerner(){
                    var obj = $(this).text();
                     var url2_=restURL+"querysparql";
                     var q = "SELECT ?s ?p ?o WHERE { ?s ?p <"+obj+"> }";
-                    var dataSend2 = "serverURL="+serverURL+"&repositoryID="+$("#repoChoice").val()+ "&querySPARQL=" +q +"&includeinferred=1" ;
-                    dataSend2 = dataSend2.replace("#","%23");
+                   var dataSend2 = new FormData();
+                    dataSend2.append("repositoryID",$("#repoChoice").val());
+                    dataSend2.append("serverURL",serverURL);
+                    dataSend2.append("querySPARQL",q);
+                    dataSend2.append("includeinferred","1" );
                     $.ajax({
                     url : url2_ , 
                     data : dataSend2, 
-                      contentType: "application/json; charset=utf-8",
+                      contentType : false,
+                  processData : false,
+                  cache: false,
                       dataType: "html",
-                    type : "GET"
+                    type : "POST"
 
                     }).done(function(data, textStatus, jqXHR) {	
                             $("#result").empty();
@@ -80,14 +96,18 @@ function defineClickListerner(){
                    var pred = $(this).text();
                     var url2_=restURL+"querysparql";
                     var q = "SELECT ?s ?p ?o WHERE { ?s <"+pred+"> ?o }";
-                    var dataSend2 = "serverURL="+serverURL+"&repositoryID="+$("#repoChoice").val()+ "&querySPARQL=" +q +"&includeinferred=1" ;
-                    dataSend2 = dataSend2.replace("#","%23");
+                   var dataSend2 = new FormData();
+                    dataSend2.append("repositoryID",$("#repoChoice").val());
+                    dataSend2.append("serverURL",serverURL);
+                    dataSend2.append("querySPARQL",q);
+                    dataSend2.append("includeinferred","1" );
                     $.ajax({
                     url : url2_ , 
-                    data : dataSend2, 
-                      contentType: "application/json; charset=utf-8",
+                    data : dataSend2, contentType : false,
+      processData : false,
+      cache: false,
                       dataType: "html",
-                    type : "GET"
+                    type : "POST"
 
                     }).done(function(data, textStatus, jqXHR) {	
                         

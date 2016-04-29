@@ -20,6 +20,10 @@
 .graph, .obj, .pred, .subj{
     cursor: pointer;
 }
+a, .delete{
+    cursor: pointer;
+}
+    
 </style>
 
 </head>
@@ -64,7 +68,7 @@
                     
                 </div>
 		
-				<div class="panel panel-default">
+				<div class="panel panel-default  hide-repo" style="display:none;">
 					<div class="panel-heading">
 						<h4 class="panel-title">
 							<a  href="#collapse11"> Create Repository</a>
@@ -114,10 +118,10 @@
                 </div>	
 
 
-                 <div class="panel panel-default hide-repo" style="display:none;" id="closurePanel">
+                 <div class="panel panel-default hide-repo" style="display:none;">
                      <div class="panel-heading">
                         <h4 class="panel-title">
-                            <a href="#collapse14" >Compute Closure</a>
+                            <a href="#collapse14" >Closure</a>
                         </h4>
                     </div>
                    
@@ -148,31 +152,13 @@
                 </div>	
 			 
 
-            <div class="panel panel-default">
+            <div class="panel panel-default hide-repo" style="display:none;">
                     <div class="panel-heading">
                         <h4 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse19">Ruleset</a>
+                            <a href="#collapse19" onclick="load_rulesets()">Ruleset</a>
                         </h4>
                     </div>
-                    <div id="collapse19" class="panel-collapse collapse">
-                        <div class="panel-body">
-                            <form id="form19" role="form" method="GET">
-                                <div class="form-group">	
-                                      <label style="padding-top: 20px" for="springlesrepositoryID">Springles Repository ID</label>
-                                        <input type="text" class="form-control" value="test-springles-100" id="springlesrepositoryID" >
-                                        <label for="querySPARQL">query SPARQL</label>
-                                        <input type="text" class="form-control" value="SELECT ?s ?p ?o WHERE { ?s ?p ?o }" id="querySPARQL" >
-                                        <p class="help-block">Exampe:SELECT ?s ?p ?o WHERE { ?s ?p ?o }</p>
-                                        <label style="padding-top: 20px" for="includeinferred">
-                                            <input type="checkbox" style="background-color: #fff;background-image: none;border: 1px solid #ccc;" id="includeinferred" value="Includi statements inferiti" checked></input>
-                                            Include inferred statements
-                                        </label>
-                                </div>
-                                <button type="submit" class="btn btn-default btn-primary">Submit</button>
-                            </form>
-
-                        </div>
-                    </div>
+                    
                 </div>	
 			
 			
@@ -275,15 +261,21 @@
                             </form> 
                         </div>
                     </div>
+                    <div id="collapse14" class="panel-collapse col-md-12 collapse">
+                        <div class="panel-body">
+                            <h4>Closure</h4>
+                            <form id="form14" role="form" method="GET"   enctype="multipart/form-data">
+                                
+                                <button type="button" id="update_cl" class="btn btn-default btn-primary">Update</button>
+                                <button type="button" id="clear_cl" class="btn btn-default btn-primary">Clear</button>
+                            </form> 
+                        </div>
+                    </div>
                     <div id="collapse15" class="panel-collapse col-md-12 collapse">
                         <div class="panel-body">
                             <h4>Clear Statements</h4>
                             <form id="form15" role="form" method="GET"   enctype="multipart/form-data">
                                 <div class="form-group">	
-                                    <label style="padding-top: 20px" for="includeinferred">
-                                        <input type="checkbox" style="background-color: #fff;background-image: none;border: 1px solid #ccc;" id="includenotinferred" ></input>
-                                        Delete also not-inferred statements
-                                    </label>
                                 </div>		
                                 <button type="submit" class="btn btn-default btn-primary">Submit</button>
                             </form> 
@@ -292,7 +284,7 @@
                     <div id="collapse10" class="panel-collapse col-md-12 collapse">
                         <div class="panel-body">
                             <h4>Query SPARQL</h4>
-                            <form id="form10" role="form" method="GET">
+                            <form id="form10" role="form" method="POST">
                                 <div class="form-group">	
                                         <label for="querySPARQL">query SPARQL</label>
                                         <input type="text" class="form-control" value="SELECT ?s ?p ?o WHERE { ?s ?p ?o }" id="querySPARQL" >
@@ -307,9 +299,26 @@
 
                         </div>
                     </div>
+                    <div id="collapse19" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <h4>Manage Ruleset</h4>
+                            <div class="col-md-4" id="list_of_rulesets" style="margin-top: 5%;"></div>
+                            <form class="col-md-8" id="form19" role="form" method="GET" >
+                                <div class="form-group">	
+                                     <label style="padding-top: 20px" for="fileURI">Name of new ruleset</label>
+                                    <input type="text" class="form-control" value="abcd.ttl" id="fileURI" >
+                                    <label style="padding-top: 20px" for="file_ruleset">File path to Upload</label>
+                                    <input type="text" class="form-control" value="ruleset.ttl" id="file_ruleset" >
+                                     <p class="help-block">C://Users/.../ruleset.ttl</p>
+                                </div>
+                                <button type="submit" class="btn btn-default btn-primary">Create</button>
+                            </form>
+
+                        </div>
+                    </div>
 				<pre class="col-md-12" >
                     
-					<div id="result" class="text-left col-md-12">
+					<div id="result" class="text-left col-md-12" style="max-height:50%;overflow-y:scroll;">
                     
                     </div>
                     
@@ -376,6 +385,7 @@
 		};
 	</script>
 	   <script src="loadRepositories.js"></script>
+        <script src="load_rulesets.js"></script>
         <script src="utilities.js"></script>
   	 	<script src="function9.js"></script>
   	 	<script src="function10.js"></script>
@@ -387,6 +397,7 @@
         <script src="function16.js"></script>
   	 	<script src="function17.js"></script>
         <script src="function18.js"></script>
+        <script src="function19.js"></script>
 </body>
 </body>
 </html>

@@ -14,7 +14,7 @@ $(function() {
 		var url_=restURL+"create";
 	    var rulesetURI=escape(oElements["rulesetURI"]);
 		var dataSend ="springlesrepositoryID=" +springlesrepositoryID+"&springlesrepositorytitle="+springlesrepositorytitle+
-		"&springlesserverURL="+springlesserverURL+"&rulesetURI="+rulesetURI+"&inferencer="+inferencer + "&inferenceprefix"+inferenceprefix;
+		"&springlesserverURL="+springlesserverURL+"&rulesetURI="+rulesetURI+"&inferencer="+inferencer + "&inferenceprefix="+inferenceprefix;
 		
 		e.preventDefault();
 		$("#request").empty();

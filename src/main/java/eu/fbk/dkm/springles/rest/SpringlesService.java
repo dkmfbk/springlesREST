@@ -3,6 +3,7 @@ package eu.fbk.dkm.springles.rest;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -148,7 +149,7 @@ public class SpringlesService {
 				
 			  ) {
 		//  String serverUrl = "http://localhost:8080/openrdf-sesame";
-			System.out.println(springlesrepositoryID);
+			System.out.println(inferenceprefix);
 		  RemoteRepositoryManager manager = new RemoteRepositoryManager(springlesserverURL);
 		  try {
 			manager.initialize();
@@ -459,7 +460,7 @@ public class SpringlesService {
 	  			long startTime = System.currentTimeMillis();
 	  			insert.execute();
 	  			con.commit();
-	  			result="200 OK";
+	  			result="Inferred statements were cleared";
 	  				
 				
 	  			
@@ -617,7 +618,6 @@ public class SpringlesService {
 			while(conf.hasNext())
 				sts.add(conf.next());
 			
-			System.out.println(sts.toString());
 			result ="<table style='font-size:0.9em;' >";
 			result += "<tr><th>ID:</th><td>" + ri.getId()+
 					"</td></tr><tr><th>Title:</th><td>" + ri.getDescription()+
@@ -707,15 +707,16 @@ public class SpringlesService {
 	  
 	  
 	  
-	  @GET
+	  @POST
 	  @Path("/querysparql")
 	  @Produces(MediaType.TEXT_HTML)
-	 		  		
+
+	  @Consumes(MediaType.MULTIPART_FORM_DATA)
 		  public String getTuples(
-				  @QueryParam("repositoryID") String springlesrepositoryID,
-				  @QueryParam("serverURL") String springlesserverURL,
-				  @QueryParam("includeinferred") int includeinferred, 
-					@QueryParam("querySPARQL") String query) {
+				  @FormDataParam("repositoryID") String springlesrepositoryID,
+				  @FormDataParam("serverURL") String springlesserverURL,
+				  @FormDataParam("includeinferred") int includeinferred, 
+				  @FormDataParam("querySPARQL") String query) {
 				List<BindingSet> tuples = new ArrayList<BindingSet>();
 				String result="";
 				try {
@@ -791,7 +792,7 @@ public class SpringlesService {
 			  @Path("/getClosureStatus")
 			  @Produces(MediaType.TEXT_HTML)
 			 		  		
-				  public String getTuples(
+				  public String getClosureStatus(
 						  @QueryParam("repositoryID") String springlesrepositoryID,
 						  @QueryParam("serverURL") String springlesserverURL) {
 						List<BindingSet> tuples = new ArrayList<BindingSet>();
@@ -832,10 +833,165 @@ public class SpringlesService {
 			   
 			
 			
+			 @GET
+			  @Path("/create_ruleset")
+			  @Produces(MediaType.TEXT_HTML)
+			  public String create_ruleset(
+					  @QueryParam("newfilename") String filename,
+					  @QueryParam("ruleset_path") String ruleset_path)
+			  {
+				 
+				 System.out.println(filename);
+				 
+				 System.out.println(ruleset_path);
+				 String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
+				 springles_url = '/'+springles_url.split("/")[1]+'/'+springles_url.split("/")[2]+'/'+springles_url.split("/")[3]+'/'+springles_url.split("/")[4]+"/openrdf-sesame/WEB-INF/classes/";
+				 
+				 String contenuto="";
+
+				 File file = new File(springles_url+filename);
+				 if (file.exists()){
+					 return "Ruleset with the same name is just in memory";
+				 }
+				try {
+					if((contenuto = getFileContent(ruleset_path)).compareTo("-1") == 0)
+						return "Reading Error!";
+					if (file.createNewFile())	
+						if(appendToFile(springles_url+filename, contenuto))
+							if(appendToFile(springles_url+"META-INF/springles-rulesets","\n"+filename))
+								return "Ruleset "+filename+" was uploaded!";
+							else
+								return "Uploading Error!";
+					else
+						return "Uploading Error!";
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				 return "Error!";
+				 
+			  }
+			 
+			 @GET
+			  @Path("/list_of_ruleset")
+			  @Produces(MediaType.TEXT_HTML)
+			  public String list_of_ruleset()
+			  {
+				 
+				 String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
+				 springles_url = '/'+springles_url.split("/")[1]+'/'+springles_url.split("/")[2]+'/'+springles_url.split("/")[3]+'/'+springles_url.split("/")[4]+"/openrdf-sesame/WEB-INF/classes/";
+				 String contenuto;
+				 if((contenuto = getFileContent(springles_url+"META-INF/springles-rulesets")).compareTo("-1") == 0)
+					 return "Reading Error!";
+				 else{
+					String result="<table border='1'><tr><th>Name</th><th></th></tr>";
+					 for(String s : contenuto.split("\n")){
+						 result += "<tr><td><a id="+s+" class='ruleset'>"+s+"</a></td><td><a style='color:red;' class='delete' id='r_"+s+"'>Delete</a></td></tr>";
+					 }
+					 result+= "</table>";
+					 return result;
+				 }
+					
+			  }
+			 
+			 @GET
+			  @Path("/delete_ruleset")
+			  @Produces(MediaType.TEXT_HTML)
+			  public String delete_ruleset(
+					  @QueryParam("filename") String filename)
+			  {
+				 
+				 String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
+				 springles_url = '/'+springles_url.split("/")[1]+'/'+springles_url.split("/")[2]+'/'+springles_url.split("/")[3]+'/'+springles_url.split("/")[4]+"/openrdf-sesame/WEB-INF/classes/";
+				 File ruleset = new File(springles_url+filename);
+				 if(ruleset.exists())
+				 {
+					 if(!ruleset.delete())
+						 return "Deleting Error!";
+				 }else
+					 return "File is not exists!";
+					
+				 System.out.println(springles_url+filename);
+				 String contenuto;
+				 if((contenuto = getFileContent(springles_url+"META-INF/springles-rulesets")).compareTo("-1") == 0)
+					 return "Deleting Error!";
+				 contenuto = contenuto.replaceAll(filename, "");
+				 if(!replaceToFile(springles_url+"META-INF/springles-rulesets", contenuto))
+					 return "Deleting Error!";
+				 return "Ruleset was deleted!";
+				 
+				 
+			  }
+			 @GET
+			  @Path("/content_of_ruleset")
+			  @Produces(MediaType.TEXT_HTML)
+			  public String content_of_ruleset(
+					  @QueryParam("filename") String filename)
+			  {
+				 
+				 String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
+				 springles_url = '/'+springles_url.split("/")[1]+'/'+springles_url.split("/")[2]+'/'+springles_url.split("/")[3]+'/'+springles_url.split("/")[4]+"/openrdf-sesame/WEB-INF/classes/";
+				 String contenuto;
+				 if((contenuto = getFileContent(springles_url+filename)).compareTo("-1") == 0)
+					 return "Reading Error!";
+				 else{		
+					 return contenuto;
+				 }
+					
+			  }
+			 
+			 
+			private String getFileContent(String path){
+				String contenuto="";
+				try {
+		            // apre il file in lettura
+		            FileReader filein = new FileReader(path);
+		            
+		            int next;
+		            do {
+		                next = filein.read(); // legge il prossimo carattere
+		                
+		                if (next != -1) { // se non e' finito il file
+		                    char nextc = (char) next;
+		                    contenuto += nextc;
+		                }
+
+		            } while (next != -1);
+		            
+		            filein.close(); // chiude il file
+		            
+		        } catch (IOException e) {
+		            System.out.println(e);
+		            return "-1";
+		        }
+			 
+				 return contenuto;
+			}
 			
-			
-			
-			
-			
-			
+			private boolean appendToFile(String path,String contenuto){
+				 FileWriter list;
+					try {
+						list = new FileWriter(path, true);
+						list.write(contenuto);
+						list.close();
+						return true;
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						return false;
+					}
+			}
+			private boolean replaceToFile(String path,String contenuto){
+				 FileWriter list;
+					try {
+						list = new FileWriter(path);
+						list.write(contenuto);
+						list.close();
+						return true;
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						return false;
+					}
+			}
 }

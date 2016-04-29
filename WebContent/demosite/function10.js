@@ -10,16 +10,20 @@ $(function() {
 		var url_=restURL+"querysparql";
 	   var querySPARQL=oElements["querySPARQL"];
         var includeinferred = $("#form10 #includeinferred:checked").length;
-
-		var dataSend ="repositoryID=" +springlesrepositoryID+"&serverURL="+serverURL+"&querySPARQL="+querySPARQL+"&includeinferred="+includeinferred ;
+        var dataSend = new FormData();
+		dataSend.append("repositoryID",springlesrepositoryID);
+        dataSend.append("serverURL",serverURL);
+        dataSend.append("querySPARQL",querySPARQL);
+        dataSend.append("includeinferred",includeinferred );
 		
 		
 		$.ajax({
 			url : url_ , 
 			data : dataSend, 
-      contentType: "application/json; charset=utf-8",
-      dataType: "html",
-			type : "GET"
+            contentType : false,
+      processData : false,
+      cache: false,
+			type : "POST"
 		
 		}).done(function(data, textStatus, jqXHR) {			
 			$("#result").empty();

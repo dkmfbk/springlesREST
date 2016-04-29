@@ -3,11 +3,10 @@ $(function() {
 		
 		var springlesrepositoryID=$("#repoChoice").val();
 		var url_=restURL+"clear";
-        var includenotinferred = $("#form15 #includenotinferred:checked").length;
 
 	
 	   
-		var dataSend ="springlesrepositoryID=" +springlesrepositoryID+"&springlesserverURL="+serverURL + "&includenotinferred=" + includenotinferred;
+		var dataSend ="springlesrepositoryID=" +springlesrepositoryID+"&springlesserverURL="+serverURL + "&includenotinferred=1";
 		
 	  
 		$.ajax({
