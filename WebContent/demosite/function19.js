@@ -12,7 +12,7 @@ $(function() {
         var fileURI=oElements["fileURI"];
         var ruleset = oElements['file_ruleset'];
         
-		var dataSend ="newfilename=" +fileURI+"&ruleset_path="+ruleset;
+		var dataSend ="newfilename=" +fileURI+"&ruleset_path="+ruleset + "&inferencer="+$("#collapse19 #inferencer").val();
 		
 		e.preventDefault();
 		$("#request").empty();

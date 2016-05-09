@@ -141,24 +141,13 @@ public class SpringlesService {
 	  public Response createRepository(
 			  @QueryParam("springlesrepositoryID") String springlesrepositoryID,
 			  @QueryParam("springlesserverURL") String springlesserverURL,
-			  @QueryParam("rulesetURI") String rulesetURI,
-			  @QueryParam("springlesrepositorytitle") String springlesrepositorytitle,
-			  @QueryParam("inferencer") String inferencer,
-			  @QueryParam("inferenceprefix") String inferenceprefix
-				
-				
-			  ) {
-		//  String serverUrl = "http://localhost:8080/openrdf-sesame";
-			System.out.println(inferenceprefix);
+			  @QueryParam("springlesrepositorytitle") String springlesrepositorytitle ) {
 		  RemoteRepositoryManager manager = new RemoteRepositoryManager(springlesserverURL);
 		  try {
 			manager.initialize();
-			//String repositoryId = "test-springles-"+ruleset;
 			boolean persist = true;
 			SpringlesRepositoryFactory srf=new SpringlesRepositoryFactory();
-			//SailImplConfig backendConfig = new MemoryStoreConfig(persist);
 			RepositoryImplConfig repositoryTypeSpec = srf.getConfig();
-//	Graph g= new GraphImpl();
 			
 	
 	
@@ -166,8 +155,8 @@ public class SpringlesService {
 	
 	
 			try(
-	InputStream url=getClass().getClassLoader().getResourceAsStream("springles.ttl");
-	){
+				InputStream url=getClass().getClassLoader().getResourceAsStream("springles.ttl");
+				){
 				
 				String template = IOUtil.readString(new InputStreamReader(url,
 						"UTF-8"));
@@ -175,10 +164,8 @@ public class SpringlesService {
 				ConfigTemplate ct= new ConfigTemplate(template);
 				Map<String, String> valueMap =new HashMap<String, String>();
 				valueMap.put("Repository ID", springlesrepositoryID);
-				valueMap.put("Ruleset", rulesetURI);
 				valueMap.put("Repository title", springlesrepositorytitle);
-				valueMap.put("Inferencer type", inferencer);
-				valueMap.put("Inferred context prefix", inferenceprefix);
+				valueMap.put("Inferencer type", "NullInferencer");
 				String configString = ct.render(valueMap);
 				System.out.println(configString);
 	           g = Rio.parse(IOUtils.toInputStream(configString, "UTF-8"),"",RDFFormat.TURTLE);		
@@ -206,7 +193,7 @@ public class SpringlesService {
 
   }  
 	  
-	  
+	
 
 	   
 	  @GET
@@ -362,7 +349,11 @@ public class SpringlesService {
 	  @Produces(MediaType.TEXT_HTML)
 	  public String computeClosure(
 			  @QueryParam("springlesrepositoryID") String springlesrepositoryID,
-			  @QueryParam("springlesserverURL") String springlesserverURL)
+			  @QueryParam("springlesserverURL") String springlesserverURL,
+			  @QueryParam("inferencer") String inferencer,
+			  @QueryParam("ruleset") String ruleset,
+			  @QueryParam("bindings") String bind,
+			  @QueryParam("inferredcontext") String inferredcontext)
 			
 			   {
 
@@ -378,10 +369,20 @@ public class SpringlesService {
 	  		System.out.println(springlesrepositoryID);
 	  		System.out.println(springlesserverURL);	
 	  			
+	  		
+	  		
 	  			long numberOfStatements= con.size();
 				System.out.println(" Computo inferenze........");     
 	  			
-	  			String queryString = "clear graph <springles:update-closure>";
+	  			String queryString ="";
+	  			if(inferencer.compareTo("RDFProInferencer")==0){
+	  				queryString = "clear graph <rdfpro:update-closure>";
+	  				ruleset = "file:"+ ruleset;
+	  			}else if(inferencer.compareTo("NaiveInferencer")==0){
+	  				queryString = "clear graph <springles:update-closure>";
+	  			}
+	  			changeInferenceParameters(springlesserverURL, springlesrepositoryID, ruleset, inferencer,bind,inferredcontext);
+
 	  				//if (!con.isActive()){
 	  					con.begin();
 	  				//}
@@ -430,8 +431,90 @@ public class SpringlesService {
 	  	
 	  	return result;
 	  }	  
+	  
+	  private void changeInferenceParameters(String serverURL,String repoID,String rulesetURI,String inferencer,String bind, String inferenceprefix){
+		  try {
+			  	RemoteRepositoryManager manager = new RemoteRepositoryManager(serverURL);
+				manager.initialize();
+				boolean persist = true;
+				
+				RepositoryImplConfig repositoryTypeSpec = manager.getRepositoryConfig(repoID).getRepositoryImplConfig();
+				Model	g =null;
+		
+		
+				try(
+						InputStream url=getClass().getClassLoader().getResourceAsStream("springles.ttl");
+					){
+					
+					String template = IOUtil.readString(new InputStreamReader(url,
+							"UTF-8"));
+					System.out.println(template);
+					ConfigTemplate ct= new ConfigTemplate(template);
+					Map<String, String> valueMap =new HashMap<String, String>();
+					valueMap.put("Repository ID", repoID);
+					valueMap.put("Ruleset", rulesetURI);
+					valueMap.put("Repository title", manager.getRepositoryInfo(repoID).getDescription());
+					valueMap.put("Inferencer type", inferencer);
+					valueMap.put("Inferred context prefix", inferenceprefix);
+					valueMap.put("Bindings", bind);
+					String configString = ct.render(valueMap);
+					System.out.println(configString);
+		           g = Rio.parse(IOUtils.toInputStream(configString, "UTF-8"),"",RDFFormat.TURTLE);		
+					
+					
+				}
+				RepositoryConfig repConfig = new RepositoryConfig(repoID, repositoryTypeSpec);
+			
+				repConfig.parse(g, g.filter(null, RDF.TYPE, new URIImpl("http://www.openrdf.org/config/repository#Repository")).subjectResource());
+				manager.addRepositoryConfig(repConfig);
+		  } catch (RepositoryException |RDFParseException| IOException|RepositoryConfigException e) {
+				e.printStackTrace();
+			}
+			 
+	  }
 
-	  	  
+	  private void changeConfig(String springlesserverURL,
+			  String springlesrepositoryID,
+			  String springlesrepositorytitle,
+			 String rulesetURI,
+			 String inferencer,
+			 String inferenceprefix){
+		  Model	g =null;
+		  
+		  RemoteRepositoryManager manager = new RemoteRepositoryManager(springlesserverURL);
+		  SpringlesRepositoryFactory srf=new SpringlesRepositoryFactory();
+		  RepositoryImplConfig repositoryTypeSpec = srf.getConfig();
+		  try(
+				InputStream url=getClass().getClassLoader().getResourceAsStream("springles.ttl");
+				){
+							
+				String template = IOUtil.readString(new InputStreamReader(url,
+						"UTF-8"));
+				System.out.println(template);
+				ConfigTemplate ct= new ConfigTemplate(template);
+				Map<String, String> valueMap =new HashMap<String, String>();
+				valueMap.put("Repository ID", springlesrepositoryID);
+				valueMap.put("Ruleset", rulesetURI);
+				valueMap.put("Repository title", springlesrepositorytitle);
+				valueMap.put("Inferencer type", inferencer);
+				valueMap.put("Inferred context prefix", inferenceprefix);
+				String configString = ct.render(valueMap);
+				System.out.println(configString);
+	           g = Rio.parse(IOUtils.toInputStream(configString, "UTF-8"),"",RDFFormat.TURTLE);		
+	           RepositoryConfig repConfig = new RepositoryConfig(springlesrepositoryID, repositoryTypeSpec);
+	   		
+				repConfig.parse(g, g.filter(null, RDF.TYPE, new URIImpl("http://www.openrdf.org/config/repository#Repository")).subjectResource());
+				manager.addRepositoryConfig(repConfig);
+				
+			} catch( RepositoryException |RDFParseException| IOException|RepositoryConfigException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			//URI u =new URIImpl("http://dkm.fbk.eu/springles/config#test");
+			
+			
+	  }
 	  
 	  @GET
 	  @Path("/clear")
@@ -575,7 +658,7 @@ public class SpringlesService {
 	  @GET
 	  @Path("/summary")
 	  @Produces(MediaType.TEXT_HTML)
-	  public String types(
+	  public String summary(
 			  @QueryParam("springlesrepositoryID") String springlesrepositoryID,
 			  @QueryParam("springlesserverURL") String springlesserverURL)
 	  {
@@ -599,20 +682,8 @@ public class SpringlesService {
 			rc.export(g);
 			Iterator<Statement> conf = g.iterator();
 			ArrayList<Statement> sts = new ArrayList<Statement>();
-			RepositoryConnection con = myRepository.getConnection();
-			TupleQuery query;
-			String status="";
-			try {
-				query = con.prepareTupleQuery(QueryLanguage.SPARQL,
-				                     "SELECT ?closurestatus {}");
-				TupleQueryResult qresult = query.evaluate();
-				status = qresult.next().getValue("closurestatus").stringValue();
-				
-			} catch (MalformedQueryException | QueryEvaluationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-					            
+			
+			String status = getClosureStatus(myRepository);
 			
 			
 			while(conf.hasNext())
@@ -627,8 +698,8 @@ public class SpringlesService {
 					"</td></tr><tr><th>Explicit statements:</th><td>"+ myRepository.getConnection().size()+
 					"</td></tr><tr><th>Inferred statements:</th><td>"+ (mod.size()-myRepository.getConnection().size())+
 					"</td></tr><tr><th>Closure status:</th><td>"+status+
-					"</td></tr><tr><th>Inferencer:</th><td>"+ sts.get(23).getObject().stringValue().split("#")[1] +
-					"</td></tr><tr><th>Ruleset:</th><td>"+ sts.get(22).getObject().stringValue() +
+					"</td></tr><tr><th>Last Inferencer:</th><td>"+sts.get(23).getObject().stringValue().split("#")[1]+
+					"</td></tr><tr><th>Last Ruleset:</th><td>"+ sts.get(22).getObject().stringValue() +
 					"</td></tr><tr><th>Inferred context prefix:</th><td>"+ sts.get(6).getObject().stringValue()+"</td></tr></table>";
 					
 		} catch (RepositoryException | RepositoryConfigException e) {
@@ -640,6 +711,25 @@ public class SpringlesService {
 		   
 	  	  return result;
 	  }	 
+	  
+	  
+	  private String getClosureStatus(Repository r) throws RepositoryException{
+		  RepositoryConnection con = r.getConnection();
+			TupleQuery query;
+			String status="";
+			try {
+				query = con.prepareTupleQuery(QueryLanguage.SPARQL,
+				                     "SELECT ?closurestatus {}");
+				TupleQueryResult qresult = query.evaluate();
+				status = qresult.next().getValue("closurestatus").stringValue();
+				return status;
+				
+			} catch (MalformedQueryException | QueryEvaluationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return "Fail";
+			}
+	  }
 	  
 	  
 	  
@@ -838,87 +928,271 @@ public class SpringlesService {
 			  @Produces(MediaType.TEXT_HTML)
 			  public String create_ruleset(
 					  @QueryParam("newfilename") String filename,
-					  @QueryParam("ruleset_path") String ruleset_path)
+					  @QueryParam("ruleset_path") String ruleset_path,
+					  @QueryParam("inferencer") String inferencer)
 			  {
 				 
 				 System.out.println(filename);
 				 
 				 System.out.println(ruleset_path);
-				 String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
-				 springles_url = '/'+springles_url.split("/")[1]+'/'+springles_url.split("/")[2]+'/'+springles_url.split("/")[3]+'/'+springles_url.split("/")[4]+"/openrdf-sesame/WEB-INF/classes/";
 				 
-				 String contenuto="";
+				 
+				 if(inferencer.compareTo("RDFProInferencer")==0){
+					 String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
+					 springles_url = '/'+springles_url.split("/")[1]+'/'+springles_url.split("/")[2]+'/'+springles_url.split("/")[3]+'/'+springles_url.split("/")[4]+"/openrdf-sesame/WEB-INF/classes/";
+					 
+					 String contenuto="";
 
-				 File file = new File(springles_url+filename);
-				 if (file.exists()){
-					 return "Ruleset with the same name is just in memory";
+					 File file = new File(springles_url+filename);
+					 if (file.exists()){
+						 return "Ruleset with the same name is just in memory";
+					 }
+					try {
+						if((contenuto = getFileContent(ruleset_path)).compareTo("-1") == 0)
+							return "Reading Error!";
+						if (file.createNewFile())	
+							if(appendToFile(springles_url+filename, contenuto))
+								if(appendToFile(springles_url+"META-INF/rdfpro-rulesets",filename+"\n")){
+									
+									return "Ruleset "+filename+" was uploaded!";
+								}
+								else
+									return "Uploading Error!";
+						else
+							return "Uploading Error!";
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					 return "Error!";
+				 }else if(inferencer.compareTo("NaiveInferencer")==0){
+					 String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
+					 springles_url = '/'+springles_url.split("/")[1]+'/'+springles_url.split("/")[2]+'/'+springles_url.split("/")[3]+'/'+springles_url.split("/")[4]+"/openrdf-sesame/WEB-INF/classes/";
+					 
+					 String contenuto="";
+
+					 File file = new File(springles_url+filename);
+					 if (file.exists()){
+						 return "Ruleset with the same name is just in memory";
+					 }
+					try {
+						if((contenuto = getFileContent(ruleset_path)).compareTo("-1") == 0)
+							return "Reading Error!";
+						if (file.createNewFile())	
+							if(appendToFile(springles_url+filename, contenuto))
+								if(appendToFile(springles_url+"META-INF/springles-rulesets",filename+"\n"))
+									return "Ruleset "+filename+" was uploaded!";
+								else
+									return "Uploading Error!";
+						else
+							return "Uploading Error!";
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					 return "Error!";
 				 }
-				try {
-					if((contenuto = getFileContent(ruleset_path)).compareTo("-1") == 0)
-						return "Reading Error!";
-					if (file.createNewFile())	
-						if(appendToFile(springles_url+filename, contenuto))
-							if(appendToFile(springles_url+"META-INF/springles-rulesets","\n"+filename))
-								return "Ruleset "+filename+" was uploaded!";
-							else
-								return "Uploading Error!";
-					else
-						return "Uploading Error!";
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				 return "Error!";
 				 
+				 return "Error! [ Wrong inferencer ]";
 			  }
+	
+			 
+			 
 			 
 			 @GET
 			  @Path("/list_of_ruleset")
 			  @Produces(MediaType.TEXT_HTML)
-			  public String list_of_ruleset()
+			  public String list_of_ruleset(
+					  @QueryParam("inferencer") String inferencer,
+					  @QueryParam("serverURL") String springlesserverURL,
+					  @QueryParam("repositoryID") String springlesrepositoryID)
 			  {
+				 System.out.println(inferencer);
+				 System.out.println(springlesserverURL);
+				 System.out.println(springlesrepositoryID);
 				 
-				 String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
-				 springles_url = '/'+springles_url.split("/")[1]+'/'+springles_url.split("/")[2]+'/'+springles_url.split("/")[3]+'/'+springles_url.split("/")[4]+"/openrdf-sesame/WEB-INF/classes/";
-				 String contenuto;
-				 if((contenuto = getFileContent(springles_url+"META-INF/springles-rulesets")).compareTo("-1") == 0)
-					 return "Reading Error!";
-				 else{
-					String result="<table border='1'><tr><th>Name</th><th></th></tr>";
-					 for(String s : contenuto.split("\n")){
-						 result += "<tr><td><a id="+s+" class='ruleset'>"+s+"</a></td><td><a style='color:red;' class='delete' id='r_"+s+"'>Delete</a></td></tr>";
+				 if(inferencer.compareTo("RDFProInferencer")==0){
+					 
+					 String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
+					 springles_url = '/'+springles_url.split("/")[1]+'/'+springles_url.split("/")[2]+'/'+springles_url.split("/")[3]+'/'+springles_url.split("/")[4]+"/openrdf-sesame/WEB-INF/classes/";
+					 String contenuto;
+					 if((contenuto = getFileContent(springles_url+"META-INF/rdfpro-rulesets")).compareTo("-1") == 0)
+						 return "Reading Error!";
+					 else{
+						String result="<table border='1'><tr><th>Name</th><th></th></tr>";
+						 for(String s : contenuto.split("\n")){
+							 result += "<tr><td><a id="+springles_url+s+" class='ruleset'>"+s+"</a></td><td><a style='color:red;' class='delete' id='r_"+s+"'>Delete</a></td></tr>";
+						 }
+						 result+= "</table>";
+						 return result;
 					 }
-					 result+= "</table>";
-					 return result;
+				 }else if (inferencer.compareTo("NaiveInferencer")==0){
+					 String result="<table border='1'><tr><th>Name</th><th></th></tr>";
+					
+						List<BindingSet> tuples = new ArrayList<BindingSet>();
+						try{
+							 	Repository myRepository = new HTTPRepository(springlesserverURL, springlesrepositoryID);
+								myRepository.initialize();
+								RepositoryConnection connection = myRepository.getConnection();
+						try {
+							TupleQuery tupleQuery = connection.prepareTupleQuery(QueryLanguage.SPARQL,  "SELECT ?listOfRuleset {}");
+							TupleQueryResult qresult = tupleQuery.evaluate();
+							try {
+								while (qresult.hasNext()) {
+									tuples.add(qresult.next());
+								}
+							} finally {
+								qresult.close();
+							}
+						} finally {
+							connection.close();
+						}
+					} catch (OpenRDFException ex) {
+						ex.printStackTrace();
+					}
+					
+					String list = "";
+					for (BindingSet s : tuples) {						 
+						list+= s.getValue("listofruleset").stringValue();
+					}
+					System.out.println(list);
+					for(String s : list.split("\n"))
+					{
+						 result += "<tr><td><a id="+s.split("--")[1]+" class='ruleset'>"+s.split("--")[0]+"</a></td><td><a style='color:red;' class='delete' id='r_"+s.split("--")[1]+"'>Delete</a></td></tr>";
+					}
+					result+= "</table>";
+					return result;
+					 
 				 }
+					 
+				
+				return "";
+				
 					
 			  }
+			 
+			 
+			 @GET
+			  @Path("/list_of_closure_ruleset")
+			  @Produces(MediaType.TEXT_HTML)
+			  public String list_of_closure_ruleset(
+					  @QueryParam("inferencer") String inferencer,
+					  @QueryParam("serverURL") String springlesserverURL,
+					  @QueryParam("repositoryID") String springlesrepositoryID)
+			  {
+				 System.out.println(inferencer);
+				 System.out.println(springlesserverURL);
+				 System.out.println(springlesrepositoryID);
+				 
+				 if(inferencer.compareTo("RDFProInferencer")==0){
+					 String result = "";
+					 String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
+					 springles_url = '/'+springles_url.split("/")[1]+'/'+springles_url.split("/")[2]+'/'+springles_url.split("/")[3]+'/'+springles_url.split("/")[4]+"/openrdf-sesame/WEB-INF/classes/";
+					 String contenuto;
+					 if((contenuto = getFileContent(springles_url+"META-INF/rdfpro-rulesets")).compareTo("-1") == 0)
+						 return "Reading Error!";
+					 else{
+						 for(String s : contenuto.split("\n")){
+							 result += springles_url+s+"\n";
+						 }
+						 return result;
+					 }
+				 }else if (inferencer.compareTo("NaiveInferencer")==0){
+					 String result="";
+					
+						List<BindingSet> tuples = new ArrayList<BindingSet>();
+						try{
+							 	Repository myRepository = new HTTPRepository(springlesserverURL, springlesrepositoryID);
+								myRepository.initialize();
+								RepositoryConnection connection = myRepository.getConnection();
+						try {
+							TupleQuery tupleQuery = connection.prepareTupleQuery(QueryLanguage.SPARQL,  "SELECT ?listOfRuleset {}");
+							TupleQueryResult qresult = tupleQuery.evaluate();
+							try {
+								while (qresult.hasNext()) {
+									tuples.add(qresult.next());
+								}
+							} finally {
+								qresult.close();
+							}
+						} finally {
+							connection.close();
+						}
+					} catch (OpenRDFException ex) {
+						ex.printStackTrace();
+					}
+					
+					String list = "";
+					for (BindingSet s : tuples) {						 
+						list+= s.getValue("listofruleset").stringValue();
+					}
+					System.out.println(list);
+					for(String s : list.split("\n"))
+					{
+						 result += s.split("--")[0]+"\n";
+					}
+					return result;
+					 
+				 }
+					 
+				
+				return "";
+				
+					
+			  }
+			 
 			 
 			 @GET
 			  @Path("/delete_ruleset")
 			  @Produces(MediaType.TEXT_HTML)
 			  public String delete_ruleset(
-					  @QueryParam("filename") String filename)
+					  @QueryParam("filename") String filename,
+					  @QueryParam("inferencer") String inferencer)
 			  {
-				 
-				 String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
-				 springles_url = '/'+springles_url.split("/")[1]+'/'+springles_url.split("/")[2]+'/'+springles_url.split("/")[3]+'/'+springles_url.split("/")[4]+"/openrdf-sesame/WEB-INF/classes/";
-				 File ruleset = new File(springles_url+filename);
-				 if(ruleset.exists())
-				 {
-					 if(!ruleset.delete())
-						 return "Deleting Error!";
-				 }else
-					 return "File is not exists!";
+				 if(inferencer.compareTo("RDFProInferencer")==0){
+					 String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
+					 springles_url = '/'+springles_url.split("/")[1]+'/'+springles_url.split("/")[2]+'/'+springles_url.split("/")[3]+'/'+springles_url.split("/")[4]+"/openrdf-sesame/WEB-INF/classes/";
+					 File ruleset = new File(filename);
 					
-				 System.out.println(springles_url+filename);
-				 String contenuto;
-				 if((contenuto = getFileContent(springles_url+"META-INF/springles-rulesets")).compareTo("-1") == 0)
-					 return "Deleting Error!";
-				 contenuto = contenuto.replaceAll(filename, "");
-				 if(!replaceToFile(springles_url+"META-INF/springles-rulesets", contenuto))
-					 return "Deleting Error!";
-				 return "Ruleset was deleted!";
+					 if(ruleset.exists())
+					 {
+						 if(!ruleset.delete())
+							 return "Deleting Error!";
+					 }else
+						 return "File is not exists!";
+						
+					 
+					 String contenuto;
+					 if((contenuto = getFileContent(springles_url+"META-INF/rdfpro-rulesets")).compareTo("-1") == 0)
+						 return "Deleting Error!";
+					 contenuto = contenuto.replaceAll(filename.substring(filename.lastIndexOf('/')+1, filename.length())+"\n", "");
+					 System.out.println(contenuto);
+					 if(!replaceToFile(springles_url+"META-INF/rdfpro-rulesets", contenuto))
+						 return "Deleting Error!";
+					 return "Ruleset was deleted!";
+				 }else if(inferencer.compareTo("NaiveInferencer")==0){
+					 String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
+					 springles_url = '/'+springles_url.split("/")[1]+'/'+springles_url.split("/")[2]+'/'+springles_url.split("/")[3]+'/'+springles_url.split("/")[4]+"/openrdf-sesame/WEB-INF/classes/";
+					 File ruleset = new File(filename);
+					
+					 if(ruleset.exists())
+					 {
+						 if(!ruleset.delete())
+							 return "Deleting Error!";
+					 }else
+						 return "File is not exists!";
+						
+					 
+					 String contenuto;
+					 if((contenuto = getFileContent(springles_url+"META-INF/springles-rulesets")).compareTo("-1") == 0)
+						 return "Deleting Error!";
+					 contenuto = contenuto.replaceAll(filename.substring(filename.lastIndexOf('/')+1, filename.length())+"\n", "");
+					 System.out.println(contenuto);
+					 if(!replaceToFile(springles_url+"META-INF/springles-rulesets", contenuto))
+						 return "Deleting Error!";
+					 return "Ruleset was deleted!";
+				 }
+				 return "Deleting Error [ Wrong Inferencer ]";
 				 
 				 
 			  }
@@ -929,10 +1203,10 @@ public class SpringlesService {
 					  @QueryParam("filename") String filename)
 			  {
 				 
-				 String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
-				 springles_url = '/'+springles_url.split("/")[1]+'/'+springles_url.split("/")[2]+'/'+springles_url.split("/")[3]+'/'+springles_url.split("/")[4]+"/openrdf-sesame/WEB-INF/classes/";
+				 //String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
+				 //springles_url = '/'+springles_url.split("/")[1]+'/'+springles_url.split("/")[2]+'/'+springles_url.split("/")[3]+'/'+springles_url.split("/")[4]+"/openrdf-sesame/WEB-INF/classes/";
 				 String contenuto;
-				 if((contenuto = getFileContent(springles_url+filename)).compareTo("-1") == 0)
+				 if((contenuto = getFileContent(filename)).compareTo("-1") == 0)
 					 return "Reading Error!";
 				 else{		
 					 return contenuto;

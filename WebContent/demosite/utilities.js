@@ -139,3 +139,7 @@ function getClosureStatus(){
                         $('#result').html("<span> " + jqXHR.status + " " + jqXHR.responseText + "</span><br />");
                     });
 }
+
+$("#collapse19 #inferencer").on("change",function(){
+    load_rulesets();
+});

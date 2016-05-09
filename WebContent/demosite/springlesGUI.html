@@ -177,16 +177,6 @@ a, .delete{
                                     <input type="text" class="form-control" value="test-springles-5" id="springlesrepositoryID" >
 	    	                        <label style="padding-top: 20px" for="springlesrepositorytitle">Springles Repository TITLE</label>
 				                    <input type="text" class="form-control" value="test-springles-5" id="springlesrepositorytitle" >
-                                    <label style="padding-top: 20px" for="rulesetURI">rulesetURI</label>
-                                    <input type="text" class="form-control" value="ckr:toolisse-ruleset" id="rulesetURI" >
-                                    <label style="padding-top: 20px" for="rulesetURI">Inferred context prefix</label>
-                                    <input type="text" class="form-control" value="springles:inf:*" id="inferenceprefix" >
-				    	            <label style="padding-top: 20px" for="inferencer">Inferencer</label>
-                                    <select id="inferencer" class="form-control">
-                                        <option val="RDFProInferencer" >RDFProInferencer</option>
-                                        <option val="RDFProInferencer" >NaiveInferencer</option>
-									</select> 		
-                                    <p class="help-block"></p>	
                                 </div>		
                                 <button type="submit" class="btn btn-default btn-primary">Submit</button>
                             </form>
@@ -265,7 +255,21 @@ a, .delete{
                         <div class="panel-body">
                             <h4>Closure</h4>
                             <form id="form14" role="form" method="GET"   enctype="multipart/form-data">
-                                
+                                <div class="form-group">
+                                    <label style="padding-top: 20px" for="closure_inferencer">Inferencer</label>
+                                    <select class="form-control"  id="closure_inferencer" >
+                                            <option value="NaiveInferencer">NaiveInferencer</option> 
+                                            <option value="RDFProInferencer">RDFProInferencer</option>
+                                    </select>
+                                    <label style="padding-top: 20px" for="closure_inferencer">Ruleset</label>
+                                    <select class="form-control"  id="closure_ruleset" >
+
+                                    </select>
+                                    <label style="padding-top: 20px" for="bindings">Binding</label>
+                                    <input type="text" class="form-control" value="springles:inf:global=global_inf " id="bindings" >
+                                    <label style="padding-top: 20px" for="inferred_context_prefix">Inferred Context Prefix</label>
+                                    <input type="text" class="form-control" value="springles:inf:*" id="inferred_context_prefix" >
+                                </div>
                                 <button type="button" id="update_cl" class="btn btn-default btn-primary">Update</button>
                                 <button type="button" id="clear_cl" class="btn btn-default btn-primary">Clear</button>
                             </form> 
@@ -302,9 +306,14 @@ a, .delete{
                     <div id="collapse19" class="panel-collapse collapse">
                         <div class="panel-body">
                             <h4>Manage Ruleset</h4>
+                            <select class="form-control col-md-12"  id="inferencer" >
+                                        <option value="NaiveInferencer">NaiveInferencer</option> 
+                                        <option value="RDFProInferencer">RDFProInferencer</option>
+                            </select>
                             <div class="col-md-4" id="list_of_rulesets" style="margin-top: 5%;"></div>
                             <form class="col-md-8" id="form19" role="form" method="GET" >
-                                <div class="form-group">	
+                                <div class="form-group">
+                                    
                                      <label style="padding-top: 20px" for="fileURI">Name of new ruleset</label>
                                     <input type="text" class="form-control" value="abcd.ttl" id="fileURI" >
                                     <label style="padding-top: 20px" for="file_ruleset">File path to Upload</label>
@@ -330,11 +339,9 @@ a, .delete{
 	<script type="text/javascript">
 		/*INSERT THE CORRECT URL*/
 		
-        $(".panel-heading").click(function(){
-            $("#result").empty();
-            $(".panel-collapse").hide();
-            showPanel($(this).find('h4 a').attr("href"));
-        });
+        var rulesets = new Array();
+        
+     
 		$("#repoChoice").on("change",function(){
             $(".panel-collapse").hide();
             $(".springlesrepositoryID").each(function(){
@@ -362,7 +369,7 @@ a, .delete{
 
 		if (!library)
 			var library = {};
-
+        
 		library.json = {
 			replacer : function(match, pIndent, pKey, pVal, pEnd) {
 				var key = '<span class=json-key>';
@@ -398,6 +405,24 @@ a, .delete{
   	 	<script src="function17.js"></script>
         <script src="function18.js"></script>
         <script src="function19.js"></script>
+        <script type="text/javascript">
+		
+        var rulesets = new Array();
+        
+        $(".panel-heading").click(function(){
+            $("#result").empty();
+            $(".panel-collapse").hide();
+            showPanel($(this).find('h4 a').attr("href"));
+            if($(this).find('h4 a').attr("href") == "#collapse14")
+            {
+                load_rulesets_closure();
+               
+            }
+        });
+            
+            
+        
+        </script>
 </body>
 </body>
 </html>
