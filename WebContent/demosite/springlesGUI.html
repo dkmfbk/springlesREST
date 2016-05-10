@@ -310,8 +310,8 @@ a, .delete{
                                         <option value="NaiveInferencer">NaiveInferencer</option> 
                                         <option value="RDFProInferencer">RDFProInferencer</option>
                             </select>
-                            <div class="col-md-4" id="list_of_rulesets" style="margin-top: 5%;"></div>
-                            <form class="col-md-8" id="form19" role="form" method="GET" >
+                            <div class="col-md-12" id="list_of_rulesets" style="margin-top: 5%;"></div>
+                            <form class="col-md-12" id="form19" role="form" method="GET" >
                                 <div class="form-group">
                                     
                                      <label style="padding-top: 20px" for="fileURI">Name of new ruleset</label>
@@ -409,6 +409,12 @@ a, .delete{
 		
         var rulesets = new Array();
         
+            
+        $("#loadRepo").click(function(){
+            $("#result").empty();
+            $(".panel-collapse").hide();
+        });
+            
         $(".panel-heading").click(function(){
             $("#result").empty();
             $(".panel-collapse").hide();

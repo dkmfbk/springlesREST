@@ -69,32 +69,6 @@ $(function() {
 });
 
 
-function load_rulesets_closure(){
-    var dataSend ="inferencer="+$("#closure_inferencer").val()+"&serverURL="+serverURL+"&repositoryID="+$("#repoChoice").val();
-    $.ajax({
-			 crossOrigin: true,
-			url : restURL+"list_of_closure_ruleset" , 
-			data : dataSend, 
-      contentType: "application/json; charset=utf-8",
-      dataType: "html",
-			type : "GET"
-		
-		}).done(function(data, textStatus, jqXHR) {			
-			//var print = eval("(" + data + ')'); 
-			$("#result").empty();
-            
-           $("#closure_ruleset").empty();
-           for(var i=0;i< data.split('\n').length-1;i++){
-                $("#closure_ruleset").append("<option val='"+data.split('\n')[i]+"' >"+data.split('\n')[i]+"</option>");
-            }
-    
-                                 
-		}).fail(function(jqXHR, textStatus, errorThrown) { 
-			$("#result").empty();
-			$('#result').html("<span> " + jqXHR.status + " " + jqXHR.responseText + "</span><br />");
-		});
-		return false;
-}
 
 $("#closure_inferencer").on("change",function(){
     load_rulesets_closure();

@@ -9,10 +9,19 @@ function load_rulesets(){
 			type : "GET"
 		
 		}).done(function(data, textStatus, jqXHR) {			
-			//var print = eval("(" + data + ')'); 
-			$("#result").empty();
+			//var print = eval("(" + data + ')');
+            var tmp="";
+            $("#result").empty();
             $("#list_of_rulesets").empty();
-            $("#list_of_rulesets").append(data);
+            var table= "";
+             table+= "<table border='1'><tr><th>Name</th><th></th></tr>";
+            for(var i=0;data!= null && i<data.split("\n").length-1;i++)
+            {
+                tmp = data.split("\n")[i];
+               table += "<tr><td><a id="+tmp.split("&")[0]+" class='ruleset'>"+tmp.split("&")[1]+"</a></td><td><a style='color:red;' class='delete' id='r_"+tmp.split("&")[1]+"'>Delete</a></td></tr>";
+            }
+            table += "</table>";
+            $("#list_of_rulesets").append(table);                  
             getRuleset($(".ruleset").get(0).id);
             $(".ruleset").click(function(){
                 var index=$(".ruleset").index(this);
@@ -76,7 +85,7 @@ function deleteRuleset(name){
 }
 
 function load_rulesets_closure(){
-    var dataSend ="inferencer="+$("#collapse14 #inferencer").val()+"&serverURL="+serverURL+"&repositoryID="+$("#repoChoice").val();
+    var dataSend ="inferencer="+$("#closure_inferencer").val()+"&serverURL="+serverURL+"&repositoryID="+$("#repoChoice").val();
     $.ajax({
 			 crossOrigin: true,
 			url : restURL+"list_of_ruleset" , 
@@ -88,16 +97,16 @@ function load_rulesets_closure(){
 		}).done(function(data, textStatus, jqXHR) {			
 			//var print = eval("(" + data + ')'); 
 			$("#result").empty();
-            $(".ruleset").click(function(){
-                var index=$(".ruleset").index(this);
-                getRuleset($(".ruleset").get(index).id);
-            });
-            $(".delete").click(function(){
-                var index=$(".delete").index(this);
-                var ruleset = $(".ruleset").get(index).id;
-                deleteRuleset(ruleset);
-                
-            });
+            var tmp="";
+            $("#closure_ruleset").empty();
+            for(var i=0;data!= null && i<data.split("\n").length-1;i++)
+            {
+                tmp = data.split("\n")[i];
+                if($("#closure_inferencer").val() == "NaiveInferencer")
+                    $("#closure_ruleset").append("<option value="+tmp.split("&")[1]+" >"+tmp.split("&")[1]+"</option>");
+                else
+                    $("#closure_ruleset").append("<option value="+tmp.split("&")[0]+" >"+tmp.split("&")[1]+"</option>");
+            }
 		}).fail(function(jqXHR, textStatus, errorThrown) { 
 			$("#result").empty();
 			$('#result').html("<span> " + jqXHR.status + " " + jqXHR.responseText + "</span><br />");

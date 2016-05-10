@@ -165,7 +165,7 @@ public class SpringlesService {
 				Map<String, String> valueMap =new HashMap<String, String>();
 				valueMap.put("Repository ID", springlesrepositoryID);
 				valueMap.put("Repository title", springlesrepositorytitle);
-				valueMap.put("Inferencer type", "NullInferencer");
+				valueMap.put("Inferencer type", "VoidInferencer");
 				String configString = ct.render(valueMap);
 				System.out.println(configString);
 	           g = Rio.parse(IOUtils.toInputStream(configString, "UTF-8"),"",RDFFormat.TURTLE);		
@@ -688,7 +688,11 @@ public class SpringlesService {
 			
 			while(conf.hasNext())
 				sts.add(conf.next());
+			String ruleset = sts.get(22).getObject().stringValue();
+			if(sts.get(22).getObject().stringValue().lastIndexOf("/") != -1)
+				ruleset = sts.get(22).getObject().stringValue().replaceAll(sts.get(22).getObject().stringValue().substring(0,sts.get(22).getObject().stringValue().lastIndexOf("/")+1),"");
 			
+				
 			result ="<table style='font-size:0.9em;' >";
 			result += "<tr><th>ID:</th><td>" + ri.getId()+
 					"</td></tr><tr><th>Title:</th><td>" + ri.getDescription()+
@@ -699,7 +703,7 @@ public class SpringlesService {
 					"</td></tr><tr><th>Inferred statements:</th><td>"+ (mod.size()-myRepository.getConnection().size())+
 					"</td></tr><tr><th>Closure status:</th><td>"+status+
 					"</td></tr><tr><th>Last Inferencer:</th><td>"+sts.get(23).getObject().stringValue().split("#")[1]+
-					"</td></tr><tr><th>Last Ruleset:</th><td>"+ sts.get(22).getObject().stringValue() +
+					"</td></tr><tr><th>Last Ruleset:</th><td>"+ ruleset +
 					"</td></tr><tr><th>Inferred context prefix:</th><td>"+ sts.get(6).getObject().stringValue()+"</td></tr></table>";
 					
 		} catch (RepositoryException | RepositoryConfigException e) {
@@ -999,83 +1003,11 @@ public class SpringlesService {
 			 
 			 
 			 
+			
 			 @GET
 			  @Path("/list_of_ruleset")
 			  @Produces(MediaType.TEXT_HTML)
 			  public String list_of_ruleset(
-					  @QueryParam("inferencer") String inferencer,
-					  @QueryParam("serverURL") String springlesserverURL,
-					  @QueryParam("repositoryID") String springlesrepositoryID)
-			  {
-				 System.out.println(inferencer);
-				 System.out.println(springlesserverURL);
-				 System.out.println(springlesrepositoryID);
-				 
-				 if(inferencer.compareTo("RDFProInferencer")==0){
-					 
-					 String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
-					 springles_url = '/'+springles_url.split("/")[1]+'/'+springles_url.split("/")[2]+'/'+springles_url.split("/")[3]+'/'+springles_url.split("/")[4]+"/openrdf-sesame/WEB-INF/classes/";
-					 String contenuto;
-					 if((contenuto = getFileContent(springles_url+"META-INF/rdfpro-rulesets")).compareTo("-1") == 0)
-						 return "Reading Error!";
-					 else{
-						String result="<table border='1'><tr><th>Name</th><th></th></tr>";
-						 for(String s : contenuto.split("\n")){
-							 result += "<tr><td><a id="+springles_url+s+" class='ruleset'>"+s+"</a></td><td><a style='color:red;' class='delete' id='r_"+s+"'>Delete</a></td></tr>";
-						 }
-						 result+= "</table>";
-						 return result;
-					 }
-				 }else if (inferencer.compareTo("NaiveInferencer")==0){
-					 String result="<table border='1'><tr><th>Name</th><th></th></tr>";
-					
-						List<BindingSet> tuples = new ArrayList<BindingSet>();
-						try{
-							 	Repository myRepository = new HTTPRepository(springlesserverURL, springlesrepositoryID);
-								myRepository.initialize();
-								RepositoryConnection connection = myRepository.getConnection();
-						try {
-							TupleQuery tupleQuery = connection.prepareTupleQuery(QueryLanguage.SPARQL,  "SELECT ?listOfRuleset {}");
-							TupleQueryResult qresult = tupleQuery.evaluate();
-							try {
-								while (qresult.hasNext()) {
-									tuples.add(qresult.next());
-								}
-							} finally {
-								qresult.close();
-							}
-						} finally {
-							connection.close();
-						}
-					} catch (OpenRDFException ex) {
-						ex.printStackTrace();
-					}
-					
-					String list = "";
-					for (BindingSet s : tuples) {						 
-						list+= s.getValue("listofruleset").stringValue();
-					}
-					System.out.println(list);
-					for(String s : list.split("\n"))
-					{
-						 result += "<tr><td><a id="+s.split("--")[1]+" class='ruleset'>"+s.split("--")[0]+"</a></td><td><a style='color:red;' class='delete' id='r_"+s.split("--")[1]+"'>Delete</a></td></tr>";
-					}
-					result+= "</table>";
-					return result;
-					 
-				 }
-					 
-				
-				return "";
-				
-					
-			  }
-			 
-			 
-			 @GET
-			  @Path("/list_of_closure_ruleset")
-			  @Produces(MediaType.TEXT_HTML)
-			  public String list_of_closure_ruleset(
 					  @QueryParam("inferencer") String inferencer,
 					  @QueryParam("serverURL") String springlesserverURL,
 					  @QueryParam("repositoryID") String springlesrepositoryID)
@@ -1093,7 +1025,7 @@ public class SpringlesService {
 						 return "Reading Error!";
 					 else{
 						 for(String s : contenuto.split("\n")){
-							 result += springles_url+s+"\n";
+							 result += springles_url+s+"&"+s+"\n";
 						 }
 						 return result;
 					 }
@@ -1129,7 +1061,7 @@ public class SpringlesService {
 					System.out.println(list);
 					for(String s : list.split("\n"))
 					{
-						 result += s.split("--")[0]+"\n";
+						 result += s.split("--")[1]+"&"+s.split("--")[0]+"\n";
 					}
 					return result;
 					 
@@ -1149,6 +1081,7 @@ public class SpringlesService {
 					  @QueryParam("filename") String filename,
 					  @QueryParam("inferencer") String inferencer)
 			  {
+				 System.out.println("DELETE "+ filename + " "+inferencer);
 				 if(inferencer.compareTo("RDFProInferencer")==0){
 					 String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
 					 springles_url = '/'+springles_url.split("/")[1]+'/'+springles_url.split("/")[2]+'/'+springles_url.split("/")[3]+'/'+springles_url.split("/")[4]+"/openrdf-sesame/WEB-INF/classes/";
@@ -1208,7 +1141,9 @@ public class SpringlesService {
 				 String contenuto;
 				 if((contenuto = getFileContent(filename)).compareTo("-1") == 0)
 					 return "Reading Error!";
-				 else{		
+				 else{
+					 contenuto = contenuto.replaceAll("<", "&#60;");
+					 contenuto = contenuto.replaceAll(">", "&#62;");
 					 return contenuto;
 				 }
 					
