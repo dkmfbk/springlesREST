@@ -1,6 +1,7 @@
 package eu.fbk.dkm.springles.rest;
 
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
@@ -304,7 +305,7 @@ public class SpringlesService {
 	System.out.println(springlesrepositoryID);
 	System.out.println(springlesserverURL);	  
 	System.out.println(baseURI);	  
-	System.out.println(filetoupload);	 
+	System.out.println(filetoupload);
 		  
 
 	String result ="FAIL";
@@ -323,7 +324,7 @@ public class SpringlesService {
 	
 		Repository repository = manager.getRepository(repositoryId);
 		RepositoryConnection con = repository.getConnection();
-	
+		BufferedReader reader = new BufferedReader(new InputStreamReader(filetoupload));
 	    con.add(filetoupload, baseURI, RDFFormat.TRIG);
 		//con.add(file, baseURI, RDFFormat.TRIG);
 		result="200 OK";
@@ -842,7 +843,11 @@ public class SpringlesService {
 				System.out.println("RES:"+tuples.size());
 				
 				for (BindingSet s : tuples) {
-					result+="<tr><td class='subj'>"+(s.getValue("s") != null ? s.getValue("s").toString() : "")+"</td><td class='pred'>"+(s.getValue("p") != null ? s.getValue("p").toString() : " ")+"</td><td class='obj'>"+(s.getValue("o") != null ? s.getValue("o").toString() : " ")+"</td></tr>";
+					result+="<tr>";
+					for(String n:s.getBindingNames()){
+						result+="<td class='"+n+"'>"+s.getValue(n)+"</td>";
+					}
+					result+="</tr>";
 				}
 				
 				
@@ -927,33 +932,39 @@ public class SpringlesService {
 			   
 			
 			
-			 @GET
+			 @POST
 			  @Path("/create_ruleset")
+			  @Consumes(MediaType.MULTIPART_FORM_DATA)
 			  @Produces(MediaType.TEXT_HTML)
 			  public String create_ruleset(
-					  @QueryParam("newfilename") String filename,
-					  @QueryParam("ruleset_path") String ruleset_path,
-					  @QueryParam("inferencer") String inferencer)
+					  @FormDataParam("newfilename") String filename,
+					  @FormDataParam("filetoupload") InputStream ruleset,
+					  @FormDataParam("inferencer") String inferencer,
+					  @FormDataParam("filetoupload") FormDataContentDisposition fileDetail)
 			  {
 				 
 				 System.out.println(filename);
 				 
-				 System.out.println(ruleset_path);
-				 
-				 
-				 if(inferencer.compareTo("RDFProInferencer")==0){
+				 BufferedReader reader = new BufferedReader(new InputStreamReader(ruleset));
+				 String contenuto ="";
+				 String tmp = "";
+				 try {
+					while((tmp=reader.readLine())!=null)
+						 contenuto+= tmp+"\n";
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				 System.out.println(contenuto);
+				if(inferencer.compareTo("RDFProInferencer")==0){
 					 String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
 					 springles_url = '/'+springles_url.split("/")[1]+'/'+springles_url.split("/")[2]+'/'+springles_url.split("/")[3]+'/'+springles_url.split("/")[4]+"/openrdf-sesame/WEB-INF/classes/";
 					 
-					 String contenuto="";
-
 					 File file = new File(springles_url+filename);
 					 if (file.exists()){
 						 return "Ruleset with the same name is just in memory";
 					 }
 					try {
-						if((contenuto = getFileContent(ruleset_path)).compareTo("-1") == 0)
-							return "Reading Error!";
 						if (file.createNewFile())	
 							if(appendToFile(springles_url+filename, contenuto))
 								if(appendToFile(springles_url+"META-INF/rdfpro-rulesets",filename+"\n")){
@@ -973,15 +984,11 @@ public class SpringlesService {
 					 String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
 					 springles_url = '/'+springles_url.split("/")[1]+'/'+springles_url.split("/")[2]+'/'+springles_url.split("/")[3]+'/'+springles_url.split("/")[4]+"/openrdf-sesame/WEB-INF/classes/";
 					 
-					 String contenuto="";
-
 					 File file = new File(springles_url+filename);
 					 if (file.exists()){
 						 return "Ruleset with the same name is just in memory";
 					 }
 					try {
-						if((contenuto = getFileContent(ruleset_path)).compareTo("-1") == 0)
-							return "Reading Error!";
 						if (file.createNewFile())	
 							if(appendToFile(springles_url+filename, contenuto))
 								if(appendToFile(springles_url+"META-INF/springles-rulesets",filename+"\n"))
@@ -1055,10 +1062,13 @@ public class SpringlesService {
 					}
 					
 					String list = "";
+					System.out.println(tuples.size());
 					for (BindingSet s : tuples) {						 
 						list+= s.getValue("listofruleset").stringValue();
 					}
 					System.out.println(list);
+					if(list.replaceAll("\\s+", "").compareTo("no-ruleset")==0)
+						return "";
 					for(String s : list.split("\n"))
 					{
 						 result += s.split("--")[1]+"&"+s.split("--")[0]+"\n";

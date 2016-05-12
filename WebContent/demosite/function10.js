@@ -8,7 +8,7 @@ $(function() {
 		var springleserverURL= serverURL;
 		var springlesrepositoryID=$("#repoChoice").val();
 		var url_=restURL+"querysparql";
-	   var querySPARQL=oElements["querySPARQL"];
+	   var querySPARQL= yasqe.getValue();
         var includeinferred = $("#form10 #includeinferred:checked").length;
         var dataSend = new FormData();
 		dataSend.append("repositoryID",springlesrepositoryID);

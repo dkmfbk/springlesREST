@@ -5,6 +5,10 @@
 
 <!-- Optional theme -->
 <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap-theme.min.css">
+<link href='//cdn.jsdelivr.net/yasqe/2.10.0/yasqe.min.css' rel='stylesheet' type='text/css'/>
+    
+
+    
 <style type="text/css">
 .json-key {
 	color: brown;
@@ -41,7 +45,7 @@ a, .delete{
   		</div>
 	
 	
-		<div class="col-md-4">
+		<div class="col-md-3" >
 		        
 	       <div class="panel-body" >
                             <form id="form18" role="form" method="GET">				
@@ -166,7 +170,7 @@ a, .delete{
 			</div>
 		</div>
         
-		<div class="col-md-8">
+		<div class="col-md-9">
                 <div id="collapse11" class="panel-collapse collapse col-md-12">
 						<div class="panel-body">
 						
@@ -291,8 +295,8 @@ a, .delete{
                             <form id="form10" role="form" method="POST">
                                 <div class="form-group">	
                                         <label for="querySPARQL">query SPARQL</label>
-                                        <input type="text" class="form-control" value="SELECT ?s ?p ?o WHERE { ?s ?p ?o }" id="querySPARQL" >
-                                        <p class="help-block">Exampe:SELECT ?s ?p ?o WHERE { ?s ?p ?o }</p>
+                                        <!--<input type="text" class="form-control" value="SELECT ?s ?p ?o WHERE { ?s ?p ?o }" id="querySPARQL" >-->
+                                        <div id="yasqe" ></div>
                                         <label style="padding-top: 20px" for="includeinferred">
                                             <input type="checkbox" style="background-color: #fff;background-image: none;border: 1px solid #ccc;" id="includeinferred" value="Includi statements inferiti" checked></input>
                                             Include inferred statements
@@ -317,8 +321,7 @@ a, .delete{
                                      <label style="padding-top: 20px" for="fileURI">Name of new ruleset</label>
                                     <input type="text" class="form-control" value="abcd.ttl" id="fileURI" >
                                     <label style="padding-top: 20px" for="file_ruleset">File path to Upload</label>
-                                    <input type="text" class="form-control" value="ruleset.ttl" id="file_ruleset" >
-                                     <p class="help-block">C://Users/.../ruleset.ttl</p>
+                                    <input type="file" class="form-control" value="ruleset.ttl" id="file_ruleset" >
                                 </div>
                                 <button type="submit" class="btn btn-default btn-primary">Create</button>
                             </form>
@@ -411,11 +414,13 @@ a, .delete{
         
             
         $("#loadRepo").click(function(){
+            $("#result").show();
             $("#result").empty();
             $(".panel-collapse").hide();
         });
             
         $(".panel-heading").click(function(){
+            $("#result").show();
             $("#result").empty();
             $(".panel-collapse").hide();
             showPanel($(this).find('h4 a').attr("href"));
@@ -429,6 +434,10 @@ a, .delete{
             
         
         </script>
+        <script src="https://cdn.jsdelivr.net/yasr/2.4/yasr.bundled.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/yasqe/2.2/yasqe.bundled.min.js"></script> 
+        <script src="init_yasqe.js"></script>
+        <script type="text/javascript" src="http://google.com/jsapi"></script>
 </body>
 </body>
 </html>

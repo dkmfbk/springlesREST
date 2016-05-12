@@ -27,7 +27,7 @@
         spc:hasInferencer [
             a spc:{%Inferencer type|NaiveInferencer%};
             spc:hasMaxConcurrentRules {%Max concurrent rules|0%};
-            spc:hasRuleset <{%Ruleset|ckr:toolisse-ruleset%}>;
+            spc:hasRuleset <{%Ruleset|no:ruleset%}>;
             spc:hasBindings """ {%Bindings%} """
         ]
     ] .
