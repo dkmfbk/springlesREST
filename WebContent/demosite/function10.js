@@ -27,7 +27,7 @@ $(function() {
 		
 		}).done(function(data, textStatus, jqXHR) {			
 			$("#result").empty();
-			$('#result').html("<table border='1'>"+data+"</table>");
+			$('#result').html("<table class='table table-striped'>"+data+"</table>");
             defineClickListerner();
 		}).fail(function(jqXHR, textStatus, errorThrown) { 
 			$("#result").empty();

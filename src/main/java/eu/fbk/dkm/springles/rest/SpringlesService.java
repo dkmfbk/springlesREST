@@ -81,7 +81,12 @@ import info.aduna.iteration.Iterations;
 
 
 
-
+/**
+ * SpringlesService is the REST service that allowed you to manage semantic data, by adding, deleting, 
+ * applying the closure and other features.
+ * @author Gaetano Calabrese, Christian Joppi 
+ *
+ */
 @Path("/rest")
 public class SpringlesService {
 	
@@ -90,52 +95,34 @@ public class SpringlesService {
 	@Context
 	Request request;
 
-	//String sesameServer = "http://stettler.fbk.eu:50000";
-	// String sesameServer;
-	// String sesameServer = "http://localhost:50000";
-    // String repositoryID="test-springles-100";;
-	 //String repositoryID = "trentour-4-12-2013";	
-    // Repository myRepository ;
-     public  SpringlesService (){
- 		
- 		
- 		super();
- 		//final Properties properties = new Properties();
- 		//try {
- 		//	properties.load(this.getClass().getResourceAsStream("/config.properties"));
- 			
- 			//sesameServer = properties.getProperty("sesameServer");
- 		//	repositoryID = properties.getProperty("repositoryID");
- 		//	 sesameServer="http://localhost:8080/openrdf-sesame";
- 			// repositoryID="test-springles-100";
- 		 //myRepository = new HTTPRepository(sesameServer, repositoryID);
+    public  SpringlesService (){
+    	super();
+    }
 
- 			
- 	//	} catch (IOException e) {
- 			// TODO Auto-generated catch block
- 		//	e.printStackTrace();
- 		//}
- 			
- 		
- 		
- 		
- 		
- 		
- 	}
-	  // This method is called if TEXT_PLAIN is request
-	  @GET
-	  @Path("/hallo")
-	  @Produces(MediaType.TEXT_PLAIN)
+    /**
+     * Method to test Springles Service -
+     * url : http://localhost:8080/SpringlesREST/rest/rest/hallo
+     * @return message to a web page
+     */
+    @GET
+	@Path("/hallo")
+	@Produces(MediaType.TEXT_PLAIN)
 	  public String sayPlainTextHello() {
-	    return "Hello Jersey1";
+	    return "Hello!It's SpringlesService";
 	  }
 
 	 
 	  
 	  
 	  
-	  // This method is called if HTML is request
-	 
+	 /**
+	  * Method to create a new springles repository with an ID and a Title -
+	  * url : http://localhost:8080/SpringlesREST/rest/rest/create
+	  * @param springlesrepositoryID ID of the new springles repository
+	  * @param springlesserverURL URL of the springles server  
+	  * @param springlesrepositorytitle title of new springles repository
+	  * @return a response of the creation request.
+	  */
 	  @GET
 	  @Path("/create")
 	  @Produces(MediaType.TEXT_HTML)
@@ -174,46 +161,36 @@ public class SpringlesService {
 				
 			}
 			
-			//URI u =new URIImpl("http://dkm.fbk.eu/springles/config#test");
 			
 			RepositoryConfig repConfig = new RepositoryConfig(springlesrepositoryID, repositoryTypeSpec);
 		
 			repConfig.parse(g, g.filter(null, RDF.TYPE, new URIImpl("http://www.openrdf.org/config/repository#Repository")).subjectResource());
 			manager.addRepositoryConfig(repConfig);
-			// Repository repository = manager.getRepository(repositoryId);
 			 
 		} catch (RepositoryException |RDFParseException| IOException|RepositoryConfigException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		  
-		  return Response.ok().build();
-	 //   return "<html> " + "<title>" + "Hello Jersey" + "</title>"
-	   //     + "<body><h1>" + "Hello Jersey" + "</body></h1>" + "</html> ";
-	 
+		  return Response.ok().build();	 
 
   }  
 	  
 	
-
-	   
-	  @GET
-	  @Path("/getfile")
-	  @Produces(MediaType.APPLICATION_OCTET_STREAM)
-	  public Response getFile() {
-	String FILE_PATH = "C:/tmp/text.txt";
-		  File file = new File(FILE_PATH);
-	      ResponseBuilder response = Response.ok((Object) file);
-	      response.header("Content-Disposition", "attachment; filename=text.txt");
-	      return response.build();
-
-	  }
 	   
 	
 	  
 	  
 	  
-	  
+	  /**
+	   * Method to export statements of a springles repository -
+	   * url : http://localhost:8080/SpringlesREST/rest/rest/fullexport
+	   * @param springlesrepositoryID ID of the springles repository to export
+	   * @param springlesserverURL URL of the springles server 
+	   * @param exportformat format of export file ( trig, xml, ttl )
+	   * @param includeinferred set to 1 if were included inferred statement in export file, 0 otherwise
+	   * @return response of the export request
+	   */
 	  @GET
 	  @Path("/fullexport") 
 	  @Produces(MediaType.APPLICATION_OCTET_STREAM)
@@ -288,7 +265,16 @@ public class SpringlesService {
 	    	  
 	 }
 	      
-
+	  /**
+	   * Method to add statements to a springles repository from a file -
+	   * url : http://localhost:8080/SpringlesREST/rest/rest/upload
+	   * @param springlesrepositoryID ID of the springles repository
+	   * @param springlesserverURL URL of the springles server 
+	   * @param baseURI path of file to upload
+	   * @param filetoupload inputstream of file to upload
+	   * @param fileDetail details of file to upload
+	   * @return OK if uploaded was successful, FAIL otherwise
+	   */
 	  @POST
 	  @Path("/upload")
 	  @Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -344,7 +330,17 @@ public class SpringlesService {
 	  
 	  
 	  
-	  
+	  /**
+	   * Method to update closure on statements of a springles repository -
+	   * url : http://localhost:8080/SpringlesREST/rest/rest/computeclosure
+	   * @param springlesrepositoryID ID of the springles repository
+	   * @param springlesserverURL URL of the springles server 
+	   * @param inferencer inferencer using to apply closure on statements
+	   * @param ruleset ruleset using by inferencer to update closure
+	   * @param bind variables binding has to apply to ruleset
+	   * @param inferredcontext prefix of context of inferred statements
+	   * @return OK if closure was successful, FAIL otherwise
+	   */
 	  @GET
 	  @Path("/computeclosure")
 	  @Produces(MediaType.TEXT_HTML)
@@ -432,7 +428,6 @@ public class SpringlesService {
 	  	
 	  	return result;
 	  }	  
-	  
 	  private void changeInferenceParameters(String serverURL,String repoID,String rulesetURI,String inferencer,String bind, String inferenceprefix){
 		  try {
 			  	RemoteRepositoryManager manager = new RemoteRepositoryManager(serverURL);
@@ -473,50 +468,15 @@ public class SpringlesService {
 			}
 			 
 	  }
-
-	  private void changeConfig(String springlesserverURL,
-			  String springlesrepositoryID,
-			  String springlesrepositorytitle,
-			 String rulesetURI,
-			 String inferencer,
-			 String inferenceprefix){
-		  Model	g =null;
-		  
-		  RemoteRepositoryManager manager = new RemoteRepositoryManager(springlesserverURL);
-		  SpringlesRepositoryFactory srf=new SpringlesRepositoryFactory();
-		  RepositoryImplConfig repositoryTypeSpec = srf.getConfig();
-		  try(
-				InputStream url=getClass().getClassLoader().getResourceAsStream("springles.ttl");
-				){
-							
-				String template = IOUtil.readString(new InputStreamReader(url,
-						"UTF-8"));
-				System.out.println(template);
-				ConfigTemplate ct= new ConfigTemplate(template);
-				Map<String, String> valueMap =new HashMap<String, String>();
-				valueMap.put("Repository ID", springlesrepositoryID);
-				valueMap.put("Ruleset", rulesetURI);
-				valueMap.put("Repository title", springlesrepositorytitle);
-				valueMap.put("Inferencer type", inferencer);
-				valueMap.put("Inferred context prefix", inferenceprefix);
-				String configString = ct.render(valueMap);
-				System.out.println(configString);
-	           g = Rio.parse(IOUtils.toInputStream(configString, "UTF-8"),"",RDFFormat.TURTLE);		
-	           RepositoryConfig repConfig = new RepositoryConfig(springlesrepositoryID, repositoryTypeSpec);
-	   		
-				repConfig.parse(g, g.filter(null, RDF.TYPE, new URIImpl("http://www.openrdf.org/config/repository#Repository")).subjectResource());
-				manager.addRepositoryConfig(repConfig);
-				
-			} catch( RepositoryException |RDFParseException| IOException|RepositoryConfigException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			//URI u =new URIImpl("http://dkm.fbk.eu/springles/config#test");
-			
-			
-	  }
 	  
+	  /**
+	   * Method to clear statements of a springles repository -
+	   * url : http://localhost:8080/SpringlesREST/rest/rest/clear 
+	   * @param springlesrepositoryID ID of the springles repository
+	   * @param springlesserverURL URL of springles server
+	   * @param includenotinferred set to 1 to delete all repository statements, 0 to delete also inferred statements
+	   * @return response of the clear request. 
+	   */
 	  @GET
 	  @Path("/clear")
 	  @Produces(MediaType.TEXT_HTML)
@@ -555,7 +515,6 @@ public class SpringlesService {
 	  				Model mod  = Iterations.addAll(st, new LinkedHashModel());
 	  				con.remove(mod);
   					con.commit();
-  					result="200 OK";
 	  			}
 	  			
 	  			long estimatedTime = System.currentTimeMillis() - startTime;
@@ -588,7 +547,13 @@ public class SpringlesService {
 	  }	 
 	  
 	  
-	  
+	  /**
+	   * Method to delete a springles repository -
+	   * url : http://localhost:8080/SpringlesREST/rest/rest/delete
+	   * @param springlesrepositoryID ID of the springles repository
+	   * @param springlesserverURL URL of the springles server
+	   * @return response of the delete request.
+	   */
 	  @GET
 	  @Path("/delete")
 	  @Produces(MediaType.TEXT_HTML)
@@ -619,6 +584,14 @@ public class SpringlesService {
 	  	  return result;
 	  }	 
 	  
+	  /**
+	   * Method to get the graphs contains in a springles repository -
+	   * url : http://localhost:8080/SpringlesREST/rest/rest/contexts
+	   * @param springlesrepositoryID ID of the springles repository
+	   * @param springlesserverURL URL of the springles server 
+	   * @param includeinferred set to 1 to include also inferred graphs
+	   * @return a html table of the list of graphs 
+	   */
 	  @GET
 	  @Path("/contexts")
 	  @Produces(MediaType.TEXT_HTML)
@@ -643,11 +616,11 @@ public class SpringlesService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}finally{
-			result = "<table  border='1'><th style='text-align:center;'>Graphs</th>";
+			result = "<table class='table table-striped'><thead><tr><th>Graphs</th><tr></thead><tbody>";
 			for(Resource r:ct){
-				result += "<tr><td class='graph'>"+r.toString() + "<tr><td>";
+				result += "<tr><td class='graph'>"+r.toString() + "</td></tr>";
 			}
-			result +="</table>";
+			result +="</tbody></table>";
 		}
 		  
 		   
@@ -655,7 +628,13 @@ public class SpringlesService {
 	  }	 
 	  
 	  
-	  
+	  /**
+	   * Method to get all information about a springles repository -
+	   * url : http://localhost:8080/SpringlesREST/rest/rest/summary
+	   * @param springlesrepositoryID ID of the springles repository
+	   * @param springlesserverURL URL of the springles server
+	   * @return a html table of all information about the repository  
+	   */
 	  @GET
 	  @Path("/summary")
 	  @Produces(MediaType.TEXT_HTML)
@@ -694,7 +673,7 @@ public class SpringlesService {
 				ruleset = sts.get(22).getObject().stringValue().replaceAll(sts.get(22).getObject().stringValue().substring(0,sts.get(22).getObject().stringValue().lastIndexOf("/")+1),"");
 			
 				
-			result ="<table style='font-size:0.9em;' >";
+			result ="<table class='table table-striped' style='font-size:0.9em;' >";
 			result += "<tr><th>ID:</th><td>" + ri.getId()+
 					"</td></tr><tr><th>Title:</th><td>" + ri.getDescription()+
 					"</td></tr><tr><th>Location:</th><td>"+ri.getLocation()+
@@ -740,7 +719,14 @@ public class SpringlesService {
 	  
 	  
 	  
-	  
+	  /**
+	   * Method to get number of statements in a springles repository -
+	   * url : http://localhost:8080/SpringlesREST/rest/rest/nstatements
+	   * @param springlesrepositoryID ID of the springles repository
+	   * @param springlesserverURL URL of the springles server
+	   * @param includeinferred set to 1 to include inferred statements, 0 otherwise
+	   * @return number of statements
+	   */
 	  @GET
 	  @Path("/nstatements")
 	  @Produces(MediaType.TEXT_HTML)
@@ -801,7 +787,15 @@ public class SpringlesService {
 	  }	  
 	  
 	  
-	  
+	  /**
+	   * Method to execute a SPARQL query over the semantic data contains in a springles repository -
+	   * url : http://localhost:8080/SpringlesREST/rest/rest/querysparql
+	   * @param springlesrepositoryID ID of the springles repository
+	   * @param springlesserverURL URL of the springles server
+	   * @param includeinferred set to 1 to execute the query also over the inferred statements
+	   * @param query SPARQL query to execute 
+	   * @return a html table of the query result 
+	   */
 	  @POST
 	  @Path("/querysparql")
 	  @Produces(MediaType.TEXT_HTML)
@@ -841,23 +835,36 @@ public class SpringlesService {
 				
 				System.out.println(query);
 				System.out.println("RES:"+tuples.size());
-				
+				int i=0;
 				for (BindingSet s : tuples) {
-					result+="<tr>";
+					if(i==0){
+						result+="<thead><tr>";
+						for(String n:s.getBindingNames()){
+							result+="<th>"+n+"</th>";
+						}
+						result+="</tr></thead><tbody>";
+					}
+					result+="<tr class='active'>";
 					for(String n:s.getBindingNames()){
-						result+="<td class='"+n+"'>"+s.getValue(n)+"</td>";
+						result+="<td class='"+n+"'>"+(s.getValue(n) != null ? s.getValue(n).toString() : "")+"</td>";
 					}
 					result+="</tr>";
+					i=1;
 				}
 				
-				
-				return result;
+				System.out.println(result);
+				return result+"</tbody>";
 			}  
 	  
 	  	  
 	  
 
-
+	  	/**
+	  	 * Method to get all springles repositories contained in the springles server -
+	  	 * url : http://localhost:8080/SpringlesREST/rest/rest/getRepositories 
+	  	 * @param springlesserverURL URL of the springles server
+	  	 * @return a list of repositories
+	  	 */
 			@GET
 			@Path("/getRepositories")
 			@Produces(MediaType.TEXT_HTML)
@@ -886,7 +893,13 @@ public class SpringlesService {
 				return result;
 			}	 
 			
-			
+			/**
+			 * Method to get the closure status of a springles repository -
+			 * url : http://localhost:8080/SpringlesREST/rest/rest/getClosureStatus
+			 * @param springlesrepositoryID ID of the springles repository
+			 * @param springlesserverURL URL of the springles server
+			 * @return the required closure status 
+			 */
 			 @GET
 			  @Path("/getClosureStatus")
 			  @Produces(MediaType.TEXT_HTML)
@@ -931,7 +944,14 @@ public class SpringlesService {
 					}  
 			   
 			
-			
+			/**
+			 * Method to create new ruleset  -
+			 * url : http://localhost:8080/SpringlesREST/rest/rest/create_ruleset
+			 * @param filename name of the new ruleset
+			 * @param ruleset file contained all rules to uploaded
+			 * @param inferencer inferencer which connect the ruleset
+			 * @return response of the create request 
+			 */
 			 @POST
 			  @Path("/create_ruleset")
 			  @Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -939,8 +959,7 @@ public class SpringlesService {
 			  public String create_ruleset(
 					  @FormDataParam("newfilename") String filename,
 					  @FormDataParam("filetoupload") InputStream ruleset,
-					  @FormDataParam("inferencer") String inferencer,
-					  @FormDataParam("filetoupload") FormDataContentDisposition fileDetail)
+					  @FormDataParam("inferencer") String inferencer)
 			  {
 				 
 				 System.out.println(filename);
@@ -1010,7 +1029,14 @@ public class SpringlesService {
 			 
 			 
 			 
-			
+			/**
+			 * Method to get all ruleset in memory connected to a inferecer  -
+			 * url : http://localhost:8080/SpringlesREST/rest/rest/list_of_ruleset
+			 * @param inferencer name of inferencer 
+			 * @param springlesserverURL URL of the springles server
+			 * @param springlesrepositoryID ID of a springles repository
+			 * @return list of the required rulesets
+			 */
 			 @GET
 			  @Path("/list_of_ruleset")
 			  @Produces(MediaType.TEXT_HTML)
@@ -1031,6 +1057,8 @@ public class SpringlesService {
 					 if((contenuto = getFileContent(springles_url+"META-INF/rdfpro-rulesets")).compareTo("-1") == 0)
 						 return "Reading Error!";
 					 else{
+						 if(contenuto.length() ==0)
+							 return "";
 						 for(String s : contenuto.split("\n")){
 							 result += springles_url+s+"&"+s+"\n";
 						 }
@@ -1083,7 +1111,13 @@ public class SpringlesService {
 					
 			  }
 			 
-			 
+			 /**
+			  * Method to delete from memory a ruleset -
+			  * url : http://localhost:8080/SpringlesREST/rest/rest/delete_ruleset
+			  * @param filename name of the ruleset
+			  * @param inferencer inferencer to which ruleset is connected
+			  * @return response of the delete request
+			  */
 			 @GET
 			  @Path("/delete_ruleset")
 			  @Produces(MediaType.TEXT_HTML)
@@ -1139,6 +1173,14 @@ public class SpringlesService {
 				 
 				 
 			  }
+			 
+			 
+			 /**
+			  * Method to get the content of a ruleset -
+			  * url : http://localhost:8080/SpringlesREST/rest/rest/content_of_ruleset
+			  * @param filename name of the ruleset
+			  * @return the required content
+			  */
 			 @GET
 			  @Path("/content_of_ruleset")
 			  @Produces(MediaType.TEXT_HTML)

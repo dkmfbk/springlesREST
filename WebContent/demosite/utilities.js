@@ -28,7 +28,7 @@ function defineClickListerner(){
 
                     }).done(function(data, textStatus, jqXHR) {	
                             $("#result").empty();
-			                 $('#result').html("<table border='1'><tr><th colspan='3'>"+context+"</th></tr>"+data + "</table>");
+			                 $('#result').html("<table class='table table-striped'><thead><tr><th colspan='3'>"+context+"</th></tr></thead>"+data + "</table>");
                         defineClickListerner();
                     }).fail(function(jqXHR, textStatus, errorThrown) { 
                         $("#result").empty();
@@ -37,7 +37,7 @@ function defineClickListerner(){
                     
             });
     
-        $(".subj").click(function(){
+        $(".s").click(function(){
                    var subject = $(this).text();
                      var url2_=restURL+"querysparql";
                     var q = "SELECT ?s ?p ?o WHERE { <"+subject+"> ?p ?o}";
@@ -56,7 +56,7 @@ function defineClickListerner(){
 
                     }).done(function(data, textStatus, jqXHR) {	
                             $("#result").empty();
-			                 $('#result').html("<table border='1'><tr><th colspan='3'>"+subject+"</th></tr>"+data + "</table>");
+			                 $('#result').html("<table class='table table-striped'><thead><tr><th colspan='3'>"+subject+"</th></tr></thead>"+data + "</table>");
                         defineClickListerner();
                     }).fail(function(jqXHR, textStatus, errorThrown) { 
                         $("#result").empty();
@@ -64,7 +64,7 @@ function defineClickListerner(){
                     });
                     
             });
-        $(".obj").click(function(){
+        $(".o").click(function(){
                    var obj = $(this).text();
                     var url2_=restURL+"querysparql";
                     var q = "SELECT ?s ?p ?o WHERE { ?s ?p <"+obj+"> }";
@@ -84,7 +84,7 @@ function defineClickListerner(){
 
                     }).done(function(data, textStatus, jqXHR) {	
                             $("#result").empty();
-			                $('#result').html("<table border='1'><tr><th colspan='3'>"+obj+"</th></tr>"+data + "</table>");
+			                $('#result').html("<table class='table table-striped'><thead><tr><th colspan='3'>"+obj+"</th></tr></thead>"+data + "</table>");
                         defineClickListerner();
                     }).fail(function(jqXHR, textStatus, errorThrown) { 
                         $("#result").empty();
@@ -92,7 +92,7 @@ function defineClickListerner(){
                     });
                     
             });
-    $(".pred").click(function(){
+    $(".p").click(function(){
                    var pred = $(this).text();
                     var url2_=restURL+"querysparql";
                     var q = "SELECT ?s ?p ?o WHERE { ?s <"+pred+"> ?o }";
@@ -112,7 +112,7 @@ function defineClickListerner(){
                     }).done(function(data, textStatus, jqXHR) {	
                         
                             $("#result").empty();
-			                 $('#result').html("<table  border='1'><tr><th colspan='3'>"+pred+"</th></tr>"+data + "</table>");
+			                 $('#result').html("<table class='table table-striped'><thead><tr><th colspan='3'>"+pred+"</th></tr></thead>"+data + "</table>");
                         defineClickListerner();
                     }).fail(function(jqXHR, textStatus, errorThrown) { 
                         $("#result").empty();

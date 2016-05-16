@@ -14,13 +14,13 @@ function load_rulesets(){
             $("#result").empty();
             $("#list_of_rulesets").empty();
             var table= "";
-             table+= "<table border='1'><tr><th>Name</th><th></th></tr>";
+             table+= "<table class='table table-striped'><thead><tr><th>Name</th><th></th></thead></tr><tbody>";
             for(var i=0;data!= null && i<data.split("\n").length-1;i++)
             {
                 tmp = data.split("\n")[i];
-               table += "<tr><td><a id="+tmp.split("&")[0]+" class='ruleset'>"+tmp.split("&")[1]+"</a></td><td><a style='color:red;' class='delete' id='r_"+tmp.split("&")[1]+"'>Delete</a></td></tr>";
+               table += "<tr class='info'><td><a id="+tmp.split("&")[0]+" class='ruleset'>"+tmp.split("&")[1]+"</a></td><td><a style='color:red;' class='delete' id='r_"+tmp.split("&")[1]+"'>Delete</a></td></tr>";
             }
-            table += "</table>";
+            table += "</tbody></table>";
             $("#list_of_rulesets").append(table);                  
             getRuleset($(".ruleset").get(0).id);
             $(".ruleset").click(function(){
