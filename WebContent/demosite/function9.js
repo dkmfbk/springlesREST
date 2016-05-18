@@ -5,11 +5,11 @@ $(function() {
 		$('#form9 [id]').each(function(){
 		    oElements[this.id] = this.value;
 		});
-		var springleserverURL= oElements["springlesserverURL"];
+		var springleserverURL= serverURL;
 		var springlesrepositoryID=oElements["springlesrepositoryID"];
-		var url_=oElements["restURL"]+"nstatements";
-	
-		var dataSend ="repositoryID=" +springlesrepositoryID+"&serverURL="+springleserverURL;
+		var url_=restURL+"nstatements";
+	   var includeinferred = $("#form9 #includeinferred:checked").length;
+		var dataSend ="repositoryID=" +springlesrepositoryID+"&serverURL="+serverURL + "&includeinferred="+includeinferred;
 		
 		e.preventDefault();
 		$("#request").empty();

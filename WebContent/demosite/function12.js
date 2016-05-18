@@ -10,25 +10,16 @@ $(function() {
 		    oElements[this.id] = this.value;
 		//	}
 		});
-		var springlesserverURL= oElements["springlesserverURL"];
-		var springlesrepositoryID=oElements["springlesrepositoryID"];
-		var url_=oElements["restURL"]+"upload";
+		var springlesrepositoryID=$("#repoChoice").val();
+		var url_=restURL+"upload";
 	 
-	 //   var filetoupload=oElements["filetoupload"];
 	    var fileURI=oElements["fileURI"];
-		//var dataSend ="repositoryID=" +springlesrepositoryID+"&serverURL="+springleserverURL+"&fileURI="+fileURI;
 	    var documentData = new FormData();
 	    documentData.append("springlesrepositoryID",springlesrepositoryID);
-	    documentData.append("springlesserverURL",springlesserverURL);
+	    documentData.append("springlesserverURL",serverURL);
 	    documentData.append("baseURI",fileURI);
 	   documentData.append("filetoupload",$('input#filetoupload')[0].files[0]);
-	 //   alert(url_);
-	//	e.preventDefault();
-	//	$("#request").empty();
-	//	$("#result").empty();
-	//	$('#request').html("<span>POST " + url_ + "</span><br />" + library.json.prettyPrint(documentData));
-	//	$("#request").html("<span>POST " + url_ + "</span><br />" );
-		//dataSend.fieldValueJsonString = JSON.stringify(oElements);
+	 
  
 		$.ajax({
 			url : url_ , 
@@ -41,7 +32,9 @@ $(function() {
 		}).done(function(data, textStatus, jqXHR) {			
 			//var print = eval("(" + data + ')'); 
 			$("#result").empty();
-			$('#result').html("<span>OK " + jqXHR.status + " " + jqXHR.statusText + "</span><br />" + library.json.prettyPrint(data));
+			$('#result').html(library.json.prettyPrint(data));
+            $("#collapse12").hide();
+            $("#summaryPanel").click();
 		}).fail(function(jqXHR, textStatus, errorThrown) { 
 			$("#result").empty();
 			$('#result').html("<span> " + jqXHR.status + " " + jqXHR.responseText + "</span><br />");
