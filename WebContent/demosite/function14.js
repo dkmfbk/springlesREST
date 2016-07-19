@@ -7,8 +7,7 @@ $(function() {
 	
 	    var documentData = new FormData();
 	    documentData.append("springlesrepositoryID",springlesrepositoryID);
-	    documentData.append("springlesserverURL",serverURL);
-		var dataSend ="springlesrepositoryID=" +springlesrepositoryID+"&springlesserverURL="+serverURL +"&inferencer="+$("#closure_inferencer").val()+"&ruleset="+$("#closure_ruleset").val()+"&bindings="+$("#bindings").val()+"&inferredcontext="+$("#inferred_context_prefix").val();
+		var dataSend ="springlesrepositoryID=" +springlesrepositoryID+"&springlesserverURL="+springlesserverURL +"&inferencer="+$("#closure_inferencer").val()+"&ruleset="+$("#closure_ruleset").val()+"&bindings="+$("#bindings").val()+"&inferredcontext="+$("#inferred_context_prefix").val();
 		
 	   if(closureStatus != "CURRENT")
             $.ajax({
@@ -41,8 +40,7 @@ $(function() {
 
             var documentData = new FormData();
             documentData.append("springlesrepositoryID",springlesrepositoryID);
-            documentData.append("springlesserverURL",serverURL);
-            var dataSend ="springlesrepositoryID=" +springlesrepositoryID+"&springlesserverURL="+serverURL + "&includenotinferred=0" ;
+            var dataSend ="springlesrepositoryID=" +springlesrepositoryID+"&springlesserverURL="+springlesserverURL + "&includenotinferred=0" ;
 
 
                 $.ajax({

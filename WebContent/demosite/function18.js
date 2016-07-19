@@ -2,8 +2,7 @@ $(function() {
 	$("#summaryPanel").on("click",function() {
 		//var queryType = "curatorsources";
 		
-		var springlesserverURL= $("#form18 #springlesserverURL").val();
-		var springlesrepositoryID= $("#form18 #repoChoice").val();
+		var springlesrepositoryID= $("#repoChoice").val();
 		var url_=restURL+"summary";
 
 	

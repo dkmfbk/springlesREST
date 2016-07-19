@@ -12,7 +12,7 @@ function defineClickListerner(){
                     var q = "SELECT ?s ?p ?o FROM <"+ context + "> WHERE { ?s ?p ?o }";
                     var dataSend2 = new FormData();
                     dataSend2.append("repositoryID",$("#repoChoice").val());
-                    dataSend2.append("serverURL",serverURL);
+                    dataSend2.append("serverURL",springlesserverURL);
                     dataSend2.append("querySPARQL",q);
                     dataSend2.append("includeinferred","1" );
 		
@@ -43,7 +43,7 @@ function defineClickListerner(){
                     var q = "SELECT ?s ?p ?o WHERE { <"+subject+"> ?p ?o}";
                     var dataSend2 = new FormData();
                     dataSend2.append("repositoryID",$("#repoChoice").val());
-                    dataSend2.append("serverURL",serverURL);
+                    dataSend2.append("serverURL",springlesserverURL);
                     dataSend2.append("querySPARQL",q);
                     dataSend2.append("includeinferred","1" );
                     $.ajax({
@@ -98,7 +98,7 @@ function defineClickListerner(){
                     var q = "SELECT ?s ?p ?o WHERE { ?s <"+pred+"> ?o }";
                    var dataSend2 = new FormData();
                     dataSend2.append("repositoryID",$("#repoChoice").val());
-                    dataSend2.append("serverURL",serverURL);
+                    dataSend2.append("serverURL",springlesserverURL);
                     dataSend2.append("querySPARQL",q);
                     dataSend2.append("includeinferred","1" );
                     $.ajax({
@@ -124,7 +124,7 @@ function defineClickListerner(){
 }
 
 function getClosureStatus(){
-        var dataSend = "serverURL="+serverURL+"&repositoryID="+$("#repoChoice").val();
+        var dataSend = "serverURL="+springlesserverURL+"&repositoryID="+$("#repoChoice").val();
             $.ajax({
                     url : restURL + "getClosureStatus" , 
                     data : dataSend, 

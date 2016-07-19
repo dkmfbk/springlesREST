@@ -6,7 +6,7 @@ $(function() {
 
 	
 	   
-		var dataSend ="springlesrepositoryID=" +springlesrepositoryID+"&springlesserverURL="+serverURL + "&includenotinferred=1";
+		var dataSend ="springlesrepositoryID=" +springlesrepositoryID+"&springlesserverURL="+springlesserverURL + "&includenotinferred=1";
 		
 	  
 		$.ajax({

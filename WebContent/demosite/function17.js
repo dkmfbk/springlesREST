@@ -6,16 +6,13 @@ $(function() {
 		$('#form17 [id]').each(function(){
 		    oElements[this.id] = this.value;    
 		});
-		var springlesserverURL= oElements["springlesserverURL"];
 		var springlesrepositoryID=$("#repoChoice").val();
 		var url_=restURL+"contexts";
         var includeinferred = $("#form17 #includeinferred:checked").length;
 
 	
 	    var documentData = new FormData();
-	    documentData.append("springlesrepositoryID",springlesrepositoryID);
-	    documentData.append("springlesserverURL",serverURL);
-		var dataSend ="springlesrepositoryID=" +springlesrepositoryID+"&springlesserverURL="+serverURL +"&includeinferred="+ includeinferred  ;
+		var dataSend ="springlesrepositoryID=" +springlesrepositoryID+"&springlesserverURL="+springlesserverURL +"&includeinferred="+ includeinferred  ;
 		
 	   e.preventDefault();
 		$("#request").empty();

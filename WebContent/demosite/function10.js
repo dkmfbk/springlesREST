@@ -5,14 +5,13 @@ $(function() {
 		$('#form10 [id]').each(function(){
 		    oElements[this.id] = this.value;
 		});
-		var springleserverURL= serverURL;
 		var springlesrepositoryID=$("#repoChoice").val();
 		var url_=restURL+"querysparql";
 	   var querySPARQL= yasqe.getValue();
         var includeinferred = $("#form10 #includeinferred:checked").length;
         var dataSend = new FormData();
 		dataSend.append("repositoryID",springlesrepositoryID);
-        dataSend.append("serverURL",serverURL);
+        dataSend.append("serverURL",springlesserverURL);
         dataSend.append("querySPARQL",querySPARQL);
         dataSend.append("includeinferred",includeinferred );
 		

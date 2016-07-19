@@ -6,7 +6,6 @@ $(function() {
 		$('#form16 [id]').each(function(){
 		    oElements[this.id] = this.value;    
 		});
-		var springlesserverURL= $("#form18 #springlesserverURL").val();
 		var springlesrepositoryID= $("#form16 .springlesrepositoryID").val();
 		var url_=restURL+"delete";
 
@@ -32,7 +31,7 @@ $(function() {
 			//var print = eval("(" + data + ')'); 
 			$("#result").empty();
 			$('#result').html( data);
-            $("#loadRepo").click();
+            loadRepo();
 		}).fail(function(jqXHR, textStatus, errorThrown) { 
 			$("#result").empty();
 			$('#result').html("<span> " + jqXHR.status + " " + jqXHR.responseText + "</span><br />");

@@ -48,19 +48,11 @@ a, .delete{
 		<div class="col-md-3" >
 		        
 	       <div class="panel-body" >
-                            <form id="form18" role="form" method="GET">				
-                                <div class="form-group">
-                                    <label style="padding-top: 20px" for="springlesserverURL">Springles Server URL</label>
-                                    <input type="text" class="form-control" value="http://localhost:8080/openrdf-sesame" id="springlesserverURL" >
-                                    <label style="padding-top: 20px" for="repoChoice">Select Repositories</label>
-									<select id="repoChoice" class="springlesrepositoryID form-control">
-									</select> 
+                        
+                <label style="padding-top: 20px" for="repoChoice">Select Repositories</label>
+                <select id="repoChoice" class="springlesrepositoryID form-control"></select> 
                                     
-                                  </div>		
-                                    <button id="loadRepo" type="button" class="btn btn-default btn-primary">Load Repositories</button>
-                            </form>
-
-                        </div>
+           </div>
 			<div class="panel-group" id="accordion">
 	           
 	            <div class="panel panel-default hide-repo" id="summaryPanel" style="display:none;">
@@ -343,7 +335,7 @@ a, .delete{
 		/*INSERT THE CORRECT URL*/
 		
         var rulesets = new Array();
-        
+        var springlesserverURL = "http://localhost:8080/openrdf-sesame";
      
 		$("#repoChoice").on("change",function(){
             $(".panel-collapse").hide();

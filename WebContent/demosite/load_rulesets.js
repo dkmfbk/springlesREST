@@ -1,5 +1,5 @@
 function load_rulesets(){
-    var dataSend ="inferencer="+$("#collapse19 #inferencer").val()+"&serverURL="+serverURL+"&repositoryID="+$("#repoChoice").val();
+    var dataSend ="inferencer="+$("#collapse19 #inferencer").val()+"&serverURL="+springlesserverURL+"&repositoryID="+$("#repoChoice").val();
     $.ajax({
 			 crossOrigin: true,
 			url : restURL+"list_of_ruleset" , 
@@ -85,7 +85,7 @@ function deleteRuleset(name){
 }
 
 function load_rulesets_closure(){
-    var dataSend ="inferencer="+$("#closure_inferencer").val()+"&serverURL="+serverURL+"&repositoryID="+$("#repoChoice").val();
+    var dataSend ="inferencer="+$("#closure_inferencer").val()+"&serverURL="+springlesserverURL+"&repositoryID="+$("#repoChoice").val();
     $.ajax({
 			 crossOrigin: true,
 			url : restURL+"list_of_ruleset" , 

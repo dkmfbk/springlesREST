@@ -2,19 +2,22 @@ var repoID;
 var restURL = "http://localhost:8080/SpringlesREST/rest/rest/";
 var serverURL = "";
 $(function() {	
-	$("#loadRepo").on("click",function() {
-		//var queryType = "curatorsources";
-		var oElements = {};
+	$(document).on("ready",function() {
+		loadRepo();
+	});
+
+});
+
+function loadRepo(){
+    var oElements = {};
 		 var filetoupload="";
 		
-		var springlesserverURL= $("#form18 #springlesserverURL").val();
 		var url_=restURL+"getRepositories";
 
 	
 	    var documentData = new FormData();
 	    documentData.append("springlesserverURL",springlesserverURL);
 		var dataSend ="springlesserverURL="+springlesserverURL ;
-		serverURL = $("#form18 #springlesserverURL").val();
 
 		$("#result").empty();
 
@@ -41,6 +44,4 @@ $(function() {
 			$('#result').html("<span> " + jqXHR.status + " " + jqXHR.responseText + "</span><br />");
 		});
 		return false;
-	});
-
-});
+}

@@ -5,7 +5,6 @@ $(function() {
 		$('#form11 [id]').each(function(){
 		    oElements[this.id] = this.value;
 		});
-		var springlesserverURL= $("#form18 #springlesserverURL").val();
 		var springlesrepositoryID=oElements["springlesrepositoryID"];
 		var springlesrepositorytitle=oElements["springlesrepositorytitle"];
 
@@ -33,7 +32,7 @@ $(function() {
 			$("#result").empty();
 			$('#result').html("Repository '" +  springlesrepositorytitle + "' creata");
             $("#collapse11").hide();
-            $("#loadRepo").click();
+            loadRepo();
 		}).fail(function(jqXHR, textStatus, errorThrown) { 
 			$("#result").empty();
 			$('#result').html("<span> " + jqXHR.status + " " + jqXHR.responseText + "</span><br />");
