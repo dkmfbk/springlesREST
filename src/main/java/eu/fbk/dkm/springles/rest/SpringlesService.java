@@ -378,7 +378,7 @@ public class SpringlesService {
 	  			}else if(inferencer.compareTo("NaiveInferencer")==0){
 	  				queryString = "clear graph <springles:update-closure>";
 	  			}
-	  			changeInferenceParameters(springlesserverURL, springlesrepositoryID, ruleset, inferencer,bind,inferredcontext);
+	  			changeInferenceParameters(springlesserverURL, springlesrepositoryID, ruleset.replace(" ", "%20"), inferencer,bind,inferredcontext);
 
 	  				//if (!con.isActive()){
 	  					con.begin();
@@ -669,7 +669,7 @@ public class SpringlesService {
 			while(conf.hasNext())
 				sts.add(conf.next());
 			String ruleset = sts.get(22).getObject().stringValue();
-			if(sts.get(22).getObject().stringValue().lastIndexOf("/") != -1)
+			if(sts.get(22).getObject().stringValue().lastIndexOf(File.separatorChar) != -1)
 				ruleset = sts.get(22).getObject().stringValue().replaceAll(sts.get(22).getObject().stringValue().substring(0,sts.get(22).getObject().stringValue().lastIndexOf("/")+1),"");
 			
 				
@@ -683,7 +683,7 @@ public class SpringlesService {
 					"</td></tr><tr><th>Inferred statements:</th><td>"+ (mod.size()-myRepository.getConnection().size())+
 					"</td></tr><tr><th>Closure status:</th><td>"+status+
 					"</td></tr><tr><th>Last Inferencer:</th><td>"+sts.get(23).getObject().stringValue().split("#")[1]+
-					"</td></tr><tr><th>Last Ruleset:</th><td>"+ ruleset +
+					"</td></tr><tr><th>Last Ruleset:</th><td>"+ ruleset.replace("%20", " ") +
 					"</td></tr><tr><th>Inferred context prefix:</th><td>"+ sts.get(6).getObject().stringValue()+"</td></tr></table>";
 					
 		} catch (RepositoryException | RepositoryConfigException e) {
@@ -963,7 +963,7 @@ public class SpringlesService {
 			  {
 				 
 				 System.out.println(filename);
-				 
+				 String separator = "/";
 				 BufferedReader reader = new BufferedReader(new InputStreamReader(ruleset));
 				 String contenuto ="";
 				 String tmp = "";
@@ -974,19 +974,20 @@ public class SpringlesService {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				 System.out.println(contenuto);
 				if(inferencer.compareTo("RDFProInferencer")==0){
 					 String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
-					 springles_url = '/'+springles_url.split("/")[1]+'/'+springles_url.split("/")[2]+'/'+springles_url.split("/")[3]+'/'+springles_url.split("/")[4]+"/openrdf-sesame/WEB-INF/classes/";
 					 
-					 File file = new File(springles_url+filename);
+					 springles_url = springles_url.substring(5,springles_url.indexOf("webapps"+separator)+8)+"openrdf-sesame"+separator+"WEB-INF"
+							 +separator+"classes"+separator;
+					 
+					 File file = new File(springles_url.replace("%20", " ")+filename);
 					 if (file.exists()){
 						 return "Ruleset with the same name is just in memory";
 					 }
 					try {
 						if (file.createNewFile())	
-							if(appendToFile(springles_url+filename, contenuto))
-								if(appendToFile(springles_url+"META-INF/rdfpro-rulesets",filename+"\n")){
+							if(appendToFile(springles_url.replace("%20", " ")+filename, contenuto))
+								if(appendToFile(springles_url.replace("%20", " ")+"META-INF"+separator+"rdfpro-rulesets",filename+"\n")){
 									
 									return "Ruleset "+filename+" was uploaded!";
 								}
@@ -1001,16 +1002,17 @@ public class SpringlesService {
 					 return "Error!";
 				 }else if(inferencer.compareTo("NaiveInferencer")==0){
 					 String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
-					 springles_url = '/'+springles_url.split("/")[1]+'/'+springles_url.split("/")[2]+'/'+springles_url.split("/")[3]+'/'+springles_url.split("/")[4]+"/openrdf-sesame/WEB-INF/classes/";
+					 springles_url = springles_url.substring(5,springles_url.indexOf("webapps"+separator)+8)+"openrdf-sesame"+separator+"WEB-INF"
+							 +separator+"classes"+separator;
 					 
-					 File file = new File(springles_url+filename);
+					 File file = new File(springles_url.replace("%20", " ")+filename);
 					 if (file.exists()){
 						 return "Ruleset with the same name is just in memory";
 					 }
 					try {
 						if (file.createNewFile())	
-							if(appendToFile(springles_url+filename, contenuto))
-								if(appendToFile(springles_url+"META-INF/springles-rulesets",filename+"\n"))
+							if(appendToFile(springles_url.replace("%20", " ")+filename, contenuto))
+								if(appendToFile(springles_url.replace("%20", " ")+"META-INF"+separator+"springles-rulesets",filename+"\n"))
 									return "Ruleset "+filename+" was uploaded!";
 								else
 									return "Uploading Error!";
@@ -1048,13 +1050,16 @@ public class SpringlesService {
 				 System.out.println(inferencer);
 				 System.out.println(springlesserverURL);
 				 System.out.println(springlesrepositoryID);
-				 
+				 String separator = "/";
 				 if(inferencer.compareTo("RDFProInferencer")==0){
 					 String result = "";
 					 String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
-					 springles_url = '/'+springles_url.split("/")[1]+'/'+springles_url.split("/")[2]+'/'+springles_url.split("/")[3]+'/'+springles_url.split("/")[4]+"/openrdf-sesame/WEB-INF/classes/";
+					 springles_url = springles_url.substring(5,springles_url.indexOf("webapps"+separator)+8)+"openrdf-sesame"+separator+"WEB-INF"
+					 +separator+"classes"+separator;
+					 
+					 System.out.println(springles_url);
 					 String contenuto;
-					 if((contenuto = getFileContent(springles_url+"META-INF/rdfpro-rulesets")).compareTo("-1") == 0)
+					if((contenuto = getFileContent(springles_url.replace("%20", " ")+"META-INF"+separator+"rdfpro-rulesets")).compareTo("-1") == 0)
 						 return "Reading Error!";
 					 else{
 						 if(contenuto.length() ==0)
@@ -1126,9 +1131,11 @@ public class SpringlesService {
 					  @QueryParam("inferencer") String inferencer)
 			  {
 				 System.out.println("DELETE "+ filename + " "+inferencer);
+				 String separator = "/";
 				 if(inferencer.compareTo("RDFProInferencer")==0){
 					 String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
-					 springles_url = '/'+springles_url.split("/")[1]+'/'+springles_url.split("/")[2]+'/'+springles_url.split("/")[3]+'/'+springles_url.split("/")[4]+"/openrdf-sesame/WEB-INF/classes/";
+					 springles_url = springles_url.substring(5,springles_url.indexOf("webapps"+separator)+8)+"openrdf-sesame"+separator+"WEB-INF"
+							 +separator+"classes"+separator;
 					 File ruleset = new File(filename);
 					
 					 if(ruleset.exists())
@@ -1140,16 +1147,18 @@ public class SpringlesService {
 						
 					 
 					 String contenuto;
-					 if((contenuto = getFileContent(springles_url+"META-INF/rdfpro-rulesets")).compareTo("-1") == 0)
+					 if((contenuto = getFileContent(springles_url.replace("%20", " ")+"META-INF"+separator+"rdfpro-rulesets")).compareTo("-1") == 0)
 						 return "Deleting Error!";
-					 contenuto = contenuto.replaceAll(filename.substring(filename.lastIndexOf('/')+1, filename.length())+"\n", "");
+					 contenuto = contenuto.replaceAll(filename.substring(filename.lastIndexOf(separator)+1, filename.length())+"\n", "");
 					 System.out.println(contenuto);
-					 if(!replaceToFile(springles_url+"META-INF/rdfpro-rulesets", contenuto))
+					 if(!replaceToFile(springles_url.replace("%20", " ")+"META-INF"+separator+"rdfpro-rulesets", contenuto))
 						 return "Deleting Error!";
 					 return "Ruleset was deleted!";
 				 }else if(inferencer.compareTo("NaiveInferencer")==0){
 					 String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
-					 springles_url = '/'+springles_url.split("/")[1]+'/'+springles_url.split("/")[2]+'/'+springles_url.split("/")[3]+'/'+springles_url.split("/")[4]+"/openrdf-sesame/WEB-INF/classes/";
+					 System.out.println(separator);
+					 springles_url = springles_url.substring(5,springles_url.indexOf("webapps"+separator)+8)+"openrdf-sesame"+separator+"WEB-INF"
+							 +separator+"classes"+separator;
 					 File ruleset = new File(filename);
 					
 					 if(ruleset.exists())
@@ -1161,11 +1170,13 @@ public class SpringlesService {
 						
 					 
 					 String contenuto;
-					 if((contenuto = getFileContent(springles_url+"META-INF/springles-rulesets")).compareTo("-1") == 0)
+					 
+					 System.out.println(separator);
+					 if((contenuto = getFileContent(springles_url.replace("%20", " ")+"META-INF"+separator+"springles-rulesets")).compareTo("-1") == 0)
 						 return "Deleting Error!";
-					 contenuto = contenuto.replaceAll(filename.substring(filename.lastIndexOf('/')+1, filename.length())+"\n", "");
+					 contenuto = contenuto.replaceAll(filename.substring(filename.lastIndexOf(separator)+1, filename.length())+"\n", "");
 					 System.out.println(contenuto);
-					 if(!replaceToFile(springles_url+"META-INF/springles-rulesets", contenuto))
+					 if(!replaceToFile(springles_url.replace("%20", " ")+"META-INF"+separator+"springles-rulesets", contenuto))
 						 return "Deleting Error!";
 					 return "Ruleset was deleted!";
 				 }
@@ -1191,6 +1202,7 @@ public class SpringlesService {
 				 //String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
 				 //springles_url = '/'+springles_url.split("/")[1]+'/'+springles_url.split("/")[2]+'/'+springles_url.split("/")[3]+'/'+springles_url.split("/")[4]+"/openrdf-sesame/WEB-INF/classes/";
 				 String contenuto;
+				 filename = filename.replace("%20", " ");
 				 if((contenuto = getFileContent(filename)).compareTo("-1") == 0)
 					 return "Reading Error!";
 				 else{
