@@ -283,14 +283,12 @@ public class SpringlesService {
 	  public String addData(
 			  @FormDataParam("springlesrepositoryID") String springlesrepositoryID,
 			  @FormDataParam("springlesserverURL") String springlesserverURL,
-			  @FormDataParam("baseURI") String baseURI,
 			 @FormDataParam("filetoupload") InputStream filetoupload,
 		     @FormDataParam("filetoupload") FormDataContentDisposition fileDetail)
 			   {
 		
 	System.out.println(springlesrepositoryID);
 	System.out.println(springlesserverURL);	  
-	System.out.println(baseURI);	  
 	System.out.println(filetoupload);
 		  
 
@@ -311,7 +309,7 @@ public class SpringlesService {
 		Repository repository = manager.getRepository(repositoryId);
 		RepositoryConnection con = repository.getConnection();
 		BufferedReader reader = new BufferedReader(new InputStreamReader(filetoupload));
-	    con.add(filetoupload, baseURI, RDFFormat.TRIG);
+	    con.add(filetoupload, "", RDFFormat.TRIG);
 		//con.add(file, baseURI, RDFFormat.TRIG);
 		result="200 OK";
 	

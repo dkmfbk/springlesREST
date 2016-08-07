@@ -13,11 +13,9 @@ $(function() {
 		var springlesrepositoryID=$("#repoChoice").val();
 		var url_=restURL+"upload";
 	 
-	    var fileURI=oElements["fileURI"];
 	    var documentData = new FormData();
 	    documentData.append("springlesrepositoryID",springlesrepositoryID);
 	    documentData.append("springlesserverURL",springlesserverURL);
-	    documentData.append("baseURI",fileURI);
 	   documentData.append("filetoupload",$('input#filetoupload')[0].files[0]);
 	 
  
