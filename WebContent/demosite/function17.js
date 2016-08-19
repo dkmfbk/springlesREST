@@ -23,13 +23,15 @@ $(function() {
 			url : url_ , 
 			data : dataSend, 
       contentType: "application/json; charset=utf-8",
-      dataType: "html",
+      dataType: "json",
 			type : "GET"
 		
 		}).done(function(data, textStatus, jqXHR) {			
-			//var print = eval("(" + data + ')'); 
 			$("#result").empty();
-			$('#result').html(data);
+			$('#result').append("<table class='table table-striped'><thead><tr><th>Graphs</th><tr></thead><tbody>");
+            for(var i=0;i<data["graphs"].length ;i++)
+                $('#result').append("<tr><td class='graph'>"+data["graphs"][i]["graph_name"]+ "</td></tr>");
+            $('#result').append("</tbody></table>");
             defineClickListerner();
 		}).fail(function(jqXHR, textStatus, errorThrown) { 
 			$("#result").empty();

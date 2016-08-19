@@ -592,7 +592,7 @@ public class SpringlesService {
 	   */
 	  @GET
 	  @Path("/contexts")
-	  @Produces(MediaType.TEXT_HTML)
+	  @Produces(MediaType.APPLICATION_JSON)
 	  public String contexts(
 			  @QueryParam("springlesrepositoryID") String springlesrepositoryID,
 			  @QueryParam("springlesserverURL") String springlesserverURL,
@@ -600,7 +600,7 @@ public class SpringlesService {
 	  {
 
 		  
-		  String result="Fail";
+		  StringBuilder result = new StringBuilder();
 		  Repository	myRepository = new HTTPRepository(springlesserverURL, springlesrepositoryID);
 		  Set<Resource> ct = null;
 		  try {
@@ -614,15 +614,16 @@ public class SpringlesService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}finally{
-			result = "<table class='table table-striped'><thead><tr><th>Graphs</th><tr></thead><tbody>";
+			result.append("{\"graphs\":[");
 			for(Resource r:ct){
-				result += "<tr><td class='graph'>"+r.toString() + "</td></tr>";
+				result.append("{\"graph_name\":\""+r.toString() + "\"},");
 			}
-			result +="</tbody></table>";
+			result.append("]}");
+			result.deleteCharAt(result.lastIndexOf(","));
 		}
 		  
 		   
-	  	  return result;
+	  	  return result.toString();
 	  }	 
 	  
 	  
@@ -642,11 +643,10 @@ public class SpringlesService {
 	  {
 
 		  
-		  String result="Fail";
+		  StringBuilder result = new StringBuilder();
 		  Repository	myRepository = new HTTPRepository(springlesserverURL, springlesrepositoryID);
 		  try {
 			myRepository.initialize();
-			result = "";
 			RemoteRepositoryManager manager = new RemoteRepositoryManager(springlesserverURL);
 			manager.initialize();
 			RepositoryInfo ri = manager.getRepositoryInfo(springlesrepositoryID);
@@ -671,18 +671,17 @@ public class SpringlesService {
 				ruleset = sts.get(22).getObject().stringValue().replaceAll(sts.get(22).getObject().stringValue().substring(0,sts.get(22).getObject().stringValue().lastIndexOf("/")+1),"");
 			
 				
-			result ="<table class='table table-striped' style='font-size:0.9em;' >";
-			result += "<tr><th>ID:</th><td>" + ri.getId()+
-					"</td></tr><tr><th>Title:</th><td>" + ri.getDescription()+
-					"</td></tr><tr><th>Location:</th><td>"+ri.getLocation()+
-					"</td></tr><tr><th>Server:</th><td>"+manager.getServerURL()+
-					"</td></tr><tr><th>Total statements:</th><td>"+ mod.size()+
-					"</td></tr><tr><th>Explicit statements:</th><td>"+ myRepository.getConnection().size()+
-					"</td></tr><tr><th>Inferred statements:</th><td>"+ (mod.size()-myRepository.getConnection().size())+
-					"</td></tr><tr><th>Closure status:</th><td>"+status+
-					"</td></tr><tr><th>Last Inferencer:</th><td>"+sts.get(23).getObject().stringValue().split("#")[1]+
-					"</td></tr><tr><th>Last Ruleset:</th><td>"+ ruleset.replace("%20", " ") +
-					"</td></tr><tr><th>Inferred context prefix:</th><td>"+ sts.get(6).getObject().stringValue()+"</td></tr></table>";
+			result.append("{\"ID\":\"" + ri.getId()+ "\","+
+					"\"Title\":\"" + ri.getDescription()+"\","+
+					"\"Location\":\""+ri.getLocation()+"\","+
+					"\"Server\":\""+manager.getServerURL()+"\","+
+					"\"Total statements\":\""+ mod.size()+"\","+
+					"\"Explicit statements\":\""+ myRepository.getConnection().size()+"\","+
+					"\"Inferred statements\":\""+ (mod.size()-myRepository.getConnection().size())+"\","+
+					"\"Closure status\":\""+status+"\","+
+					"\"Last Inferencer\":\""+sts.get(23).getObject().stringValue().split("#")[1]+"\","+
+					"\"Last Ruleset\":\""+ ruleset.replace("%20", " ") +"\","+
+					"\"Inferred context prefix\":\""+ sts.get(6).getObject().stringValue()+"\"}");
 					
 		} catch (RepositoryException | RepositoryConfigException e) {
 			// TODO Auto-generated catch block
@@ -691,7 +690,7 @@ public class SpringlesService {
 		  
 		  
 		   
-	  	  return result;
+	  	  return result.toString();
 	  }	 
 	  
 	  
@@ -796,7 +795,7 @@ public class SpringlesService {
 	   */
 	  @POST
 	  @Path("/querysparql")
-	  @Produces(MediaType.TEXT_HTML)
+	  @Produces(MediaType.APPLICATION_JSON)
 
 	  @Consumes(MediaType.MULTIPART_FORM_DATA)
 		  public String getTuples(
@@ -805,7 +804,7 @@ public class SpringlesService {
 				  @FormDataParam("includeinferred") int includeinferred, 
 				  @FormDataParam("querySPARQL") String query) {
 				List<BindingSet> tuples = new ArrayList<BindingSet>();
-				String result="";
+				StringBuilder result= new StringBuilder();
 				try {
 			Repository		myRepository = new HTTPRepository(springlesserverURL, springlesrepositoryID);
 					myRepository.initialize();
@@ -833,25 +832,27 @@ public class SpringlesService {
 				
 				System.out.println(query);
 				System.out.println("RES:"+tuples.size());
+				char arr[] = {'s','p','o'};
 				int i=0;
+				result.append("{\"res\":[");
 				for (BindingSet s : tuples) {
-					if(i==0){
-						result+="<thead><tr>";
-						for(String n:s.getBindingNames()){
-							result+="<th>"+n+"</th>";
-						}
-						result+="</tr></thead><tbody>";
-					}
-					result+="<tr class='active'>";
+					i=0;
+					result.append("{");
 					for(String n:s.getBindingNames()){
-						result+="<td class='"+n+"'>"+(s.getValue(n) != null ? s.getValue(n).toString() : "")+"</td>";
+						result.append("\""+arr[i]+"\":\""+n+"\",\""+arr[i]+"_val\":\""+(s.getValue(n) != null ? s.getValue(n).toString().replace('"', ' ') : "")+"\",");
+						i++;
 					}
-					result+="</tr>";
-					i=1;
+					int lastIndex = result.lastIndexOf(",");
+					if (lastIndex != -1)
+						result.deleteCharAt(lastIndex);
+					result.append("},");
 				}
-				
-				System.out.println(result);
-				return result+"</tbody>";
+				result.append("]}");
+				int lastIndex = result.lastIndexOf(",");
+				if (lastIndex != -1)
+					result.deleteCharAt(lastIndex);
+				System.out.println(result.toString());
+				return result.toString();
 			}  
 	  
 	  	  
@@ -1265,4 +1266,19 @@ public class SpringlesService {
 						return false;
 					}
 			}
+			
+			@GET
+			  @Path("/prova")
+			  @Produces(MediaType.APPLICATION_JSON)
+			  public String prova(
+					  )
+			  {
+				 
+					StringBuilder crunchifyBuilder = new StringBuilder();
+					crunchifyBuilder.append("{ \"id\":\"ciao#:%45_123=?\"},{\"id\":\"ciao#:%45_123=?\"}");
+					return crunchifyBuilder.toString();
+					
+			  }
 }
+
+

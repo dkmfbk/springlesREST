@@ -4,8 +4,10 @@ function showPanel(index){
     $(index).show();
 }
 
-function defineClickListerner(){
-    
+function defineClickListerner(s,p,o){
+        $("."+s).css("cursor","pointer");
+        $("."+o).css("cursor","pointer");
+        $("."+p).css("cursor","pointer");
         $(".graph").click(function(){
                    var context = $(this).text();
                     var url2_=restURL+"querysparql";
@@ -23,13 +25,34 @@ function defineClickListerner(){
                      contentType : false,
                   processData : false,
                   cache: false,
-                      dataType: "html",
+                      dataType: "json",
                     type : "POST"
 
                     }).done(function(data, textStatus, jqXHR) {	
+                        
+                            var result ="";
+                            result+="<table class='table table-striped'>";
+                            result+="<thead><tr><th>"+context+"</th></tr>";
+                            result+="<tr>";
+                            if(data["res"].length > 0){
+                                result+="<th>"+data["res"][0]["s"]+"</th>";
+                                result+="<th>"+data["res"][0]["p"]+"</th>";
+                                result+="<th>"+data["res"][0]["o"]+"</th>";
+                            }
+                             result+="</tr></thead><tbody>";
+                            for(var i=0;data["res"].length > 0 && i<data["res"].length;i++)
+                            {
+                                result+="<tr class='active'>";
+                                result+="<td class='s'>"+data["res"][i]["s_val"]+"</td>"; 
+                                result+="<td class='p'>"+data["res"][i]["p_val"]+"</td>"; 
+                                result+="<td class='o'>"+data["res"][i]["o_val"]+"</td>"; 
+                                result+="</tr>";
+                            }
+                            result+="</tbody></table>";
                             $("#result").empty();
-			                 $('#result').html("<table class='table table-striped'><thead><tr><th colspan='3'>"+context+"</th></tr></thead>"+data + "</table>");
-                        defineClickListerner();
+                            $("#result").html(result);
+                            if(data["res"].length > 0)
+                                defineClickListerner(data["res"][0]["s"],data["res"][0]["p"],data["res"][0]["o"]);
                     }).fail(function(jqXHR, textStatus, errorThrown) { 
                         $("#result").empty();
                         $('#result').html("<span> " + jqXHR.status + " " + jqXHR.responseText + "</span><br />");
@@ -51,13 +74,33 @@ function defineClickListerner(){
                     data : dataSend2,contentType : false,
                       processData : false,
                       cache: false,
-                      dataType: "html",
+                      dataType: "json",
                     type : "POST"
 
                     }).done(function(data, textStatus, jqXHR) {	
+                            var result ="";
+                            result+="<table class='table table-striped'>";
+                            result+="<thead><tr><th>"+subject+"</th></tr>";
+                            result+="<tr>";
+                            if(data["res"].length > 0){
+                                result+="<th>"+data["res"][0]["s"]+"</th>";
+                                result+="<th>"+data["res"][0]["p"]+"</th>";
+                                result+="<th>"+data["res"][0]["o"]+"</th>";
+                            }
+                             result+="</tr></thead><tbody>";
+                            for(var i=0;data["res"].length > 0 && i<data["res"].length;i++)
+                            {
+                                result+="<tr class='active'>";
+                                result+="<td class='s'>"+data["res"][i]["s_val"]+"</td>"; 
+                                result+="<td class='p'>"+data["res"][i]["p_val"]+"</td>"; 
+                                result+="<td class='o'>"+data["res"][i]["o_val"]+"</td>"; 
+                                result+="</tr>";
+                            }
+                            result+="</tbody></table>";
                             $("#result").empty();
-			                 $('#result').html("<table class='table table-striped'><thead><tr><th colspan='3'>"+subject+"</th></tr></thead>"+data + "</table>");
-                        defineClickListerner();
+                            $("#result").html(result);
+                            if(data["res"].length > 0)
+                                defineClickListerner(data["res"][0]["s"],data["res"][0]["p"],data["res"][0]["o"]);
                     }).fail(function(jqXHR, textStatus, errorThrown) { 
                         $("#result").empty();
                         $('#result').html("<span> " + jqXHR.status + " " + jqXHR.responseText + "</span><br />");
@@ -79,13 +122,33 @@ function defineClickListerner(){
                       contentType : false,
                   processData : false,
                   cache: false,
-                      dataType: "html",
+                      dataType: "json",
                     type : "POST"
 
                     }).done(function(data, textStatus, jqXHR) {	
+                            var result ="";
+                            result+="<table class='table table-striped'>";
+                            result+="<thead><tr><th>"+obj+"</th></tr>";
+                            result+="<tr>";
+                            if(data["res"].length > 0){
+                                result+="<th>"+data["res"][0]["s"]+"</th>";
+                                result+="<th>"+data["res"][0]["p"]+"</th>";
+                                result+="<th>"+data["res"][0]["o"]+"</th>";
+                            }
+                             result+="</tr></thead><tbody>";
+                            for(var i=0;data["res"].length > 0 && i<data["res"].length;i++)
+                            {
+                                result+="<tr class='active'>";
+                                result+="<td class='s'>"+data["res"][i]["s_val"]+"</td>"; 
+                                result+="<td class='p'>"+data["res"][i]["p_val"]+"</td>"; 
+                                result+="<td class='o'>"+data["res"][i]["o_val"]+"</td>"; 
+                                result+="</tr>";
+                            }
+                            result+="</tbody></table>";
                             $("#result").empty();
-			                $('#result').html("<table class='table table-striped'><thead><tr><th colspan='3'>"+obj+"</th></tr></thead>"+data + "</table>");
-                        defineClickListerner();
+                            $("#result").html(result);
+                            if(data["res"].length > 0)
+                                defineClickListerner(data["res"][0]["s"],data["res"][0]["p"],data["res"][0]["o"]);
                     }).fail(function(jqXHR, textStatus, errorThrown) { 
                         $("#result").empty();
                         $('#result').html("<span> " + jqXHR.status + " " + jqXHR.responseText + "</span><br />");
@@ -106,14 +169,33 @@ function defineClickListerner(){
                     data : dataSend2, contentType : false,
       processData : false,
       cache: false,
-                      dataType: "html",
+                      dataType: "json",
                     type : "POST"
 
                     }).done(function(data, textStatus, jqXHR) {	
                         
+                            var result ="";
+                            result+="<table class='table table-striped'>";
+                            result+="<thead><tr><th>"+pred+"</th></tr>";
+                            result+="<tr>";
+                            if(data["res"].length > 0){
+                                result+="<th>"+data["res"][0]["s"]+"</th>";
+                                result+="<th>"+data["res"][0]["p"]+"</th>";
+                                result+="<th>"+data["res"][0]["o"]+"</th>";
+                            }
+                             result+="</tr></thead><tbody>";
+                            for(var i=0;data["res"].length > 0 && i<data["res"].length;i++)
+                            {
+                                result+="<tr class='active'>";
+                                result+="<td class='s'>"+data["res"][i]["s_val"]+"</td>"; 
+                                result+="<td class='p'>"+data["res"][i]["p_val"]+"</td>"; 
+                                result+="<td class='o'>"+data["res"][i]["o_val"]+"</td>"; 
+                                result+="</tr>";
+                            }
+                            result+="</tbody></table>";
                             $("#result").empty();
-			                 $('#result').html("<table class='table table-striped'><thead><tr><th colspan='3'>"+pred+"</th></tr></thead>"+data + "</table>");
-                        defineClickListerner();
+                            $("#result").html(result);
+                            defineClickListerner();
                     }).fail(function(jqXHR, textStatus, errorThrown) { 
                         $("#result").empty();
                         $('#result').html("<span> " + jqXHR.status + " " + jqXHR.responseText + "</span><br />");

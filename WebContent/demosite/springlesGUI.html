@@ -87,7 +87,7 @@ a, .delete{
 			<div class="panel panel-default hide-repo" style="display:none;">
 					<div class="panel-heading">
 						<h4 class="panel-title">
-							<a href="#collapse12" >Upload RDF</a>
+							<a href="#collapse12" >Upload Data</a>
 						</h4>
 					</div>
 					
@@ -107,7 +107,7 @@ a, .delete{
                 <div class="panel panel-default hide-repo" style="display:none;">
                     <div class="panel-heading">
                         <h4 class="panel-title">
-                            <a href="#collapse13"  >Full Export</a>
+                            <a href="#collapse13"  >Export</a>
                         </h4>
                     </div>
                     
@@ -128,7 +128,7 @@ a, .delete{
                 <div class="panel panel-default hide-repo" style="display:none;">
                     <div class="panel-heading">
                         <h4 class="panel-title">
-                            <a href="#collapse15" >Clear Statements</a>
+                            <a href="#collapse15" >Delete Statements</a>
                         </h4>
                     </div>
                     
@@ -164,7 +164,8 @@ a, .delete{
         
 		<div class="col-md-9">
                 <div id="collapse11" class="panel-collapse collapse col-md-12">
-						<div class="panel-body">
+						<h4>Create Repository</h4>
+                        <div class="panel-body">
 						
 							<form id="form11" role="form" method="GET">
 				
@@ -174,7 +175,7 @@ a, .delete{
 	    	                        <label style="padding-top: 20px" for="springlesrepositorytitle">Springles Repository TITLE</label>
 				                    <input type="text" class="form-control" value="test-springles-5" id="springlesrepositorytitle" >
                                 </div>		
-                                <button type="submit" class="btn btn-default btn-primary">Submit</button>
+                                <button type="submit" class="btn btn-default btn-primary">Create</button>
                             </form>
 
                         </div>
@@ -187,7 +188,7 @@ a, .delete{
                                              <label style="padding-top: 20px" for="springlesrepositoryID">Springles Repository ID</label>						
                                             <select class="springlesrepositoryID form-control"></select> 
                                           </div>		
-                                        <button type="submit" class="btn btn-default btn-primary">Submit</button>
+                                        <button type="submit" class="btn btn-default btn-primary">Delete</button>
                                     </form>
 
                                 </div>
@@ -195,7 +196,7 @@ a, .delete{
             
                     <div id="collapse12" class="panel-collapse col-md-12 collapse">
 						<div class="panel-body">
-                            <h4>Upload RDF</h4>
+                            <h4>Upload Data</h4>
 							<form id="form12" role="form" method="GET"  enctype="multipart/form-data">
 				
 							     <div class="form-group">	
@@ -203,7 +204,7 @@ a, .delete{
                                     <input type="file" class="form-control" value="toolisse-kb-test-with-synonyms-finale-nolocation.trig" id="filetoupload" >		
                                     <p class="help-block">toolisse-kb-test-with-synonyms-finale-nolocation.trig</p>	
                                 </div>		
-                                <button type="submit" class="btn btn-default btn-primary">Submit</button>
+                                <button type="submit" class="btn btn-default btn-primary">Upload</button>
                             </form>
 
                         </div>
@@ -219,14 +220,14 @@ a, .delete{
                                                 Include inferred graphs
                                             </label>
                                           </div>		
-                                        <button type="submit" class="btn btn-default btn-primary">Submit</button>
+                                        <button type="submit" class="btn btn-default btn-primary">Get graphs</button>
                                     </form>
 
                                 </div>
                             </div>
                             <div id="collapse13" class="panel-collapse col-md-12 collapse">
                         <div class="panel-body">
-                            <h4>Full Export</h4>
+                            <h4>Export</h4>
                             <form id="form13" role="form" method="GET"  enctype="multipart/form-data">
                                 <div class="form-group">	
 			                         
@@ -241,7 +242,7 @@ a, .delete{
                                         Include inferred statements
                                     </label>
                                 </div>		
-                                <button type="submit" class="btn btn-default btn-primary">Submit</button>
+                                <button type="submit" class="btn btn-default btn-primary">Export</button>
                             </form> 
                         </div>
                     </div>
@@ -260,7 +261,7 @@ a, .delete{
 
                                     </select>
                                     <label style="padding-top: 20px" for="bindings">Binding</label>
-                                    <input type="text" class="form-control" value="springles:inf:global=global_inf " id="bindings" >
+                                    <input type="text" class="form-control" value="global_inf=springles:inf:global" id="bindings" >
                                     <label style="padding-top: 20px" for="inferred_context_prefix">Inferred Context Prefix</label>
                                     <input type="text" class="form-control" value="springles:inf:*" id="inferred_context_prefix" >
                                 </div>
@@ -271,11 +272,11 @@ a, .delete{
                     </div>
                     <div id="collapse15" class="panel-collapse col-md-12 collapse">
                         <div class="panel-body">
-                            <h4>Clear Statements</h4>
+                            <h4>Delete Statements</h4>
                             <form id="form15" role="form" method="GET"   enctype="multipart/form-data">
                                 <div class="form-group">	
                                 </div>		
-                                <button type="submit" class="btn btn-default btn-primary">Submit</button>
+                                <button type="submit" class="btn btn-default btn-primary">Delete</button>
                             </form> 
                         </div>
                     </div>
@@ -292,7 +293,7 @@ a, .delete{
                                             Include inferred statements
                                         </label>
                                 </div>
-                                <button type="submit" class="btn btn-default btn-primary">Submit</button>
+                                <button type="submit" class="btn btn-default btn-primary">Execute</button>
                             </form>
 
                         </div>
