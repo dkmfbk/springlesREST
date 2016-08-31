@@ -270,7 +270,6 @@ public class SpringlesService {
 	   * url : http://localhost:8080/SpringlesREST/rest/rest/upload
 	   * @param springlesrepositoryID ID of the springles repository
 	   * @param springlesserverURL URL of the springles server 
-	   * @param baseURI path of file to upload
 	   * @param filetoupload inputstream of file to upload
 	   * @param fileDetail details of file to upload
 	   * @return OK if uploaded was successful, FAIL otherwise
@@ -644,6 +643,22 @@ public class SpringlesService {
 
 		  
 		  StringBuilder result = new StringBuilder();
+		  if(springlesrepositoryID.compareTo("null")==0)
+		  {
+			  result.append("{\"ID\":\"-\","+
+						"\"Title\":\"-\","+
+						"\"Location\":\"-\","+
+						"\"Server\":\"-\","+
+						"\"Total statements\":\"-\","+
+						"\"Explicit statements\":\"-\","+
+						"\"Inferred statements\":\"-\","+
+						"\"Closure status\":\"-\","+
+						"\"Last Inferencer\":\"-\","+
+						"\"Last Ruleset\":\"-\","+
+						"\"Inferred context prefix\":\"-\"}");		 
+			  return result.toString();
+			 }
+		  else{
 		  Repository	myRepository = new HTTPRepository(springlesserverURL, springlesrepositoryID);
 		  try {
 			myRepository.initialize();
@@ -691,6 +706,7 @@ public class SpringlesService {
 		  
 		   
 	  	  return result.toString();
+		  }
 	  }	 
 	  
 	  
@@ -907,6 +923,11 @@ public class SpringlesService {
 						  @QueryParam("repositoryID") String springlesrepositoryID,
 						  @QueryParam("serverURL") String springlesserverURL) {
 						List<BindingSet> tuples = new ArrayList<BindingSet>();
+						 if(springlesrepositoryID.compareTo("null")==0)
+						  {
+							 return "error";
+						  }
+				
 						String result="";
 						try {
 					Repository		myRepository = new HTTPRepository(springlesserverURL, springlesrepositoryID);

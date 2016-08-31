@@ -31,6 +31,7 @@ $(function() {
 			//var print = eval("(" + data + ')'); 
 			$("#result").empty();
 			$('#result').html( data);
+            $("#collapse16").hide();
             loadRepo();
 		}).fail(function(jqXHR, textStatus, errorThrown) { 
 			$("#result").empty();
