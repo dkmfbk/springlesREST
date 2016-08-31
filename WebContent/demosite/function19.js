@@ -9,10 +9,9 @@ $(function() {
          var documentData = new FormData();
         
 		var url_=restURL+"create_ruleset";
-        var fileURI=oElements["fileURI"];
         var ruleset = oElements['file_ruleset'];
         
-        documentData.append("newfilename",fileURI);
+        documentData.append("newfilename",ruleset.substr(ruleset.lastIndexOf('\\')+1));
         documentData.append("filetoupload",$('#file_ruleset')[0].files[0]);
         documentData.append("inferencer",$("#collapse19 #inferencer").val());
         

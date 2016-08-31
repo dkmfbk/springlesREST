@@ -839,7 +839,7 @@ public class SpringlesService {
 					i=0;
 					result.append("{");
 					for(String n:s.getBindingNames()){
-						result.append("\""+arr[i]+"\":\""+n+"\",\""+arr[i]+"_val\":\""+(s.getValue(n) != null ? s.getValue(n).toString().replace('"', ' ') : "")+"\",");
+						result.append("\""+arr[i]+"\":\""+n+"\",\""+arr[i]+"_val\":\""+(s.getValue(n) != null ? s.getValue(n).stringValue().toString().replace('"', ' ') : "")+"\",");
 						i++;
 					}
 					int lastIndex = result.lastIndexOf(",");
