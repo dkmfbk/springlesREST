@@ -376,19 +376,24 @@ public class SpringlesService {
 	  				queryString = "clear graph <springles:update-closure>";
 	  			}
 	  			changeInferenceParameters(springlesserverURL, springlesrepositoryID, ruleset.replace(" ", "%20"), inferencer,bind,inferredcontext);
-
+	  			
 	  				//if (!con.isActive()){
 	  					con.begin();
 	  				//}
+	  					
 	  				//	conn.prepareUpdate(QueryLanguage.SPARQL, updateQuery);
 	  					Update insert = con.prepareUpdate(QueryLanguage.SPARQL,
 	  							queryString);
 	  					long startTime = System.currentTimeMillis();
-	  					insert.execute();
-	  					 con.commit();
-	  					 
-	  				//	 con.close();
 	  					
+	  					
+	  					// TODO: check out of bound exeception into execute()
+	  					insert.execute();
+	  					
+	  					
+	  					 con.commit();
+
+	  					 
 	  					long estimatedTime = System.currentTimeMillis() - startTime;
 	  					// tupleQuery.setIncludeInferred(true);
 	  					//TupleQueryResult qresult = tupleQuery.evaluate();
@@ -613,6 +618,10 @@ public class SpringlesService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}finally{
+			if(ct.size() ==0){
+				result.append("NO DATA");
+				return result.toString();
+			}
 			result.append("{\"graphs\":[");
 			for(Resource r:ct){
 				result.append("{\"graph_name\":\""+r.toString() + "\"},");
@@ -1070,6 +1079,10 @@ public class SpringlesService {
 				 System.out.println(inferencer);
 				 System.out.println(springlesserverURL);
 				 System.out.println(springlesrepositoryID);
+				 if(springlesrepositoryID.compareTo("null")==0)
+				  {
+					 return "error";
+				  }
 				 String separator = "/";
 				 if(inferencer.compareTo("RDFProInferencer")==0){
 					 String result = "";
