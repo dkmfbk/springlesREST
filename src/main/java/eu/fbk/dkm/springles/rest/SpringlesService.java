@@ -270,7 +270,6 @@ public class SpringlesService {
 	   * url : http://localhost:8080/SpringlesREST/rest/rest/upload
 	   * @param springlesrepositoryID ID of the springles repository
 	   * @param springlesserverURL URL of the springles server 
-	   * @param baseURI path of file to upload
 	   * @param filetoupload inputstream of file to upload
 	   * @param fileDetail details of file to upload
 	   * @return OK if uploaded was successful, FAIL otherwise
