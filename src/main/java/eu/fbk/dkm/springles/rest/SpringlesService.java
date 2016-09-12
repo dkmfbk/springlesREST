@@ -376,19 +376,24 @@ public class SpringlesService {
 	  				queryString = "clear graph <springles:update-closure>";
 	  			}
 	  			changeInferenceParameters(springlesserverURL, springlesrepositoryID, ruleset.replace(" ", "%20"), inferencer,bind,inferredcontext);
-
+	  			
 	  				//if (!con.isActive()){
 	  					con.begin();
 	  				//}
+	  					
 	  				//	conn.prepareUpdate(QueryLanguage.SPARQL, updateQuery);
 	  					Update insert = con.prepareUpdate(QueryLanguage.SPARQL,
 	  							queryString);
 	  					long startTime = System.currentTimeMillis();
-	  					insert.execute();
-	  					 con.commit();
-	  					 
-	  				//	 con.close();
 	  					
+	  					
+	  					// TODO: check out of bound exeception into execute()
+	  					insert.execute();
+	  					
+	  					
+	  					 con.commit();
+
+	  					 
 	  					long estimatedTime = System.currentTimeMillis() - startTime;
 	  					// tupleQuery.setIncludeInferred(true);
 	  					//TupleQueryResult qresult = tupleQuery.evaluate();
@@ -613,6 +618,10 @@ public class SpringlesService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}finally{
+			if(ct.size() ==0){
+				result.append("NO DATA");
+				return result.toString();
+			}
 			result.append("{\"graphs\":[");
 			for(Resource r:ct){
 				result.append("{\"graph_name\":\""+r.toString() + "\"},");
@@ -643,6 +652,22 @@ public class SpringlesService {
 
 		  
 		  StringBuilder result = new StringBuilder();
+		  if(springlesrepositoryID.compareTo("null")==0)
+		  {
+			  result.append("{\"ID\":\"-\","+
+						"\"Title\":\"-\","+
+						"\"Location\":\"-\","+
+						"\"Server\":\"-\","+
+						"\"Total statements\":\"-\","+
+						"\"Explicit statements\":\"-\","+
+						"\"Inferred statements\":\"-\","+
+						"\"Closure status\":\"-\","+
+						"\"Last Inferencer\":\"-\","+
+						"\"Last Ruleset\":\"-\","+
+						"\"Inferred context prefix\":\"-\"}");		 
+			  return result.toString();
+			 }
+		  else{
 		  Repository	myRepository = new HTTPRepository(springlesserverURL, springlesrepositoryID);
 		  try {
 			myRepository.initialize();
@@ -690,6 +715,7 @@ public class SpringlesService {
 		  
 		   
 	  	  return result.toString();
+		  }
 	  }	 
 	  
 	  
@@ -838,7 +864,7 @@ public class SpringlesService {
 					i=0;
 					result.append("{");
 					for(String n:s.getBindingNames()){
-						result.append("\""+arr[i]+"\":\""+n+"\",\""+arr[i]+"_val\":\""+(s.getValue(n) != null ? s.getValue(n).toString().replace('"', ' ') : "")+"\",");
+						result.append("\""+arr[i]+"\":\""+n+"\",\""+arr[i]+"_val\":\""+(s.getValue(n) != null ? s.getValue(n).stringValue().toString().replace('"', ' ') : "")+"\",");
 						i++;
 					}
 					int lastIndex = result.lastIndexOf(",");
@@ -906,6 +932,11 @@ public class SpringlesService {
 						  @QueryParam("repositoryID") String springlesrepositoryID,
 						  @QueryParam("serverURL") String springlesserverURL) {
 						List<BindingSet> tuples = new ArrayList<BindingSet>();
+						 if(springlesrepositoryID.compareTo("null")==0)
+						  {
+							 return "error";
+						  }
+				
 						String result="";
 						try {
 					Repository		myRepository = new HTTPRepository(springlesserverURL, springlesrepositoryID);
@@ -1048,6 +1079,10 @@ public class SpringlesService {
 				 System.out.println(inferencer);
 				 System.out.println(springlesserverURL);
 				 System.out.println(springlesrepositoryID);
+				 if(springlesrepositoryID.compareTo("null")==0)
+				  {
+					 return "error";
+				  }
 				 String separator = "/";
 				 if(inferencer.compareTo("RDFProInferencer")==0){
 					 String result = "";

@@ -1,5 +1,5 @@
 var yasqe = YASQE(document.getElementById("yasqe"), {
-    value: "SELECT (COUNT(*) AS ?n) WHERE { ?s ?p ?o }",
+    value: "SELECT ?s ?p ?o WHERE { ?s ?p ?o }",
     backdrop: true,
     showQueryButton: true,
     collapsePrefixesOnLoad: true
