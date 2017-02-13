@@ -1,8 +1,8 @@
 
 
-#springlesREST
+#SpringlesREST
 
-**springlesREST** is a REST web service that exposes useful methods to mange a SPRINGLES repository
+**SpringlesREST** is a REST web service that exposes useful methods to mange a SPRINGLES repository
 
 * create/delete a repository
 * upload data
