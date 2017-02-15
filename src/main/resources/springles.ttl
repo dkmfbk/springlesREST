@@ -4,6 +4,7 @@
 @prefix ms:   <http://www.openrdf.org/config/sail/memory#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 
+
 [] a rep:Repository ;
     rep:repositoryID "{%Repository ID|springles%}";
     rdfs:label "{%Repository title|SPRINGLES repository%}";
@@ -11,7 +12,7 @@
         a spc:SpringlesStore;
         rep:repositoryType "springles:Repository";
         spc:hasNullContextURI <{%Null context URI|springles:nil%}>;
-        spc:hasInferredContextPrefix "{%Inferred context prefix|springles:inf:*%}";
+        spc:hasInferredContextPrefix "{%Inferred context prefix|springles:inf:%}";
         spc:isBufferingEnabled "{%Buffering enabled|false%}";
         spc:hasMaxConcurrentTransactions {%Max concurrent transactions|0%};
         spc:hasMaxTransactionExecutionTime {%Max transaction execution time|1800000%};
@@ -27,7 +28,7 @@
         spc:hasInferencer [
             a spc:{%Inferencer type|NaiveInferencer%};
             spc:hasMaxConcurrentRules {%Max concurrent rules|0%};
-            spc:hasRuleset <{%Ruleset|no:ruleset%}>;
+            spc:hasRuleset <{%Ruleset|http://dkm.fbk.eu/springles/config#rdfs-merged%}>;
             spc:hasBindings """ {%Bindings%} """
         ]
     ] .
