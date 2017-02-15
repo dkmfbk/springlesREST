@@ -308,11 +308,11 @@ public class SpringlesService {
 		Repository repository = manager.getRepository(repositoryId);
 		RepositoryConnection con = repository.getConnection();
 		BufferedReader reader = new BufferedReader(new InputStreamReader(filetoupload));
-	    con.add(filetoupload, "", RDFFormat.TRIG);
+//#TODO GC aggiungere parametro per base uri
+		con.add(filetoupload, "http://dkm.fbk.eu/ckr/test/tourism-demokb", RDFFormat.TRIG);
 		//con.add(file, baseURI, RDFFormat.TRIG);
 		result="200 OK";
-	
-	
+	    con.close();
 	
 	
 	} catch (RepositoryException | RepositoryConfigException | RDFParseException | IOException e) {
@@ -360,8 +360,8 @@ public class SpringlesService {
 	  		RepositoryConnection con = myRepository.getConnection();
 	  		// result= result+""+con.size();
 	  	
-	  		System.out.println(springlesrepositoryID);
-	  		System.out.println(springlesserverURL);	
+	  		//System.out.println(springlesrepositoryID);
+	  		//System.out.println(springlesserverURL);	
 	  			
 	  		
 	  		
@@ -446,7 +446,7 @@ public class SpringlesService {
 					
 					String template = IOUtil.readString(new InputStreamReader(url,
 							"UTF-8"));
-					System.out.println(template);
+				//	System.out.println(template);
 					ConfigTemplate ct= new ConfigTemplate(template);
 					Map<String, String> valueMap =new HashMap<String, String>();
 					valueMap.put("Repository ID", repoID);
@@ -456,7 +456,7 @@ public class SpringlesService {
 					valueMap.put("Inferred context prefix", inferenceprefix);
 					valueMap.put("Bindings", bind);
 					String configString = ct.render(valueMap);
-					System.out.println(configString);
+					//System.out.println(configString);
 		           g = Rio.parse(IOUtils.toInputStream(configString, "UTF-8"),"",RDFFormat.TURTLE);		
 					
 					
