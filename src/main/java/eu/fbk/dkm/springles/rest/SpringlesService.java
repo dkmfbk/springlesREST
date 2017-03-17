@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.servlet.ServletContext;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -41,7 +40,6 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.GraphImpl;
 import org.openrdf.model.impl.LinkedHashModel;
-import org.openrdf.model.impl.TreeModel;
 import org.openrdf.model.impl.URIImpl;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.query.BindingSet;
@@ -68,8 +66,7 @@ import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.Rio;
-
-
+import org.openrdf.rio.rdfxml.util.RDFXMLPrettyWriter;
 import org.openrdf.rio.trig.TriGWriter;
 import org.openrdf.rio.turtle.TurtleWriter;
 
@@ -97,7 +94,7 @@ public class SpringlesService {
 	UriInfo uriInfo;
 	@Context
 	Request request;
-	@Context ServletContext context;
+
     public  SpringlesService (){
     	super();
     }
@@ -233,8 +230,7 @@ public class SpringlesService {
 				
 				
 				Writer writer = new BufferedWriter(new FileWriter(tempFile));
-				//RDFXMLPrettyWriter rdfxmlWriter = new RDFXMLPrettyWriter(writer);
-		//		RDFXMLWriter rdfxmlWriter = new RDFXMLWriter(writer);
+				RDFHandler rdfxmlWriter = new RDFXMLPrettyWriter(writer);
 				TriGWriter trigWriter= new TriGWriter(writer);
 				TurtleWriter ttlWriter = new TurtleWriter(writer);
 				
@@ -244,7 +240,7 @@ public class SpringlesService {
 				}else if(exportformat.equals("ttl")){
 					 con.exportStatements(null, null, null, persist, ttlWriter);
 					}else{
-		//			 con.exportStatements(null, null, null, persist, rdfxmlWriter);
+					 con.exportStatements(null, null, null, persist, rdfxmlWriter);
 					
 				}
 				 ResponseBuilder response = Response.ok((Object) tempFile);
@@ -375,9 +371,7 @@ public class SpringlesService {
 	  			String queryString ="";
 	  			if(inferencer.compareTo("RDFProInferencer")==0){
 	  				queryString = "clear graph <rdfpro:update-closure>";
-	  				ruleset = "file:/"+ ruleset.replace("\\", "/");
-	  				System.out.println("Rulest = "+ruleset); 
-	  				System.out.println("Binds = "+bind);   
+	  				ruleset = "file:"+ ruleset;
 	  			}else if(inferencer.compareTo("NaiveInferencer")==0){
 	  				queryString = "clear graph <springles:update-closure>";
 	  			}
@@ -462,7 +456,7 @@ public class SpringlesService {
 					valueMap.put("Inferred context prefix", inferenceprefix);
 					valueMap.put("Bindings", bind);
 					String configString = ct.render(valueMap);
-					System.out.println(configString);
+					//System.out.println(configString);
 		           g = Rio.parse(IOUtils.toInputStream(configString, "UTF-8"),"",RDFFormat.TURTLE);		
 					
 					
@@ -1002,13 +996,7 @@ public class SpringlesService {
 				 BufferedReader reader = new BufferedReader(new InputStreamReader(ruleset));
 				 String contenuto ="";
 				 String tmp = "";
-				 String contesto=context.getRealPath(separator);
-			     String contextName=this.context.getServletContextName();
-			     String REST_webapp_dir_path = contesto.substring(0, contesto.length()-this.context.getServletContextName().length()-1);
-			     String springles_WEB_INF=REST_webapp_dir_path+"openrdf-sesame"+separator+"WEB-INF"+separator;
-			     String springles_classes=springles_WEB_INF	+"classes"+separator;	 
-						
-			     try {
+				 try {
 					while((tmp=reader.readLine())!=null)
 						 contenuto+= tmp+"\n";
 				} catch (IOException e1) {
@@ -1016,25 +1004,19 @@ public class SpringlesService {
 					e1.printStackTrace();
 				}
 				if(inferencer.compareTo("RDFProInferencer")==0){
+					 String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
 					 
-					
-					
-			//		 String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
+					 springles_url = springles_url.substring(5,springles_url.indexOf("webapps"+separator)+8)+"openrdf-sesame"+separator+"WEB-INF"
+							 +separator+"classes"+separator;
 					 
-			//		 springles_url = springles_url.substring(5,springles_url.indexOf("webapps"+separator)+8)+"openrdf-sesame"+separator+"WEB-INF"
-			//				 +separator+"classes"+separator;
-					 
-			//		 File file = new File(springles_url.replace("%20", " ")+filename);
-					String filepath=springles_classes.replace("%20", " ")+filename;
-					 File file= new File (filepath);
-					 
+					 File file = new File(springles_url.replace("%20", " ")+filename);
 					 if (file.exists()){
 						 return "Ruleset with the same name is just in memory";
 					 }
 					try {
 						if (file.createNewFile())	
-							if(appendToFile(filepath, contenuto))
-								if(appendToFile(springles_classes+"META-INF"+separator+"rdfpro-rulesets",filename+"\n")){
+							if(appendToFile(springles_url.replace("%20", " ")+filename, contenuto))
+								if(appendToFile(springles_url.replace("%20", " ")+"META-INF"+separator+"rdfpro-rulesets",filename+"\n")){
 									
 									return "Ruleset "+filename+" was uploaded!";
 								}
@@ -1048,22 +1030,18 @@ public class SpringlesService {
 						}
 					 return "Error!";
 				 }else if(inferencer.compareTo("NaiveInferencer")==0){
-				//	 String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
-				//	 springles_url = springles_url.substring(5,springles_url.indexOf("webapps"+separator)+8)+"openrdf-sesame"+separator+"WEB-INF"
-					//		 +separator+"classes"+separator;
+					 String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
+					 springles_url = springles_url.substring(5,springles_url.indexOf("webapps"+separator)+8)+"openrdf-sesame"+separator+"WEB-INF"
+							 +separator+"classes"+separator;
 					 
-					// File file = new File(springles_url.replace("%20", " ")+filename);
-					 
-					 String filepath=springles_classes.replace("%20", " ")+filename;
-					 File file= new File (filepath);
-					 
+					 File file = new File(springles_url.replace("%20", " ")+filename);
 					 if (file.exists()){
 						 return "Ruleset with the same name is just in memory";
 					 }
 					try {
 						if (file.createNewFile())	
-							if(appendToFile(filepath, contenuto))
-								if(appendToFile(springles_classes+"META-INF"+separator+"springles-rulesets",filename+"\n"))
+							if(appendToFile(springles_url.replace("%20", " ")+filename, contenuto))
+								if(appendToFile(springles_url.replace("%20", " ")+"META-INF"+separator+"springles-rulesets",filename+"\n"))
 									return "Ruleset "+filename+" was uploaded!";
 								else
 									return "Uploading Error!";
@@ -1101,44 +1079,26 @@ public class SpringlesService {
 				 System.out.println(inferencer);
 				 System.out.println(springlesserverURL);
 				 System.out.println(springlesrepositoryID);
-				
-				 
 				 if(springlesrepositoryID.compareTo("null")==0)
 				  {
 					 return "error";
 				  }
 				 String separator = "/";
-
-				 String contesto=context.getRealPath(separator);
-			     String contextName=this.context.getServletContextName();
-			     
-			     System.out.println("contesto=" +contesto);
-			     System.out.println("contextName= "+contextName);
-			     
-			     
-			     String REST_webapp_dir_path = contesto.substring(0, contesto.length()-contextName.length()-1);
-			     String springles_WEB_INF=REST_webapp_dir_path+"openrdf-sesame"+separator+"WEB-INF"+separator;
-			     String springles_classes=springles_WEB_INF	+"classes"+separator;	
-				 
-				 
 				 if(inferencer.compareTo("RDFProInferencer")==0){
 					 String result = "";
-				//	 String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
-				//	 springles_url = springles_url.substring(5,springles_url.indexOf("webapps"+separator)+8)+"openrdf-sesame"+separator+"WEB-INF"
-				//	 +separator+"classes"+separator;
+					 String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
+					 springles_url = springles_url.substring(5,springles_url.indexOf("webapps"+separator)+8)+"openrdf-sesame"+separator+"WEB-INF"
+					 +separator+"classes"+separator;
 					 
-					 
-					 
-					 
-					 System.out.println(springles_classes);
+					 System.out.println(springles_url);
 					 String contenuto;
-					if((contenuto = getFileContent(springles_classes+"META-INF"+separator+"rdfpro-rulesets")).compareTo("-1") == 0)
+					if((contenuto = getFileContent(springles_url.replace("%20", " ")+"META-INF"+separator+"rdfpro-rulesets")).compareTo("-1") == 0)
 						 return "Reading Error!";
 					 else{
 						 if(contenuto.length() ==0)
 							 return "";
 						 for(String s : contenuto.split("\n")){
-							 result += springles_classes+s+"&"+s+"\n";
+							 result += springles_url+s+"&"+s+"\n";
 						 }
 						 return result;
 					 }
@@ -1342,60 +1302,16 @@ public class SpringlesService {
 			}
 			
 			@GET
-		
 			  @Path("/prova")
-			
-			@Produces(MediaType.APPLICATION_JSON)
-			
-			  public String prova(	
+			  @Produces(MediaType.APPLICATION_JSON)
+			  public String prova(
 					  )
 			  {
-
-				
-				String contesto=context.getRealPath("/");
-				String contextName=this.context.getServletContextName();
-			
-				String webapp_dir_path = contesto.substring(0, contesto.length()-this.context.getServletContextName().length());
-				System.out.println("App Deployed Directory path - contesto: " + contesto.replace(this.context.getServletContextName(),""));
-				System.out.println("App Deployed Directory path - contesto2: " + webapp_dir_path);
-
-
-				
-				
-				System.out.println("getContextPath(): " + this.context.getContextPath());
-				System.out.println("Apache Tomcat Server: " + this.context.getServerInfo());
-				System.out.println("Servlet API version: " + this.context.getMajorVersion() + "."
-						+ this.context.getMinorVersion());
-				System.out.println("Tomcat Project Name: " + this.context.getServletContextName());
-			
-				
-				
-				
-				
-				String webInfPath = context.getRealPath("WEB-INF");
+				 
 					StringBuilder crunchifyBuilder = new StringBuilder();
 					crunchifyBuilder.append("{ \"id\":\"ciao#:%45_123=?\"},{\"id\":\"ciao#:%45_123=?\"}");
-					return crunchifyBuilder.toString()+webInfPath;
+					return crunchifyBuilder.toString();
 					
-			  }
-			
-			@GET
-			  @Path("/score")
-			  @Produces(MediaType.APPLICATION_JSON)
-			  public String getscore(String time
-					  )
-			  {
-				StringBuilder crunchifyBuilder = new StringBuilder();
-				if (time.equals("30") ){
-					
-					crunchifyBuilder.append("{\"id\":\"Team1#:0\"},{\"id\":\"Team2#:0\"}");
-					
-				}else {
-					
-					crunchifyBuilder.append("{\"id\":\"Team1#:1\"},{\"id\":\"Team2#:0\"}");
-				}
-				
-				return crunchifyBuilder.toString();
 			  }
 }
 

@@ -11,7 +11,7 @@
   </root>
 
 
-  <logger name="eu.fbk.dkm.springles" level="INFO" />
+  <logger name="eu.fbk.dkm.springles.rest" level="INFO" />
 
   <consolePlugin />
 
