@@ -1,0 +1,146 @@
+<!DOCTYPE html>  
+<html lang="en">  
+  <head>  
+	<meta charset="utf-8">  
+	<title>CKR Live</title>  
+
+	
+	<link rel="stylesheet" href="./css/style.css">     
+   <link href="./css/bootstrap.min.css" rel="stylesheet">
+    <link href="./css/bootstrap-slider.min.css" rel="stylesheet">
+    
+	<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+	<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.min.js"></script>
+	<script src="./lib/jquery.mousewheel.min.js"></script>
+	  <script src="./js/bootstrap-slider.min.js"></script>
+	   <script src="./js/json-to-table.js"></script>
+		
+  <script src="./js/ckrlive.js"></script>
+<script type="text/javascript">
+if (!library)
+			var library = {};
+
+		library.json = {
+			replacer : function(match, pIndent, pKey, pVal, pEnd) {
+				var key = '<span class=json-key>';
+				var val = '<span class=json-value>';
+				var str = '<span class=json-string>';
+				var r = pIndent || '';
+				if (pKey)
+					r = r + key + pKey.replace(/[": ]/g, '') + '</span>: ';
+				if (pVal)
+					r = r + (pVal[0] == '"' ? str : val) + pVal + '</span>';
+				return r + (pEnd || '');
+			},
+			prettyPrint : function(obj) {
+				var jsonLine = /^( *)("[\w]+": )?("[^"]*"|[\w.+-]*)?([,[{])?$/mg;
+				return JSON.stringify(obj, null, 3).replace(/&/g, '&amp;')
+						.replace(/\\"/g, '&quot;').replace(/</g, '&lt;')
+						.replace(/>/g, '&gt;').replace(jsonLine,
+								library.json.replacer);
+			}
+		};
+</script>
+<STYLE type="text/css">
+          ol { list-style-type: none }   
+     </STYLE>
+  </head>  
+  <body>
+  	<h1>CKR Live</h1>
+
+
+ 
+     <select id="selectteam1"> 
+          <option value="brager-fifa14" selected="selected">Brasile - Germania FIFA 2014</option>
+          <option value="gerarg-fifa14">Germania - Argentina FIFA 2014</option>
+        
+       </select> 
+ <div class="container">
+    <!--Row with two equal columns-->
+    <div class="row">
+      <div class="col-lg-12" id="logZone1"> 
+        <input id="ex14" type="text"  />
+      </div>
+    </div>
+    <div class="row"> 
+     <div class="col-lg-12" id="logZone1"> 
+        <div class="col-lg-6" id="logZone1"> 
+     
+        <h3 id="hometeam">Brasile</h3> <h1 id="hometeamscore">0</h1>
+         <pre ><h4 class="text-center">Team</h4>
+          <ol class="logg" id="logol1a">
+          </ol>
+          </pre>
+        </div>
+        <div class="col-lg-6" id="logZone2"> 
+       
+      
+        <h3 id="hostteam">Germania</h3> <h1 id="hostteamscore">0</h1>
+         <pre ><h4 class="text-center">Team</h4>
+           <ol class="logg" id="logol2a">
+           </ol>
+           </pre>
+        </div>
+        </div>
+      </div>
+      
+           
+   
+     <div class="row">
+       <div class="col-lg-12" id="logZone1"> 
+        <div class="col-lg-6" id="logZone1"> 
+           <pre ><h4 class="text-center">Substitutes</h4>
+          <ol class="logg" id="logol1b">
+          </ol>
+          </pre>
+        </div>
+        <div class="col-lg-6" id="logZone2"> 
+      <pre ><h4 class="text-center">Substitutes</h4>
+           <ol class="logg" id="logol2b">
+           </ol>
+            </pre>
+        </div>
+        </div>
+      </div>
+      
+      
+      
+       <div class="row">
+       <div class="col-lg-12" id="logZone1"> 
+        <div class="col-lg-2" id="logZone1">
+         <button class="button" onclick="$('#target1').toggle();">
+            Show/Hide
+          </button>
+        </div>
+     
+       <div class="col-lg-10" id="target1" style="display: none"> 
+         <div id="request" class="text-left " style="max-height:100%;overflow-y:scroll;">  
+         </div>
+          
+       <div id="result" class="text-left " style="max-height:100%;overflow-y:scroll;">
+       </div>
+        
+     </div> 
+     </div> 
+     </div> 
+     <table id="jsonTable">
+     </table>
+</div>
+     
+    
+    
+
+ 
+ 
+
+
+ 
+ 
+
+
+
+	</body>  
+</html>
+
+
+

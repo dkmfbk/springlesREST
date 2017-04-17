@@ -4,11 +4,14 @@ package eu.fbk.dkm.springles.rest;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,6 +40,7 @@ import org.openrdf.model.Literal;
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
+import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.GraphImpl;
 import org.openrdf.model.impl.LinkedHashModel;
@@ -48,8 +52,10 @@ import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
+import org.openrdf.query.TupleQueryResultHandler;
 import org.openrdf.query.Update;
 import org.openrdf.query.UpdateExecutionException;
+
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -66,7 +72,8 @@ import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.Rio;
-import org.openrdf.rio.rdfxml.util.RDFXMLPrettyWriter;
+//import org.openrdf.rio.rdfxml.RDFXMLWriter;
+//import org.openrdf.rio.rdfxml.util.RDFXMLPrettyWriter;
 import org.openrdf.rio.trig.TriGWriter;
 import org.openrdf.rio.turtle.TurtleWriter;
 
@@ -230,7 +237,7 @@ public class SpringlesService {
 				
 				
 				Writer writer = new BufferedWriter(new FileWriter(tempFile));
-				RDFHandler rdfxmlWriter = new RDFXMLPrettyWriter(writer);
+			//	RDFHandler rdfxmlWriter = new RDFXMLWriter(writer);
 				TriGWriter trigWriter= new TriGWriter(writer);
 				TurtleWriter ttlWriter = new TurtleWriter(writer);
 				
@@ -240,7 +247,7 @@ public class SpringlesService {
 				}else if(exportformat.equals("ttl")){
 					 con.exportStatements(null, null, null, persist, ttlWriter);
 					}else{
-					 con.exportStatements(null, null, null, persist, rdfxmlWriter);
+				//	 con.exportStatements(null, null, null, persist, rdfxmlWriter);
 					
 				}
 				 ResponseBuilder response = Response.ok((Object) tempFile);
@@ -686,8 +693,7 @@ public class SpringlesService {
 			ArrayList<Statement> sts = new ArrayList<Statement>();
 			
 			String status = getClosureStatus(myRepository);
-			
-			
+					
 			while(conf.hasNext())
 				sts.add(conf.next());
 			String ruleset = sts.get(22).getObject().stringValue();
@@ -1300,6 +1306,256 @@ public class SpringlesService {
 						return false;
 					}
 			}
+			
+			
+			
+			@GET
+			@Path("/playersfromtime")
+			@Produces(MediaType.APPLICATION_JSON)
+			public List<Player> getPlayers(		
+									@QueryParam("time") String time	,
+									@QueryParam("springlesserverURL") String springlesserverURL,
+									@QueryParam("springlesrepositoryID") String springlesrepositoryID
+									
+						) {
+
+					List<Player> result = new ArrayList<Player>();					
+					System.out.println("LISTEVENTS");
+					List<BindingSet> tuples = new ArrayList<BindingSet>();
+						
+				try {
+					Repository		myRepository = new HTTPRepository(springlesserverURL, springlesrepositoryID);
+								myRepository.initialize();
+						  		RepositoryConnection connection = myRepository.getConnection();
+						  		
+						  		
+		
+					  	
+				
+		
+		
+		String queryStringPrefix= "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+		+	"PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n"
+		+	"PREFIX owl:<http://www.w3.org/2002/07/owl#>\n"
+		+	"PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>\n"
+		+	"PREFIX ckr:<http://dkm.fbk.eu/ckr/meta#>\n"
+		+	"PREFIX sm:<http://dkm.fbk.eu/ckr/live/soccer-match#>\n"
+		+	"PREFIX :<http://dkm.fbk.eu/ckr/live/brager-fifa14#>\n";
+		
+		
+				
+						String	 queryString = queryStringPrefix
+										
+							
+						+"	SELECT ?num ?name ?team ?ttype ?goal ?playing ?position ?ycard ?in ?out "
+						+"		WHERE { "
+						+"		  GRAPH ckr:global {?c ckr:hasModule ?m . "
+						+"		                    ?c sm:atTime \""+time+"\". "
+						+"		                    ?c rdfs:label ?lab."
+						+" 		            ?team a ?ttype  } "
+				//		+"		  GRAPH ?m {?p a sm:"+playingNow+". "
+				        +"		  GRAPH ?m {?p a ?playing . "
+						+"		            ?p rdfs:label ?name. "
+						+"		            ?p sm:hasNumber ?num. "		           
+						+"		            ?p sm:hasPosition ?position ."
+  						+"                  ?p sm:hasTeam ?team "
+						
+						+"		            OPTIONAL { ?p sm:scoredGoal ?goal. } " 
+						+"		            OPTIONAL { ?p sm:hasYCard ?ycard. } " 
+						+"		            OPTIONAL { ?p sm:substitutionIn ?in. } " 
+						+"		            OPTIONAL { ?p sm:substitutionOut ?out. } " 
+						+"		            } "
+						+"		}";
+							
+					System.out.println(queryString);		
+							TupleQuery tupleQuery;
+							int i = 0;
+
+							tupleQuery = connection.prepareTupleQuery(QueryLanguage.SPARQL,
+									queryString);
+						// tupleQuery.setIncludeInferred(true);
+							TupleQueryResult qresult = tupleQuery.evaluate();
+
+							try {
+								while (qresult.hasNext()) {
+									BindingSet bindingSet = qresult.next();
+								
+									Value number = bindingSet.getValue("num");
+									Value name = bindingSet.getValue("name");
+									Value goal= bindingSet.getValue("goal");
+									Value team= bindingSet.getValue("team");
+									Value ttype= bindingSet.getValue("ttype");
+									Value playing= bindingSet.getValue("playing");
+									Value ycard= bindingSet.getValue("ycard");
+									Value position= bindingSet.getValue("position");
+									Value substitutionIN= bindingSet.getValue("in");
+									Value substitutionOut= bindingSet.getValue("out");
+							
+									
+
+									Player Player= new Player();
+									
+								
+								
+									if (number != null) {
+										Player.setNumber(number.stringValue().substring(number.stringValue().lastIndexOf('#') + 1));
+									}
+									if (name != null) {
+										Player.setName(name.stringValue().substring(name.stringValue().lastIndexOf('#') + 1));
+									}
+									if (team != null) {
+										Player.setTeam(team.stringValue().substring(team.stringValue().lastIndexOf('#') + 1));
+									}
+									if (ttype != null) {
+										Player.setTtype(ttype.stringValue().substring(ttype.stringValue().lastIndexOf('#') + 1));
+									}
+									if (goal != null) {
+										Player.setScoredGoal(goal.stringValue().substring(goal.stringValue().lastIndexOf('#') + 1));
+									}
+									if (playing != null) {
+										Player.setPlaying(playing.stringValue().substring(playing.stringValue().lastIndexOf('#') + 1));
+									}
+									if (ycard != null) {
+										Player.setHasYCard(ycard.stringValue());
+									}
+									if (position != null) {
+										Player.setPosition(position.stringValue().substring(position.stringValue().lastIndexOf('#') + 1));
+									}
+									if (substitutionIN != null) {
+										Player.setSubstitutionIn(substitutionIN.stringValue().substring(substitutionIN.stringValue().lastIndexOf('#') + 1));
+									}
+									if (substitutionOut != null) {
+										Player.setSubstitutionOut(substitutionOut.stringValue().substring(substitutionOut.stringValue().lastIndexOf('#') + 1));
+									}
+									
+								
+									result.add(Player);
+								}
+
+	
+								
+								
+								
+							} finally {
+								qresult.close();
+								connection.close();
+							}
+					
+
+					} catch (OpenRDFException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+					
+					return result;
+				}
+
+			
+			
+			@GET
+			@Path("/eventlist")
+			@Produces(MediaType.APPLICATION_JSON)
+			public List<Event> getEventList(		
+									
+									@QueryParam("springlesserverURL") String springlesserverURL,
+									@QueryParam("springlesrepositoryID") String springlesrepositoryID
+									
+						) {
+
+					List<Event> result = new ArrayList<Event>();					
+					System.out.println("LISTEVENTS");
+					List<BindingSet> tuples = new ArrayList<BindingSet>();
+						
+				try {
+					Repository		myRepository = new HTTPRepository(springlesserverURL, springlesrepositoryID);
+								myRepository.initialize();
+						  		RepositoryConnection connection = myRepository.getConnection();
+						  		
+						  		
+		
+					  	
+				
+		
+		
+		String queryStringPrefix= "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+		+	"PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n"
+		+	"PREFIX owl:<http://www.w3.org/2002/07/owl#>\n"
+		+	"PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>\n"
+		+	"PREFIX ckr:<http://dkm.fbk.eu/ckr/meta#>\n"
+		+	"PREFIX sm:<http://dkm.fbk.eu/ckr/live/soccer-match#>\n"
+		+	"PREFIX :<http://dkm.fbk.eu/ckr/live/brager-fifa14#>\n";
+		
+		
+				
+						String	 queryString = queryStringPrefix
+										
+							
+						+"	SELECT  ?time ?lab "
+						+"		WHERE { "
+						+"		  GRAPH ckr:global {?c ckr:hasModule ?m . "
+						+"		                    ?c sm:atTime ?time . "
+						+"		                    ?c rdfs:label ?lab} "
+				//
+						+"		}";
+							
+					System.out.println(queryString);		
+							TupleQuery tupleQuery;
+							int i = 0;
+
+							tupleQuery = connection.prepareTupleQuery(QueryLanguage.SPARQL,
+									queryString);
+						// tupleQuery.setIncludeInferred(true);
+							TupleQueryResult qresult = tupleQuery.evaluate();
+
+							try {
+								while (qresult.hasNext()) {
+									BindingSet bindingSet = qresult.next();
+								
+									Value etime = bindingSet.getValue("time");
+									Value label = bindingSet.getValue("lab");
+									
+							
+									
+
+									Event event= new Event();
+									
+									
+								
+									if (etime != null) {
+										event.setTime(etime.stringValue().substring(etime.stringValue().lastIndexOf('#') + 1));
+									}
+									if (label != null) {
+										event.setLabel(label.stringValue().substring(label.stringValue().lastIndexOf('#') + 1));
+									}
+									
+								
+									result.add(event);
+								}
+
+	
+								
+								
+								
+							} finally {
+								qresult.close();
+								connection.close();
+							}
+					
+
+					} catch (OpenRDFException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+					
+					return result;
+				}
+
+			
+			
+			
+			
 			
 			@GET
 			  @Path("/prova")
