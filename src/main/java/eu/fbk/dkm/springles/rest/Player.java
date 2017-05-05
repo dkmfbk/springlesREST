@@ -1,21 +1,28 @@
 package eu.fbk.dkm.springles.rest;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class Player {
+ private String id;
  private String name;
  private String number;
  private String team;
- private String ttype;
+ private String teamtype;
  private String position;
  private String playing;
- private String scoredGoal;
+ private int scoredGoal=0;
  private String substitutionOut;
  private String substitutionIn;
  private String hasYCard;
  
 public Player() {
 	super();
+	
 	// TODO Auto-generated constructor stub
 }
 public String getName() {
@@ -48,12 +55,7 @@ public String getPlaying() {
 public void setPlaying(String playing) {
 	this.playing = playing;
 }
-public String getScoredGoal() {
-	return scoredGoal;
-}
-public void setScoredGoal(String scoredGoal) {
-	this.scoredGoal = scoredGoal;
-}
+
 public String getSubstitutionOut() {
 	return substitutionOut;
 }
@@ -72,12 +74,31 @@ public String getHasYCard() {
 public void setHasYCard(String hasYCard) {
 	this.hasYCard = hasYCard;
 }
-public String getTtype() {
-	return ttype;
+
+
+public String getId() {
+	return id;
 }
-public void setTtype(String ttype) {
-	this.ttype = ttype;
+public void setId(String id) {
+	this.id = id;
 }
- 
+public int getScoredGoal() {
+	return scoredGoal;
+}
+public void setScoredGoal(int scoredGoal) {
+	this.scoredGoal = scoredGoal;
+}
+public String getTeamtype() {
+	return teamtype;
+}
+public void setTeamtype(String teamtype) {
+	this.teamtype = teamtype;
+}
+
+
+
+
+
+
  
 }

@@ -9,14 +9,139 @@
 	
 	var url_playersfromtime=restURL+"playersfromtime";
 	var url_getEvents=restURL+"eventlist";
+	var url_getTeams=restURL+"teams";
+	var url_getGoalList=restURL+"goallist";
+	var url_getSubstitutionList=restURL+"substitutionlist";
+	var url_getYCardList=restURL+"ycardlist";
+	
+	var eventtimearray = [];
 $(document).ready(function(){
 	
 	var ticks_event=[0,11,46,58,68,90];
-	
+	var substitutionList=[];
 	var dataSend =dataSend_ ;
-	var eventtimearray = new Array();
+	var goalList=[];
+	var ycardList=[];
 	var events=[];
-// With JQuery
+
+	
+	$.ajax({
+		url : url_getTeams , 
+		data : dataSend, 
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+		type : "GET"
+	
+	}).done(function(dataTeam, textStatus, jqXHR) {	
+		
+		
+		if (dataTeam==null)
+			 return false;
+		var	teams_=dataTeam["team"];
+			var hometeam=teams_[0].label;
+			var hostteam=teams_[1].label;
+			if (teams_[1].type=="home"){
+			 hometeam=teams_[1].label;
+			 hostteam=teams_[0].label;
+			
+			}
+			
+				
+			$("#hometeam").html( hometeam);
+	        $("#hostteam").html( hostteam);
+			
+			 
+	});
+	
+
+	$.ajax({
+		url : url_getGoalList , 
+		data : dataSend, 
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+		type : "GET"
+	
+	}).done(function(dataGoal, textStatus, jqXHR) {	
+		if (dataGoal==null)
+			 return false;
+			goal_data=dataGoal["scoredGoal"];
+		
+			 for(var index=0;index<goal_data.length ;index++){
+				// var time_label = new Array(events[i].time,events[i].label);
+				// var event_=new Array(events_[index].time,events_[index].label);
+				
+				 goalList[goal_data[index].id]=goal_data[index].time;
+			 }
+		
+		
+			
+			 
+	});
+	
+	
+	$.ajax({
+		url : url_getSubstitutionList , 
+		data : dataSend, 
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+		type : "GET"
+	
+	}).done(function(dataSubs, textStatus, jqXHR) {	
+		if (dataSubs==null)
+			 return false;
+		var	substitution_data=dataSubs["substitution"];
+		
+			 for(var index=0;index<substitution_data.length ;index++){
+				// var time_label = new Array(events[i].time,events[i].label);
+				// var event_=new Array(events_[index].time,events_[index].label);
+				
+				 substitutionList[substitution_data[index].id]=substitution_data[index].time;
+			 }
+		
+		
+			
+			 
+	});	
+	
+	
+	$.ajax({
+		url : url_getYCardList , 
+		data : dataSend, 
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+		type : "GET"
+	
+	}).done(function(dataYCard, textStatus, jqXHR) {	
+		if (dataYCard==null)
+			 return false;
+		var	ycard_data=dataYCard["yCard"];
+		
+		//	 for(var index=0;index<ycard_data.length ;index++){
+				// var time_label = new Array(events[i].time,events[i].label);
+				// var event_=new Array(events_[index].time,events_[index].label);
+				
+				ycardList[ycard_data.id]=ycard_data.time;
+		//	 }
+		
+		
+			
+			 
+	});	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	// With JQuery
 	$.ajax({
 		url : url_getEvents , 
 		data : dataSend, 
@@ -24,17 +149,17 @@ $(document).ready(function(){
         dataType: "json",
 		type : "GET"
 	
-	}).done(function(data, textStatus, jqXHR) {	
+	}).done(function(dataEvents, textStatus, jqXHR) {	
 		
-		$("#result").empty();
-		$('#result').append("<pre>"+library.json.prettyPrint(data)+"<pre>");
-		$("#request").empty();
-		$('#request').html("<span>GET " + url_getEvents + "</span><br />" + "<pre>"+library.json.prettyPrint(data)+"<pre>");
+	//	$("#result").empty();
+	//	$('#result').append("<pre>"+library.json.prettyPrint(data)+"<pre>");
+	//	$("#request").empty();
+	//	$('#request').html("<span>GET " + url_getEvents + "</span><br />" + "<pre>"+library.json.prettyPrint(data)+"<pre>");
 		
-	var jsonHtmlTable = ConvertJsonToTable(data, 'JsonTable', null, 'Download');
-		if (data==null)
+	var jsonHtmlTable = ConvertJsonToTable(dataEvents, 'JsonTable', null, 'Download');
+		if (dataEvents==null)
 			 return false;
-			events_=data["event"];
+			events_=dataEvents["event"];
 			events_.sort();
 			 for(var index=0;index<events_.length ;index++){
 				// var time_label = new Array(events[i].time,events[i].label);
@@ -48,11 +173,13 @@ $(document).ready(function(){
 				    max:90,
 				    step:1,
 				    ticks: eventtimearray,
-				    ticks_snap_bounds: 200,
-					  formatter: function(value) { 
+				    orientation: 'vertical',
+				    ticks_snap_bounds: 10,
+					  formatter: function(value_) { 
 				    var event
-						return  value + " "+ (events[value]!=null?events[value]:"")	},
-				});
+						return  value_ + " "+ (events[value_]!=null?events[value_]:"")	},
+				});	 
+			 
 	});
 	
 
@@ -106,28 +233,32 @@ $("#ex14").on("slide", function(slideEvt) {
 		players=data["player"];
 	//	$('#result').append("<table class='table table-striped'><thead><tr><th>Graphs</th><tr></thead><tbody>");
         for(var index=0;index<players.length ;index++){
-            var goalHostTeam=0;
+            var  goalHostTeam=0;
             var goalHomeTeam=0;
             
             
             	for (index = 0; index < players.length; ++index) {
-            		 if (players[index].ttype=="HomeTeam"){
-                        if (players[index].scoredGoal!=null)
-                        	goalHomeTeam++;
+            		 if (players[index].teamtype=="HomeTeam"){
+            			 goalHomeTeam=goalHomeTeam+parseInt(players[index].scoredGoal);
+                        	
                          if (players[index].playing=="PlayingNow"){
-                           stringa1a=stringa1a + "<li>"+players[index].number+" "+players[index].name+" ("+players[index].position +") "+showSubstitute(players[index].substitutionOut) +" "+showSubstitute(players[index].substitutionIn) +" "+showBall(players[index].scoredGoal)+" "+showYellowCard(players[index].hasYCard)+"</li>"
-                         }else{
+                        	
+                           stringa1a=stringa1a + "<li>"+players[index].number+" "+players[index].name+ " ("+players[index].position +") "+showSubstitute(players[index].substitutionIn,substitutionList,"in") +" "+showBall(parseInt(players[index].scoredGoal))+" "+showYellowCard(players[index].hasYCard,ycardList)+"</li>"
+                           
+                           
+                         }else if(players[index].playing=="notPlayingNow"){
                         	 
-                        	 stringa1b=stringa1b + "<li>"+players[index].number+" "+players[index].name+" ("+players[index].position +") "+showSubstitute(players[index].substitutionOut) +" "+showSubstitute(players[index].substitutionIn) +" "+showBall(players[index].scoredGoal)+" "+showYellowCard(players[index].hasYCard)+"</li>"	 
+                        	 stringa1b=stringa1b + "<li>"+players[index].number+" "+players[index].name+" ("+players[index].position +") "+showSubstitute(players[index].substitutionOut,substitutionList,"out") + " "+showBall(parseInt(players[index].scoredGoal))+" "+showYellowCard(players[index].hasYCard,ycardList)+"</li>"	 
+                        	
                          }
-            		 }else{
-            			 if (players[index].scoredGoal!=null)
-                         	goalHostTeam++;
+            		 }else if (players[index].teamtype=="HostTeam"){
+            			 goalHostTeam=goalHostTeam+parseInt(players[index].scoredGoal);
             			 if (players[index].playing=="PlayingNow"){
-            		stringa2a=stringa2a + "<li>"+players[index].number+" "+players[index].name+" ("+players[index].position +") "+showSubstitute(players[index].substitutionOut) +" "+showSubstitute(players[index].substitutionIn) +" "+showBall(players[index].scoredGoal)+" "+showYellowCard(players[index].hasYCard)+"</li>"	 
-            		 
-            			 }  else{
-            				 stringa2b=stringa2b + "<li>"+players[index].number+" "+players[index].name+" ("+players[index].position +") "+showSubstitute(players[index].substitutionOut) +" "+showSubstitute(players[index].substitutionIn) +" "+showBall(players[index].scoredGoal)+" "+showYellowCard(players[index].hasYCard)+"</li>"		 
+            		stringa2a=stringa2a + "<li>"+players[index].number+" "+players[index].name+" ("+players[index].position +")"  +" "+showSubstitute(players[index].substitutionIn,substitutionList,"in") +" "+showBall(parseInt(players[index].scoredGoal))+" "+showYellowCard(players[index].hasYCard,ycardList)+"</li>"	 
+            		
+            			 }else if(players[index].playing=="notPlayingNow"){
+            				 stringa2b=stringa2b + "<li>"+players[index].number+" "+players[index].name+" ("+players[index].position +") "+showSubstitute(players[index].substitutionOut,substitutionList,"out")  +" "+showBall(parseInt(players[index].scoredGoal))+" "+showYellowCard(players[index].hasYCard,ycardList)+"</li>"		 
+            				 
             			 }          		 
             			 }
             }
@@ -164,37 +295,7 @@ $( "#selectteam2" ).change(function() {
 	$("#team2H").html( str);
 });
 
-$("#ex14").on("slideoLd", function(slideEvt) {
-         $("#ex14SliderVal").text(slideEvt.value);
-  var players1 = [ ["12", "JULIO CESAR", "0","0","0"],
-                 ["4", "DAVID LUIZ", "0","0","0"],
-                 ["5", "FERNANDINHO", "46","0","0"],
-               ];
-               
-var players2 = [["1", "NEUER", "0","0","0"],
-                 ["4", "HOWEDES", "0","0","0"],
-                 ["5", "HUMMELS", "46","0","0"],
-                 ["6", "KHEDIRA", "76","0","46"],
-                ["7", "SCHWEINSTEIGER", "0","75","0"],
-               ];
 
-var index;
-var a = ["a", "b", "c"];  
-    var stringa1="";
-    var stringa2;
-for (index = 0; index < players.length; ++index) {
-  
-         stringa1=stringa1 + "<li>"+players[index][0]+" "+players1[index][1]+" "+players1[index][2]+" "+showBall(players1[index][3])+" "+players1[index][4]+"</li>"
- }
- 
-
- 
-  document.getElementById("logol1").innerHTML = "<li>Values just changed. min: " + slideEvt.value +"</li>"+stringa1;  
-  document.getElementById("logol2").innerHTML = "<li>Values just changed. min: " + slideEvt.value + "</li>"+stringa2;
-  
-
-
-});
    
 
 
@@ -202,28 +303,39 @@ for (index = 0; index < players.length; ++index) {
    
 });
  
-function showSubstitute( time ){
-    if(time==null) return "";
+function showSubstitute( time ,substitutionList, inout){
+    if(time==null)
+    	return "";
     
-    return "substitute " + time + "'";
+  //  return inout + substitutionList[time] + "'";
     
-	
+    return '<img src="./img/'+inout+'.jpg" alt="'+inout+'" height="25" width="20">'+ substitutionList[time] + "'";
+    
     }
 
-   function showBall( time){
-    if(time==null) return "";
-    
-    return '<img src="./img/ball.png" alt="ball" height="22" width="22">'
-    
-	
+   function showBall( goal){
+	   var result='<img src="./img/ball.png" alt="ball" height="25" width="25">';
+    if(goal==0){
+    	return "";
+   
+    	
+    }else{
+   
+    for (i=1; i< goal;i++){
+    	result=result+result;
     }
+   
+    }
+    return result;
+   }
     
-     function showYellowCard( time){
+    
+     function showYellowCard( time,ycardList){
     
     if(time==null) return "";
   
     
-       return '<img src="./img/cartellino-giallo.jpg" alt="yellow" height="12" width="12"> '+time+"'"
+       return '<img src="./img/cartellino-giallo.jpg" alt="yellow" height="15" width="15">'+ ycardList[time]+"'";
   
     }
     

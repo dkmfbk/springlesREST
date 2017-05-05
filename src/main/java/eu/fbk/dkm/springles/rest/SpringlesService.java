@@ -19,7 +19,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
+import javax.swing.plaf.metal.MetalBorders.Flush3DBorder;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -1319,7 +1321,9 @@ public class SpringlesService {
 									
 						) {
 
-					List<Player> result = new ArrayList<Player>();					
+					List<Player> result = new ArrayList<Player>();	
+					List<String> listofID = new ArrayList<String>();	
+					Map<String,Set<String>> playerGoalsHM= new HashMap<String,Set<String>>();
 					System.out.println("LISTEVENTS");
 					List<BindingSet> tuples = new ArrayList<BindingSet>();
 						
@@ -1347,18 +1351,20 @@ public class SpringlesService {
 						String	 queryString = queryStringPrefix
 										
 							
-						+"	SELECT ?num ?name ?team ?ttype ?goal ?playing ?position ?ycard ?in ?out "
+						+"	SELECT ?p ?num ?name ?team ?ttype ?goal ?playing ?position ?ycard ?in ?out "
 						+"		WHERE { "
 						+"		  GRAPH ckr:global {?c ckr:hasModule ?m . "
 						+"		                    ?c sm:atTime \""+time+"\". "
 						+"		                    ?c rdfs:label ?lab."
+						+"		            ?p sm:hasNumber ?num. "		           
+						+"		            ?p sm:hasPosition ?position ."
+  						+"                  ?p sm:hasTeam ?team ."
+  						+"		            ?p rdfs:label ?name. "
 						+" 		            ?team a ?ttype  } "
 				//		+"		  GRAPH ?m {?p a sm:"+playingNow+". "
 				        +"		  GRAPH ?m {?p a ?playing . "
-						+"		            ?p rdfs:label ?name. "
-						+"		            ?p sm:hasNumber ?num. "		           
-						+"		            ?p sm:hasPosition ?position ."
-  						+"                  ?p sm:hasTeam ?team "
+						
+						
 						
 						+"		            OPTIONAL { ?p sm:scoredGoal ?goal. } " 
 						+"		            OPTIONAL { ?p sm:hasYCard ?ycard. } " 
@@ -1380,6 +1386,7 @@ public class SpringlesService {
 								while (qresult.hasNext()) {
 									BindingSet bindingSet = qresult.next();
 								
+									Value id = bindingSet.getValue("p");
 									Value number = bindingSet.getValue("num");
 									Value name = bindingSet.getValue("name");
 									Value goal= bindingSet.getValue("goal");
@@ -1391,52 +1398,75 @@ public class SpringlesService {
 									Value substitutionIN= bindingSet.getValue("in");
 									Value substitutionOut= bindingSet.getValue("out");
 							
-									
+									if( playing.stringValue().contains("PlayingNow") && !ttype.stringValue().contains("NamedIndividual")){
 
-									Player Player= new Player();
+										
+									Player player= new Player();
 									
-								
-								
+									player.setId(id.stringValue());
 									if (number != null) {
-										Player.setNumber(number.stringValue().substring(number.stringValue().lastIndexOf('#') + 1));
+										player.setNumber(number.stringValue().substring(number.stringValue().lastIndexOf('#') + 1));
 									}
 									if (name != null) {
-										Player.setName(name.stringValue().substring(name.stringValue().lastIndexOf('#') + 1));
+										
+										player.setName(name.stringValue().substring(name.stringValue().lastIndexOf('#') + 1));
 									}
 									if (team != null) {
-										Player.setTeam(team.stringValue().substring(team.stringValue().lastIndexOf('#') + 1));
+										player.setTeam(team.stringValue().substring(team.stringValue().lastIndexOf('#') + 1));
 									}
 									if (ttype != null) {
-										Player.setTtype(ttype.stringValue().substring(ttype.stringValue().lastIndexOf('#') + 1));
+										player.setTeamtype(ttype.stringValue().substring(ttype.stringValue().lastIndexOf('#') + 1));
 									}
 									if (goal != null) {
-										Player.setScoredGoal(goal.stringValue().substring(goal.stringValue().lastIndexOf('#') + 1));
+										
+										if (playerGoalsHM.get(id.stringValue())!=null){
+											
+											Set<String> goalsSet=playerGoalsHM.get(id.stringValue());
+											goalsSet.add(goal.stringValue());
+										}else{
+											Set<String> goalsSet=new TreeSet<String>();
+											goalsSet.add(goal.stringValue());
+											playerGoalsHM.put(id.stringValue(), goalsSet);
+										
+										}
+										
+										//playerGoalsHM.put(id.stringValue(), value)player.setScoredGoalString(goal.stringValue().substring(goal.stringValue().lastIndexOf('#') + 1));
+										//player.addScoredGoal();
 									}
 									if (playing != null) {
-										Player.setPlaying(playing.stringValue().substring(playing.stringValue().lastIndexOf('#') + 1));
+										player.setPlaying(playing.stringValue().substring(playing.stringValue().lastIndexOf('#') + 1));
 									}
 									if (ycard != null) {
-										Player.setHasYCard(ycard.stringValue());
+										player.setHasYCard(ycard.stringValue());
 									}
 									if (position != null) {
-										Player.setPosition(position.stringValue().substring(position.stringValue().lastIndexOf('#') + 1));
+										player.setPosition(position.stringValue().substring(position.stringValue().lastIndexOf('#') + 1));
 									}
 									if (substitutionIN != null) {
-										Player.setSubstitutionIn(substitutionIN.stringValue().substring(substitutionIN.stringValue().lastIndexOf('#') + 1));
+										player.setSubstitutionIn(substitutionIN.stringValue());
 									}
 									if (substitutionOut != null) {
-										Player.setSubstitutionOut(substitutionOut.stringValue().substring(substitutionOut.stringValue().lastIndexOf('#') + 1));
+										player.setSubstitutionOut(substitutionOut.stringValue());
 									}
 									
-								
-									result.add(Player);
-								}
+									if (!listofID.contains(id.stringValue()))
+									result.add(player);
+									listofID.add(id.stringValue());
+							
+									
+									}
 
-	
+                             
+									}
 								
-								
+								  for (Player pl : result) {
+	                            	   if (playerGoalsHM.containsKey(pl.getId())){
+								 	   pl.setScoredGoal(playerGoalsHM.get(pl.getId()).size());
+	                            	   }
+								      }
 								
 							} finally {
+								
 								qresult.close();
 								connection.close();
 							}
@@ -1514,9 +1544,6 @@ public class SpringlesService {
 								
 									Value etime = bindingSet.getValue("time");
 									Value label = bindingSet.getValue("lab");
-									
-							
-									
 
 									Event event= new Event();
 									
@@ -1552,7 +1579,411 @@ public class SpringlesService {
 					return result;
 				}
 
+	
+			@GET
+			@Path("/goallist")
+			@Produces(MediaType.APPLICATION_JSON)
+			public List<ScoredGoal> getGoalList(		
+									
+									@QueryParam("springlesserverURL") String springlesserverURL,
+									@QueryParam("springlesrepositoryID") String springlesrepositoryID
+									
+						) {
+
+					List<ScoredGoal> result = new ArrayList<ScoredGoal>();					
+					System.out.println("LISTEVENTS");
+					List<BindingSet> tuples = new ArrayList<BindingSet>();
+						
+				try {
+					Repository		myRepository = new HTTPRepository(springlesserverURL, springlesrepositoryID);
+								myRepository.initialize();
+						  		RepositoryConnection connection = myRepository.getConnection();
+						  		
+						  		
+		
+					  	
+				
+		
+		
+		String queryStringPrefix= "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+		+	"PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n"
+		+	"PREFIX owl:<http://www.w3.org/2002/07/owl#>\n"
+		+	"PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>\n"
+		+	"PREFIX ckr:<http://dkm.fbk.eu/ckr/meta#>\n"
+		+	"PREFIX sm:<http://dkm.fbk.eu/ckr/live/soccer-match#>\n"
+		+	"PREFIX :<http://dkm.fbk.eu/ckr/live/brager-fifa14#>\n";
+		
+		
+				
+						String	 queryString = queryStringPrefix
+										
+							
+						+"	SELECT  ?time ?goal "
+						+"		WHERE { "
+						+"		  GRAPH ckr:global {?goal a sm:Goal ."
+						+"		                    ?goal sm:atTime ?time } "
+						
+				//
+						+"		}";
+							
+					System.out.println(queryString);		
+							TupleQuery tupleQuery;
+							int i = 0;
+
+							tupleQuery = connection.prepareTupleQuery(QueryLanguage.SPARQL,
+									queryString);
+						// tupleQuery.setIncludeInferred(true);
+							TupleQueryResult qresult = tupleQuery.evaluate();
+
+							try {
+								while (qresult.hasNext()) {
+									BindingSet bindingSet = qresult.next();
+								
+									Value time = bindingSet.getValue("time");
+									Value id = bindingSet.getValue("goal");
+
+									ScoredGoal scoredGoal= new ScoredGoal();
+									
+									
+								
+									if (time != null) {
+										scoredGoal.setTime(time.stringValue());
+									}
+									if (id != null) {
+										scoredGoal.setId(id.stringValue());
+									}
+									
+								
+									result.add(scoredGoal);
+								}
+
+	
+								
+								
+								
+							} finally {
+								qresult.close();
+								connection.close();
+							}
+					
+
+					} catch (OpenRDFException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+					
+					return result;
+				}
 			
+
+			@GET
+			@Path("/ycardlist")
+			@Produces(MediaType.APPLICATION_JSON)
+			public List<YCard> getYCardList(		
+									
+									@QueryParam("springlesserverURL") String springlesserverURL,
+									@QueryParam("springlesrepositoryID") String springlesrepositoryID
+									
+						) {
+
+					List<YCard> result = new ArrayList<YCard>();					
+					
+					List<BindingSet> tuples = new ArrayList<BindingSet>();
+						
+				try {
+					Repository		myRepository = new HTTPRepository(springlesserverURL, springlesrepositoryID);
+								myRepository.initialize();
+						  		RepositoryConnection connection = myRepository.getConnection();
+						  		
+						  		
+		
+					  	
+				
+		
+		
+		String queryStringPrefix= "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+		+	"PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n"
+		+	"PREFIX owl:<http://www.w3.org/2002/07/owl#>\n"
+		+	"PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>\n"
+		+	"PREFIX ckr:<http://dkm.fbk.eu/ckr/meta#>\n"
+		+	"PREFIX sm:<http://dkm.fbk.eu/ckr/live/soccer-match#>\n"
+		+	"PREFIX :<http://dkm.fbk.eu/ckr/live/brager-fifa14#>\n";
+		
+		
+				
+						String	 queryString = queryStringPrefix
+										
+							
+						+"	SELECT  ?id ?time "
+						+"		WHERE { "
+						+"		  GRAPH ckr:global {?id a sm:YCard ."
+						+"		                    ?id sm:atTime ?time  }"
+						
+				//
+						+"		}";
+							
+					System.out.println(queryString);		
+							TupleQuery tupleQuery;
+							int i = 0;
+
+							tupleQuery = connection.prepareTupleQuery(QueryLanguage.SPARQL,
+									queryString);
+						// tupleQuery.setIncludeInferred(true);
+							TupleQueryResult qresult = tupleQuery.evaluate();
+
+							try {
+								while (qresult.hasNext()) {
+									BindingSet bindingSet = qresult.next();
+								
+									Value time = bindingSet.getValue("time");
+									Value id = bindingSet.getValue("id");
+
+									YCard ycard= new YCard();
+									
+									
+								
+									if (time != null) {
+										ycard.setTime(time.stringValue());
+									}
+									if (id != null) {
+										ycard.setId(id.stringValue());
+									}
+									
+								
+									result.add(ycard);
+								}
+
+	
+								
+								
+								
+							} finally {
+								qresult.close();
+								connection.close();
+							}
+					
+
+					} catch (OpenRDFException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+					
+					return result;
+				}
+
+
+			
+			@GET
+			@Path("/substitutionlist")
+			@Produces(MediaType.APPLICATION_JSON)
+			public List<Substitution> getSubstitutionList(		
+									
+									@QueryParam("springlesserverURL") String springlesserverURL,
+									@QueryParam("springlesrepositoryID") String springlesrepositoryID
+									
+						) {
+
+					List<Substitution> result = new ArrayList<Substitution>();					
+					System.out.println("LISTEVENTS");
+					List<BindingSet> tuples = new ArrayList<BindingSet>();
+						
+				try {
+					Repository		myRepository = new HTTPRepository(springlesserverURL, springlesrepositoryID);
+								myRepository.initialize();
+						  		RepositoryConnection connection = myRepository.getConnection();
+						  		
+						  		
+		
+					  	
+				
+		
+		
+		String queryStringPrefix= "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+		+	"PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n"
+		+	"PREFIX owl:<http://www.w3.org/2002/07/owl#>\n"
+		+	"PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>\n"
+		+	"PREFIX ckr:<http://dkm.fbk.eu/ckr/meta#>\n"
+		+	"PREFIX sm:<http://dkm.fbk.eu/ckr/live/soccer-match#>\n"
+		+	"PREFIX :<http://dkm.fbk.eu/ckr/live/brager-fifa14#>\n";
+		
+		
+				
+						String	 queryString = queryStringPrefix
+										
+							
+						+"	SELECT  ?sid ?time "
+						+"		WHERE { "
+						+"		  GRAPH ckr:global {?sid a sm:Substitution ."
+						+"		                    ?sid sm:atTime ?time  }"
+						
+				//
+						+"		}";
+							
+					System.out.println(queryString);		
+							TupleQuery tupleQuery;
+							int i = 0;
+
+							tupleQuery = connection.prepareTupleQuery(QueryLanguage.SPARQL,
+									queryString);
+						// tupleQuery.setIncludeInferred(true);
+							TupleQueryResult qresult = tupleQuery.evaluate();
+
+							try {
+								while (qresult.hasNext()) {
+									BindingSet bindingSet = qresult.next();
+								
+									Value time = bindingSet.getValue("time");
+									Value id = bindingSet.getValue("sid");
+
+									Substitution subst= new Substitution();
+									
+									
+								
+									if (time != null) {
+										subst.setTime(time.stringValue());
+									}
+									if (id != null) {
+										subst.setId(id.stringValue());
+									}
+									
+								
+									result.add(subst);
+								}
+
+	
+								
+								
+								
+							} finally {
+								qresult.close();
+								connection.close();
+							}
+					
+
+					} catch (OpenRDFException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+					
+					return result;
+				}
+
+			
+			
+			
+			
+			
+			
+			@GET
+			@Path("/teams")
+			@Produces(MediaType.APPLICATION_JSON)
+			public List<Team> getTeamList(		
+									
+									@QueryParam("springlesserverURL") String springlesserverURL,
+									@QueryParam("springlesrepositoryID") String springlesrepositoryID
+									
+						) {
+
+					List<Team> result = new ArrayList<Team>();					
+					
+					List<BindingSet> tuples = new ArrayList<BindingSet>();
+						
+				try {
+					Repository		myRepository = new HTTPRepository(springlesserverURL, springlesrepositoryID);
+								myRepository.initialize();
+						  		RepositoryConnection connection = myRepository.getConnection();
+						  		
+						  		
+		
+					  	
+				
+		
+		
+		String queryStringPrefix= "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+		+	"PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n"
+		+	"PREFIX owl:<http://www.w3.org/2002/07/owl#>\n"
+		+	"PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>\n"
+		+	"PREFIX ckr:<http://dkm.fbk.eu/ckr/meta#>\n"
+		+	"PREFIX sm:<http://dkm.fbk.eu/ckr/live/soccer-match#>\n"
+		+	"PREFIX :<http://dkm.fbk.eu/ckr/live/brager-fifa14#>\n";
+		
+		
+				
+						String	 queryString = queryStringPrefix
+										
+							+"	SELECT ?team ?label ?type"
+							+"			WHERE {"
+							+"			  {GRAPH ckr:global {?team a sm:HomeTeam   ."
+							+"			                    ?team  rdfs:label ?label ." 
+							+"			                     BIND (\"home\" as ?type)"
+							+"			    }"  
+							+"			  }"
+							+"			 UNION "
+
+							+"			  {GRAPH ckr:global {?team a sm:HostTeam   ."
+							+"			                    ?team  rdfs:label ?label ."
+							+"			                    BIND (\"host\" as ?type)"
+							+"			                   }"
+							+"			    }"
+							+"			}";
+							  
+						
+							
+					System.out.println(queryString);		
+							TupleQuery tupleQuery;
+							int i = 0;
+
+							tupleQuery = connection.prepareTupleQuery(QueryLanguage.SPARQL,
+									queryString);
+						// tupleQuery.setIncludeInferred(true);
+							TupleQueryResult qresult = tupleQuery.evaluate();
+
+							try {
+								while (qresult.hasNext()) {
+									BindingSet bindingSet = qresult.next();
+									Value id = bindingSet.getValue("team");
+									Value type = bindingSet.getValue("type");
+									Value label = bindingSet.getValue("label");
+
+									Team team= new Team();
+									
+									
+									if (id != null) {
+										team.setId(id.stringValue().substring(id.stringValue().lastIndexOf('#') + 1));
+									}
+									if (type != null) {
+										team.setType(type.stringValue().substring(type.stringValue().lastIndexOf('#') + 1));
+									}
+									if (label != null) {
+										team.setLabel(label.stringValue().substring(label.stringValue().lastIndexOf('#') + 1));
+									}
+									
+								
+									result.add(team);
+								}
+
+	
+								
+								
+								
+							} finally {
+								qresult.close();
+								connection.close();
+							}
+					
+
+					} catch (OpenRDFException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+					
+					return result;
+				}
+
 			
 			
 			
