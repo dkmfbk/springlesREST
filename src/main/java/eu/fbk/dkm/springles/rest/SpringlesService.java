@@ -1462,6 +1462,13 @@ public class SpringlesService {
 								  for (Player pl : result) {
 	                            	   if (playerGoalsHM.containsKey(pl.getId())){
 								 	   pl.setScoredGoal(playerGoalsHM.get(pl.getId()).size());
+								 	   List<ScoredGoal> scoredGoalsList = new ArrayList<ScoredGoal>();
+								 	   for (String goalString : playerGoalsHM.get(pl.getId())) {
+								 		 ScoredGoal sg= new ScoredGoal();
+								 		 sg.setId(goalString);
+								 		scoredGoalsList.add(sg);
+									    }
+								 	   pl.setScoredGoals(scoredGoalsList);
 	                            	   }
 								      }
 								

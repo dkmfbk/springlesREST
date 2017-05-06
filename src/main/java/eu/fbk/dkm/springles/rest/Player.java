@@ -19,7 +19,7 @@ public class Player {
  private String substitutionOut;
  private String substitutionIn;
  private String hasYCard;
- 
+ private List<ScoredGoal> scoredGoals;
 public Player() {
 	super();
 	
@@ -93,6 +93,12 @@ public String getTeamtype() {
 }
 public void setTeamtype(String teamtype) {
 	this.teamtype = teamtype;
+}
+public List<ScoredGoal> getScoredGoals() {
+	return scoredGoals;
+}
+public void setScoredGoals(List<ScoredGoal> scoredGoals) {
+	this.scoredGoals = scoredGoals;
 }
 
 

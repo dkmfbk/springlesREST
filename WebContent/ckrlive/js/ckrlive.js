@@ -243,21 +243,21 @@ $("#ex14").on("slide", function(slideEvt) {
                         	
                          if (players[index].playing=="PlayingNow"){
                         	
-                           stringa1a=stringa1a + "<li>"+players[index].number+" "+players[index].name+ " ("+players[index].position +") "+showSubstitute(players[index].substitutionIn,substitutionList,"in") +" "+showBall(parseInt(players[index].scoredGoal))+" "+showYellowCard(players[index].hasYCard,ycardList)+"</li>"
+                           stringa1a=stringa1a + "<li>"+players[index].number+" "+players[index].name+ " ("+players[index].position +") "+showSubstitute(players[index].substitutionIn,substitutionList,"in") +" "+showBall(parseInt(players[index].scoredGoal),players[index].scoredGoals,goalList)+" "+showYellowCard(players[index].hasYCard,ycardList)+"</li>"
                            
                            
                          }else if(players[index].playing=="notPlayingNow"){
                         	 
-                        	 stringa1b=stringa1b + "<li>"+players[index].number+" "+players[index].name+" ("+players[index].position +") "+showSubstitute(players[index].substitutionOut,substitutionList,"out") + " "+showBall(parseInt(players[index].scoredGoal))+" "+showYellowCard(players[index].hasYCard,ycardList)+"</li>"	 
+                        	 stringa1b=stringa1b + "<li>"+players[index].number+" "+players[index].name+" ("+players[index].position +") "+showSubstitute(players[index].substitutionOut,substitutionList,"out") + " "+showBall(parseInt(players[index].scoredGoal),players[index].scoredGoals,goalList)+" "+showYellowCard(players[index].hasYCard,ycardList)+"</li>"	 
                         	
                          }
             		 }else if (players[index].teamtype=="HostTeam"){
             			 goalHostTeam=goalHostTeam+parseInt(players[index].scoredGoal);
             			 if (players[index].playing=="PlayingNow"){
-            		stringa2a=stringa2a + "<li>"+players[index].number+" "+players[index].name+" ("+players[index].position +")"  +" "+showSubstitute(players[index].substitutionIn,substitutionList,"in") +" "+showBall(parseInt(players[index].scoredGoal))+" "+showYellowCard(players[index].hasYCard,ycardList)+"</li>"	 
+            		stringa2a=stringa2a + "<li>"+players[index].number+" "+players[index].name+" ("+players[index].position +")"  +showSubstitute(players[index].substitutionIn,substitutionList,"in") +" "+showBall(parseInt(players[index].scoredGoal),players[index].scoredGoals,goalList)+" "+showYellowCard(players[index].hasYCard,ycardList)+"</li>"	 
             		
             			 }else if(players[index].playing=="notPlayingNow"){
-            				 stringa2b=stringa2b + "<li>"+players[index].number+" "+players[index].name+" ("+players[index].position +") "+showSubstitute(players[index].substitutionOut,substitutionList,"out")  +" "+showBall(parseInt(players[index].scoredGoal))+" "+showYellowCard(players[index].hasYCard,ycardList)+"</li>"		 
+            				 stringa2b=stringa2b + "<li>"+players[index].number+" "+players[index].name+" ("+players[index].position +") "+showSubstitute(players[index].substitutionOut,substitutionList,"out")  +" "+showBall(parseInt(players[index].scoredGoal),players[index].scoredGoals,goalList)+" "+showYellowCard(players[index].hasYCard,ycardList)+"</li>"		 
             				 
             			 }          		 
             			 }
@@ -313,18 +313,22 @@ function showSubstitute( time ,substitutionList, inout){
     
     }
 
-   function showBall( goal){
-	   var result='<img src="./img/ball.png" alt="ball" height="25" width="25">';
+   function showBall( goal,goalStrings, goalTime){
+	  
     if(goal==0){
     	return "";
    
     	
     }else{
-   
+    if (goal==1)	
+    	 var result='<img src="./img/ball.png" alt="ball" height="25" width="25">'+goalTime[goalStrings.id]+"'";
+    else{
+    	var result='<img src="./img/ball.png" alt="ball" height="25" width="25">'+goalTime[goalStrings[0].id]+"'";
+    
     for (i=1; i< goal;i++){
-    	result=result+result;
+    	result=result+'<img src="./img/ball.png" alt="ball" height="25" width="25">'+goalTime[goalStrings[i].id]+"'";
     }
-   
+    }
     }
     return result;
    }
