@@ -14,6 +14,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -1484,7 +1485,7 @@ public class SpringlesService {
 						e.printStackTrace();
 					}
 
-					
+					Collections.sort(result);
 					return result;
 				}
 
@@ -1582,7 +1583,7 @@ public class SpringlesService {
 						e.printStackTrace();
 					}
 
-					
+					Collections.sort(result);
 					return result;
 				}
 

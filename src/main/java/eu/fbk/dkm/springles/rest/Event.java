@@ -2,7 +2,7 @@ package eu.fbk.dkm.springles.rest;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class Event {
+public class Event implements Comparable<Event>{
  private String id;
  private String label;
  private String time;
@@ -43,5 +43,9 @@ public Event() {
 	// TODO Auto-generated constructor stub
 }
  
- 
+@Override
+public int compareTo(Event o) {
+	// TODO Auto-generated method stub
+	return Integer.parseInt(getTime()) - Integer.parseInt(o.getTime());
+} 
 }

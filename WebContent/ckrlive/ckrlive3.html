@@ -9,8 +9,8 @@
    <link href="./css/bootstrap.min.css" rel="stylesheet">
     <link href="./css/bootstrap-slider.css" rel="stylesheet">
     <link rel="stylesheet" href="./css/style.css">  
-	<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
-	<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.min.js"></script>
+	<script src="./js/jquery.min.js"></script>
+	<script src="./lib/jquery-ui/js/jquery-ui-1.8.16.custom.min.js"></script>
 	<script src="./lib/jquery.mousewheel.min.js"></script>
 	  <script src="./js/bootstrap-slider.min.js"></script>
 	   <script src="./js/json-to-table.js"></script>
@@ -46,13 +46,14 @@ if (!library)
      </STYLE>
   </head>  
   <body>
+ <div class="container">
   <div class="row">
-   <div class="col-lg-12"> 
-<div class="col-lg-4" class="test-left"> <img src="img/fbk-logo.png" height="120" > </div>	
- <div class="col-lg-4" class="test-center"><h1 >CKRLive</h1> </div>	
-<div class="col-lg-4" class="test-right"> <img src="img/dkm-logo.png" height="120" > </div>	
- 
-</div> </div>	
+    <div class="col-lg-12"> 
+      <div class="col-lg-4" align="left"> <img src="img/fbk-logo.png" height="120" > </div>	
+      <div class="col-lg-4" align="center"><h1 >CKR:Live</h1> </div>	
+      <div class="col-lg-4" align="right""> <img src="img/dkm-logo.png" height="120" > </div>	
+    </div> 
+  </div>	
 
  
       
@@ -61,7 +62,7 @@ if (!library)
    
    
 
-<div class="container">
+
  <div class="row">
       <div class="col-lg-2" id="logZone1w"> 
         <input id="ex14" type="text"  />

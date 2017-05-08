@@ -17,6 +17,7 @@ h2{
 }
 
 h3{
+	text-align:center;
 	clear:both;
 	color: #0068b4;
 }
@@ -28,15 +29,31 @@ hr{
 	padding: 0;
 }
 
+pre{
+font-size:16px;	
+	line-height: 28px;
+	
+	  margin:1px !important;
+	 
+	  padding:0px!important;
+}
+
+@media (min-width: 1200px){
+  .container{
+    max-width:1200px;
+  }
+}
 .ui-sliderDemo{
 	margin-bottom:50px;
 }
-
+.slider-tick-label-container{
+	margin-top:0px;
+}
 .slider,
 .dateSlider{
 	width:100%;
-	margin:20px auto;
-	padding-top:20px;
+	margin:150px auto;
+	padding-top:0px;
 }
 .tick{
 	border-left:1px solid black;

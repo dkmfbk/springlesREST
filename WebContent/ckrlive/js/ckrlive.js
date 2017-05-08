@@ -1,6 +1,8 @@
-    var springlesserverURL = "http://localhost:8080/openrdf-sesame";
-	var restURL = "http://localhost:8080/SpringlesREST/rest/rest/";
-	
+//    var springlesserverURL = "http://localhost:8080/openrdf-sesame";
+//	var restURL = "http://localhost:8080/SpringlesREST/rest/rest/";
+	var springlesserverURL = "http://dkmvm1.fbk.eu:8080/openrdf-sesame";
+	var restURL = "http://dkmvm1.fbk.eu:8080/SpringlesREST/rest/rest/";
+		
 //    var springlesserverURL = "http://madness:8080/openrdf-sesame";
 //	var restURL = "http://madness:8080/SpringlesREST/rest/rest/";
 	
@@ -15,6 +17,8 @@
 	var url_getYCardList=restURL+"ycardlist";
 	
 	var eventtimearray = [];
+	var event_ticks=[];
+	var ticks_time=[];
 $(document).ready(function(){
 	
 	var ticks_event=[0,11,46,58,68,90];
@@ -23,7 +27,8 @@ $(document).ready(function(){
 	var goalList=[];
 	var ycardList=[];
 	var events=[];
-
+	
+  
 	
 	$.ajax({
 		url : url_getTeams , 
@@ -160,24 +165,34 @@ $(document).ready(function(){
 		if (dataEvents==null)
 			 return false;
 			events_=dataEvents["event"];
-			events_.sort();
+		
 			 for(var index=0;index<events_.length ;index++){
 				// var time_label = new Array(events[i].time,events[i].label);
 				// var event_=new Array(events_[index].time,events_[index].label);
 				 eventtimearray.push(events_[index].time) ;
-				 events[events_[index].time]=events_[index].label;
+				 //events[events_[index].time]=events_[index].label;
+				 events.push("<b>"+events_[index].time+"'</b> "+events_[index].label);
+				 event_ticks.push(index*5);
+				 ticks_time[index*5]=events_[index].time;
+				// events.sort();
+				// event_ticks.sort();
 			 }
 			 $("#ex14").bootstrapSlider({
 				    value: 0,   
 				    min:0,
-				    max:90,
-				    step:1,
-				    ticks: eventtimearray,
+				    max:events_.length*5,
+				    enabled:true,
+				    handle:'triangle',
+				    step:5,
+				   tooltip:'hide',
+				 //   ticks: eventtimearray,
+				   ticks:event_ticks,
+				   ticks_labels:events,
 				    orientation: 'vertical',
-				    ticks_snap_bounds: 10,
-					  formatter: function(value_) { 
-				    var event
-						return  value_ + " "+ (events[value_]!=null?events[value_]:"")	},
+				    ticks_snap_bounds: 0,
+					 // formatter: function(value_) { 
+				    //var event
+					//	return  value_ + " "+ (events[value_]!=null?events[value_]:"")	},
 				});	 
 			 
 	});
@@ -193,12 +208,13 @@ $(document).ready(function(){
 
 
 
-$("#ex14").on("slide", function(slideEvt) {
-	var springlesserverURL = "http://localhost:8080/openrdf-sesame";
-	var restURL = "http://localhost:8080/SpringlesREST/rest/rest/";
+$("#ex14").on("slideStop", function(slideEvt) {
+	//var springlesserverURL = "http://localhost:8080/openrdf-sesame";
+	//var restURL = "http://localhost:8080/SpringlesREST/rest/rest/";
 	
 	var url_=restURL+"playersfromtime";
-	var time=slideEvt.value;
+	//var time=slideEvt.value;
+	var time=	 ticks_time[slideEvt.value];
 	var dataSend =dataSend_+"&time="+time ;
 	
 	
@@ -243,21 +259,21 @@ $("#ex14").on("slide", function(slideEvt) {
                         	
                          if (players[index].playing=="PlayingNow"){
                         	
-                           stringa1a=stringa1a + "<li>"+players[index].number+" "+players[index].name+ " ("+players[index].position +") "+showSubstitute(players[index].substitutionIn,substitutionList,"in") +" "+showBall(parseInt(players[index].scoredGoal),players[index].scoredGoals,goalList)+" "+showYellowCard(players[index].hasYCard,ycardList)+"</li>"
+                           stringa1a=stringa1a + "<li><b>"+players[index].number+"</b> "+players[index].name+ " <font color=\"grey\">("+players[index].position +")</font> "+showSubstitute(players[index].substitutionIn,substitutionList,"in") +showBall(parseInt(players[index].scoredGoal),players[index].scoredGoals,goalList)+showYellowCard(players[index].hasYCard,ycardList)+"</li>"
                            
                            
                          }else if(players[index].playing=="notPlayingNow"){
                         	 
-                        	 stringa1b=stringa1b + "<li>"+players[index].number+" "+players[index].name+" ("+players[index].position +") "+showSubstitute(players[index].substitutionOut,substitutionList,"out") + " "+showBall(parseInt(players[index].scoredGoal),players[index].scoredGoals,goalList)+" "+showYellowCard(players[index].hasYCard,ycardList)+"</li>"	 
+                        	 stringa1b=stringa1b + "<li><b>"+players[index].number+"</b> "+players[index].name+" <font color=\"grey\">("+players[index].position +")</font> "+showSubstitute(players[index].substitutionOut,substitutionList,"out") +showBall(parseInt(players[index].scoredGoal),players[index].scoredGoals,goalList)+showYellowCard(players[index].hasYCard,ycardList)+"</li>"	 
                         	
                          }
             		 }else if (players[index].teamtype=="HostTeam"){
             			 goalHostTeam=goalHostTeam+parseInt(players[index].scoredGoal);
             			 if (players[index].playing=="PlayingNow"){
-            		stringa2a=stringa2a + "<li>"+players[index].number+" "+players[index].name+" ("+players[index].position +")"  +showSubstitute(players[index].substitutionIn,substitutionList,"in") +" "+showBall(parseInt(players[index].scoredGoal),players[index].scoredGoals,goalList)+" "+showYellowCard(players[index].hasYCard,ycardList)+"</li>"	 
+            		stringa2a=stringa2a + "<li><b>"+players[index].number+"</b> "+players[index].name+" <font color=\"grey\">("+players[index].position +")</font> " +showSubstitute(players[index].substitutionIn,substitutionList,"in")+showBall(parseInt(players[index].scoredGoal),players[index].scoredGoals,goalList)+showYellowCard(players[index].hasYCard,ycardList)+"</li>"	 
             		
             			 }else if(players[index].playing=="notPlayingNow"){
-            				 stringa2b=stringa2b + "<li>"+players[index].number+" "+players[index].name+" ("+players[index].position +") "+showSubstitute(players[index].substitutionOut,substitutionList,"out")  +" "+showBall(parseInt(players[index].scoredGoal),players[index].scoredGoals,goalList)+" "+showYellowCard(players[index].hasYCard,ycardList)+"</li>"		 
+            				 stringa2b=stringa2b + "<li><b>"+players[index].number+"</b> "+players[index].name+" <font color=\"grey\">("+players[index].position +")</font> "+showSubstitute(players[index].substitutionOut,substitutionList,"out") +showBall(parseInt(players[index].scoredGoal),players[index].scoredGoals,goalList)+showYellowCard(players[index].hasYCard,ycardList)+"</li>"		 
             				 
             			 }          		 
             			 }
@@ -269,8 +285,7 @@ $("#ex14").on("slide", function(slideEvt) {
         document.getElementById("logol2b").innerHTML = stringa2b;
         $("#hometeamscore").html( goalHomeTeam);
         $("#hostteamscore").html( goalHostTeam);
-      
-            
+          
         	//$('#result').append("<tr><td>"+data["player"][i].number+ "</td><td>"+data["player"][i].name+ "</td></tr>");
 	
       //  $('#result').append("</tbody></table>");
@@ -296,13 +311,116 @@ $( "#selectteam2" ).change(function() {
 });
 
 
-   
-
 
 
    
 });
  
+
+
+
+$( window ).load(function() {
+	var url_playersfromtime=restURL+"playersfromtime";
+	//var time=slideEvt.value;
+	var time=	 0;
+	var dataSend =dataSend_+"&time="+time ;
+
+
+	$.ajax({
+		url : url_playersfromtime , 
+		data : dataSend, 
+	contentType: "application/json; charset=utf-8",
+	dataType: "json",
+		type : "GET"
+
+	}).done(function(data, textStatus, jqXHR) {			
+		var risultato ="";
+//		var player = data['player'];
+		$("#result").empty();
+		$('#result').append("<pre>"+library.json.prettyPrint(data)+"<pre>");
+		$("#request").empty();
+		$('#request').html("<span>GET " + url_playersfromtime + "</span><br />" + library.json.prettyPrint(dataSend));
+		
+		//	var risultato ="";  
+//		for (i = 0; i < player.length; i++) {
+//		    risultato = risultato + player[i].name +"<br />";
+		    
+//		  }
+		var stringa1a="";
+		var stringa1b="";
+		var stringa2a="";
+		var stringa2b="";
+		
+		var ns="http://dkm.fbk.eu/ckr/live/brager-fifa14#";
+		if (data==null)
+		 return false;
+		players=data["player"];
+//		$('#result').append("<table class='table table-striped'><thead><tr><th>Graphs</th><tr></thead><tbody>");
+	    for(var index=0;index<players.length ;index++){
+	        var  goalHostTeam=0;
+	        var goalHomeTeam=0;
+	        
+	        
+	        	for (index = 0; index < players.length; ++index) {
+	        		 if (players[index].teamtype=="HomeTeam"){
+	        			 goalHomeTeam=goalHomeTeam+parseInt(players[index].scoredGoal);
+	                    	
+	                     if (players[index].playing=="PlayingNow"){
+	                    	
+	                       stringa1a=stringa1a + "<li><b>"+players[index].number+"</b> "+players[index].name+ " <font color=\"grey\">("+players[index].position +")</font></li>";
+	                       
+	                       
+	                     }else if(players[index].playing=="notPlayingNow"){
+	                    	 
+	                    	 stringa1b=stringa1b + "<li><b>"+players[index].number+"</b> "+players[index].name+" <font color=\"grey\">("+players[index].position +")</font> </li>"	 
+	                    	
+	                     }
+	        		 }else if (players[index].teamtype=="HostTeam"){
+	        			 goalHostTeam=goalHostTeam+parseInt(players[index].scoredGoal);
+	        			 if (players[index].playing=="PlayingNow"){
+	        		stringa2a=stringa2a + "<li><b>"+players[index].number+"</b> "+players[index].name+" <font color=\"grey\">("+players[index].position +")</font> </li>"	 
+	        		
+	        			 }else if(players[index].playing=="notPlayingNow"){
+	        				 stringa2b=stringa2b + "<li><b>"+players[index].number+"</b> "+players[index].name+" <font color=\"grey\">("+players[index].position +")</font> </li>"		 
+	        				 
+	        			 }          		 
+	        			 }
+	        }
+	    }
+	    document.getElementById("logol1a").innerHTML = stringa1a; 
+	    document.getElementById("logol1b").innerHTML = stringa1b; 
+	    document.getElementById("logol2a").innerHTML = stringa2a;
+	    document.getElementById("logol2b").innerHTML = stringa2b;
+	    $("#hometeamscore").html( goalHomeTeam);
+	    $("#hostteamscore").html( goalHostTeam);
+	      
+	    	//$('#result').append("<tr><td>"+data["player"][i].number+ "</td><td>"+data["player"][i].name+ "</td></tr>");
+
+	  //  $('#result').append("</tbody></table>");
+		//$('#result').html("<span>OK " +risultato);
+
+	   
+	}).fail(function(jqXHR, textStatus, errorThrown) { 
+		$("#result").empty();
+		$('#result').html("<span> " + jqXHR.status + " " + jqXHR.responseText + "</span><br />");
+	});
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function showSubstitute( time ,substitutionList, inout){
     if(time==null)
     	return "";

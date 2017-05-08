@@ -7,7 +7,7 @@ import java.util.TreeSet;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class Player {
+public class Player implements Comparable<Player>{
  private String id;
  private String name;
  private String number;
@@ -100,7 +100,11 @@ public List<ScoredGoal> getScoredGoals() {
 public void setScoredGoals(List<ScoredGoal> scoredGoals) {
 	this.scoredGoals = scoredGoals;
 }
-
+@Override
+public int compareTo(Player o) {
+	// TODO Auto-generated method stub
+	return Integer.parseInt(getNumber()) - Integer.parseInt(o.getNumber());
+}
 
 
 
