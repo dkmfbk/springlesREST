@@ -6,7 +6,7 @@
 //    var springlesserverURL = "http://madness:8080/openrdf-sesame";
 //	var restURL = "http://madness:8080/SpringlesREST/rest/rest/";
 	
-	var springlesrepositoryID= "test-springles-5";
+	var springlesrepositoryID= "test-springles-6";
 	var dataSend_ ="springlesrepositoryID=" +springlesrepositoryID+"&springlesserverURL="+springlesserverURL  ;
 	
 	var url_playersfromtime=restURL+"playersfromtime";
@@ -121,12 +121,12 @@ $(document).ready(function(){
 			 return false;
 		var	ycard_data=dataYCard["yCard"];
 		
-		//	 for(var index=0;index<ycard_data.length ;index++){
+			 for(var index=0;index<ycard_data.length ;index++){
 				// var time_label = new Array(events[i].time,events[i].label);
 				// var event_=new Array(events_[index].time,events_[index].label);
 				
-				ycardList[ycard_data.id]=ycard_data.time;
-		//	 }
+				ycardList[ycard_data[index].id]=ycard_data[index].time;
+			 }
 		
 		
 			
@@ -259,21 +259,21 @@ $("#ex14").on("slideStop", function(slideEvt) {
                         	
                          if (players[index].playing=="PlayingNow"){
                         	
-                           stringa1a=stringa1a + "<li><b>"+players[index].number+"</b> "+players[index].name+ " <font color=\"grey\">("+players[index].position +")</font> "+showSubstitute(players[index].substitutionIn,substitutionList,"in") +showBall(parseInt(players[index].scoredGoal),players[index].scoredGoals,goalList)+showYellowCard(players[index].hasYCard,ycardList)+"</li>"
+                           stringa1a=stringa1a + "<li><b>"+players[index].number+"</b> "+players[index].name+ " <font color=\"grey\">("+players[index].position +")</font> "+showSubstitute(players[index].substitutionIn,substitutionList,"in")+showSubstitute(players[index].substitutionOut,substitutionList,"out") +showBall(parseInt(players[index].scoredGoal),players[index].scoredGoals,goalList)+showYellowCard(players[index].hasYCard,ycardList)+"</li>"
                            
                            
                          }else if(players[index].playing=="notPlayingNow"){
                         	 
-                        	 stringa1b=stringa1b + "<li><b>"+players[index].number+"</b> "+players[index].name+" <font color=\"grey\">("+players[index].position +")</font> "+showSubstitute(players[index].substitutionOut,substitutionList,"out") +showBall(parseInt(players[index].scoredGoal),players[index].scoredGoals,goalList)+showYellowCard(players[index].hasYCard,ycardList)+"</li>"	 
+                        	 stringa1b=stringa1b + "<li><b>"+players[index].number+"</b> "+players[index].name+" <font color=\"grey\">("+players[index].position +")</font> "+showSubstitute(players[index].substitutionIn,substitutionList,"in")+showSubstitute(players[index].substitutionOut,substitutionList,"out") +showBall(parseInt(players[index].scoredGoal),players[index].scoredGoals,goalList)+showYellowCard(players[index].hasYCard,ycardList)+"</li>"	 
                         	
                          }
             		 }else if (players[index].teamtype=="HostTeam"){
             			 goalHostTeam=goalHostTeam+parseInt(players[index].scoredGoal);
             			 if (players[index].playing=="PlayingNow"){
-            		stringa2a=stringa2a + "<li><b>"+players[index].number+"</b> "+players[index].name+" <font color=\"grey\">("+players[index].position +")</font> " +showSubstitute(players[index].substitutionIn,substitutionList,"in")+showBall(parseInt(players[index].scoredGoal),players[index].scoredGoals,goalList)+showYellowCard(players[index].hasYCard,ycardList)+"</li>"	 
+            		stringa2a=stringa2a + "<li><b>"+players[index].number+"</b> "+players[index].name+" <font color=\"grey\">("+players[index].position +")</font> " +showSubstitute(players[index].substitutionIn,substitutionList,"in")+showSubstitute(players[index].substitutionOut,substitutionList,"out")+showBall(parseInt(players[index].scoredGoal),players[index].scoredGoals,goalList)+showYellowCard(players[index].hasYCard,ycardList)+"</li>"	 
             		
             			 }else if(players[index].playing=="notPlayingNow"){
-            				 stringa2b=stringa2b + "<li><b>"+players[index].number+"</b> "+players[index].name+" <font color=\"grey\">("+players[index].position +")</font> "+showSubstitute(players[index].substitutionOut,substitutionList,"out") +showBall(parseInt(players[index].scoredGoal),players[index].scoredGoals,goalList)+showYellowCard(players[index].hasYCard,ycardList)+"</li>"		 
+            				 stringa2b=stringa2b + "<li><b>"+players[index].number+"</b> "+players[index].name+" <font color=\"grey\">("+players[index].position +")</font> "+showSubstitute(players[index].substitutionIn,substitutionList,"in")+showSubstitute(players[index].substitutionOut,substitutionList,"out") +showBall(parseInt(players[index].scoredGoal),players[index].scoredGoals,goalList)+showYellowCard(players[index].hasYCard,ycardList)+"</li>"		 
             				 
             			 }          		 
             			 }

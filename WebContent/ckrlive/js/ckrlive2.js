@@ -311,6 +311,172 @@ $( "#selectteam2" ).change(function() {
 });
 
 
+$('#mselection').on('change','select', function() {
+	
+	 springlesrepositoryID= $(this).find(":selected").val();
+	 dataSend_ ="springlesrepositoryID=" +springlesrepositoryID+"&springlesserverURL="+springlesserverURL  
+
+		 url_getEvents=restURL+"eventlist"; 
+	    eventtimearray = [];
+	    event_ticks=[];
+		 ticks_time=[];
+	 $("#ex14").slider('destroy');
+	 
+	// $("#ex14").remove();	
+	// $("#mselection").append("<input id='ex14' type='text'/>");
+	 
+		$.ajax({
+			url : url_getEvents , 
+			data : dataSend_, 
+	        contentType: "application/json; charset=utf-8",
+	        dataType: "json",
+			type : "GET"
+		
+		}).done(function(dataEvents_, textStatus, jqXHR) {	
+			
+		//	$("#result").empty();
+		//	$('#result').append("<pre>"+library.json.prettyPrint(data)+"<pre>");
+		//	$("#request").empty();
+		//	$('#request').html("<span>GET " + url_getEvents + "</span><br />" + "<pre>"+library.json.prettyPrint(data)+"<pre>");
+			
+		//var jsonHtmlTable = ConvertJsonToTable(dataEvents, 'JsonTable', null, 'Download');
+			if (dataEvents_==null)
+				 return false;
+				events_=dataEvents_["event"];
+			
+				 for(var index=0;index<events_.length ;index++){
+					// var time_label = new Array(events[i].time,events[i].label);
+					// var event_=new Array(events_[index].time,events_[index].label);
+					 eventtimearray.push(events_[index].time) ;
+					 //events[events_[index].time]=events_[index].label;
+					 events.push("<b>"+events_[index].time+"'</b> "+events_[index].label);
+					 event_ticks.push(index*5);
+					 ticks_time[index*5]=events_[index].time;
+					// events.sort();
+					// event_ticks.sort();
+				 }
+				
+				 
+				
+				 $("#ex14").bootstrapSlider({
+					    value: 0,   
+					    min:0,
+					    max:events_.length*5,
+					    enabled:true,
+					    handle:'triangle',
+					    step:5,
+					   tooltip:'hide',
+					 //   ticks: eventtimearray,
+					   ticks:event_ticks,
+					   ticks_labels:events,
+					    orientation: 'vertical',
+					    ticks_snap_bounds: 0,
+						 // formatter: function(value_) { 
+					    //var event
+						//	return  value_ + " "+ (events[value_]!=null?events[value_]:"")	},
+					});	 
+				
+				 
+		});
+		
+
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 var url_playersfromtime=restURL+"playersfromtime";
+		//var time=slideEvt.value;
+		var time=	 0;
+		var dataSend =dataSend_+"&time="+time ;
+
+
+		$.ajax({
+			url : url_playersfromtime , 
+			data : dataSend, 
+		contentType: "application/json; charset=utf-8",
+		dataType: "json",
+			type : "GET"
+
+		}).done(function(data, textStatus, jqXHR) {			
+			var risultato ="";
+//			var player = data['player'];
+			$("#result").empty();
+			$('#result').append("<pre>"+library.json.prettyPrint(data)+"<pre>");
+			$("#request").empty();
+			$('#request').html("<span>GET " + url_playersfromtime + "</span><br />" + library.json.prettyPrint(dataSend));
+			
+			//	var risultato ="";  
+//			for (i = 0; i < player.length; i++) {
+//			    risultato = risultato + player[i].name +"<br />";
+			    
+//			  }
+			var stringa1a="";
+			var stringa1b="";
+			var stringa2a="";
+			var stringa2b="";
+			
+			var ns="http://dkm.fbk.eu/ckr/live/brager-fifa14#";
+			if (data==null)
+			 return false;
+			players=data["player"];
+//			$('#result').append("<table class='table table-striped'><thead><tr><th>Graphs</th><tr></thead><tbody>");
+		    for(var index=0;index<players.length ;index++){
+		        var  goalHostTeam=0;
+		        var goalHomeTeam=0;
+		        
+		        
+		        	for (index = 0; index < players.length; ++index) {
+		        		 if (players[index].teamtype=="HomeTeam"){
+		        			 goalHomeTeam=goalHomeTeam+parseInt(players[index].scoredGoal);
+		                    	
+		                     if (players[index].playing=="PlayingNow"){
+		                    	
+		                       stringa1a=stringa1a + "<li><b>"+players[index].number+"</b> "+players[index].name+ " <font color=\"grey\">("+players[index].position +")</font></li>";
+		                       
+		                       
+		                     }else if(players[index].playing=="notPlayingNow"){
+		                    	 
+		                    	 stringa1b=stringa1b + "<li><b>"+players[index].number+"</b> "+players[index].name+" <font color=\"grey\">("+players[index].position +")</font> </li>"	 
+		                    	
+		                     }
+		        		 }else if (players[index].teamtype=="HostTeam"){
+		        			 goalHostTeam=goalHostTeam+parseInt(players[index].scoredGoal);
+		        			 if (players[index].playing=="PlayingNow"){
+		        		stringa2a=stringa2a + "<li><b>"+players[index].number+"</b> "+players[index].name+" <font color=\"grey\">("+players[index].position +")</font> </li>"	 
+		        		
+		        			 }else if(players[index].playing=="notPlayingNow"){
+		        				 stringa2b=stringa2b + "<li><b>"+players[index].number+"</b> "+players[index].name+" <font color=\"grey\">("+players[index].position +")</font> </li>"		 
+		        				 
+		        			 }          		 
+		        			 }
+		        }
+		    }
+		    document.getElementById("logol1a").innerHTML = stringa1a; 
+		    document.getElementById("logol1b").innerHTML = stringa1b; 
+		    document.getElementById("logol2a").innerHTML = stringa2a;
+		    document.getElementById("logol2b").innerHTML = stringa2b;
+		    $("#hometeamscore").html( goalHomeTeam);
+		    $("#hostteamscore").html( goalHostTeam);
+		      
+		    	//$('#result').append("<tr><td>"+data["player"][i].number+ "</td><td>"+data["player"][i].name+ "</td></tr>");
+
+		  //  $('#result').append("</tbody></table>");
+			//$('#result').html("<span>OK " +risultato);
+
+		   
+		}).fail(function(jqXHR, textStatus, errorThrown) { 
+			$("#result").empty();
+			$('#result').html("<span> " + jqXHR.status + " " + jqXHR.responseText + "</span><br />");
+		});
+	});
+
 
 
    

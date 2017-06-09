@@ -1325,7 +1325,7 @@ public class SpringlesService {
 					List<Player> result = new ArrayList<Player>();	
 					List<String> listofID = new ArrayList<String>();	
 					Map<String,Set<String>> playerGoalsHM= new HashMap<String,Set<String>>();
-					System.out.println("LISTEVENTS");
+					//System.out.println("LISTEVENTS");
 					List<BindingSet> tuples = new ArrayList<BindingSet>();
 						
 				try {
@@ -1794,7 +1794,7 @@ public class SpringlesService {
 						) {
 
 					List<Substitution> result = new ArrayList<Substitution>();					
-					System.out.println("LISTEVENTS");
+					//System.out.println("LISTEVENTS");
 					List<BindingSet> tuples = new ArrayList<BindingSet>();
 						
 				try {
