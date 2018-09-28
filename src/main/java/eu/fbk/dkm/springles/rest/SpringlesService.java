@@ -241,12 +241,12 @@ public class SpringlesService {
 				
 				Writer writer = new BufferedWriter(new FileWriter(tempFile));
 			//	RDFHandler rdfxmlWriter = new RDFXMLWriter(writer);
-				TriGWriter trigWriter= new TriGWriter(writer);
+			//	TriGWriter trigWriter= new TriGWriter(writer);
 				TurtleWriter ttlWriter = new TurtleWriter(writer);
 				
 				
 				if(exportformat.equals("trig")){
-				 con.exportStatements(null, null, null, persist, trigWriter);
+			//	 con.exportStatements(null, null, null, persist, trigWriter);
 				}else if(exportformat.equals("ttl")){
 					 con.exportStatements(null, null, null, persist, ttlWriter);
 					}else{
@@ -1994,7 +1994,114 @@ public class SpringlesService {
 
 			
 			
+			@POST
+			@Path("/unitaimmobiliari2")
+			@Produces(MediaType.APPLICATION_JSON)
+			@Consumes(MediaType.APPLICATION_JSON)
+			public String insertUnitaimmobiliari2(
+					
+											
+					
+					) {
+				 String springlesserverURL = "http://localhost:8080/openrdf-sesame";
+				 String springlesrepositoryID ="georeporter";
+				 
+				
+				String queryStringPrefix= 
+						   "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+						+	"PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n"
+						+	"PREFIX owl:<http://www.w3.org/2002/07/owl#>\n"
+						+	"PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>\n"
+						+    "PREFIX ckr:    <http://dkm.fbk.eu/ckr/meta#> \n"
+						+	"PREFIX  :<http://dkm.fbk.eu/georeporter#>\n"; 
+				String result = "FAIL";
+				  //ObjectMapper mapper = new ObjectMapper();
+				  //MapType type = mapper.getTypeFactory().constructMapType(
+				   //     Map.class, String.class, Object.class);
+				  //Map<String, Object> data;
 			
+					//data = mapper.readValue(input, type);
+				
+				   
+				   
+				//  String uiuri=(String)input.get("uiuri");
+					  String uiuri=":123456789";
+				  
+				Repository	myRepository = new HTTPRepository(springlesserverURL, springlesrepositoryID);
+			//	 if ((uiuri==null)||uiuri.equals("")){
+						
+				//		ResponseBuilderImpl builder = new ResponseBuilderImpl();
+					//	builder.status(Response.Status.BAD_REQUEST);
+					//	builder.entity("ERROR! uiuri parameter missing or null");
+					//	Response response = builder.build();
+					//	throw new WebApplicationException(response);
+					// } 
+				   
+				 //  POIURI= checkNameSpace(POIURI);
+				//   rewURL= checkNameSpace(rewURL);
+				//   String   rewURI= ":review_"+POIURI.replaceFirst(":", "")+ "_"+UUID.randomUUID();
+				 
+				
+				// String delimiter = "\\,"
+			
+					try {
+						myRepository.initialize();
+					
+					RepositoryConnection con = myRepository.getConnection();
+
+					// result= result+""+con.size();
+					
+						String queryString = "";
+							
+						
+				//		try {
+						//	Kbelement	kbelement=	mapper.readValue(rdfPayload,Kbelement.class);
+							
+							
+							 queryString = queryStringPrefix
+								+"	 INSERT DATA {"
+							//
+								
+								+"   GRAPH ckr:global {" 
+						//			+"   GRAPH springles:nil {"
+								+"   "+uiuri+" a :UnitaImmobiliare ."
+						//		+"    :codiceAmministrativo \""+(String)input.get("codiceamministrativo")+"\";" 
+				//				+"    :progressivo \""+SparqlEscape.escape(rewText)+"\" ." 
+					//			+"    :progressivo \""+(String)input.get("progressivo")+"\" ;"
+					//		    +"    :superficie \"" +(String)input.get("superficie")+"\" "
+								
+							    +"}}							";
+											
+							 con.begin();		
+							 System.out.println(queryString);		
+								
+								int i = 0;
+							//	conn.prepareUpdate(QueryLanguage.SPARQL, updateQuery);
+								Update insert = con.prepareUpdate(QueryLanguage.SPARQL,
+										queryString);
+							//	insert.getIncludeInferred();
+								insert.execute();
+								 con.commit();
+								
+								 con.close();
+								 result=("{\"uiuri\" : \""+uiuri+"\"}");
+								// tupleQuery.setIncludeInferred(true);
+								//TupleQueryResult qresult = tupleQuery.evaluate();
+								
+
+					
+				
+				
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+				
+				return result;
+			}
+					
+						
 			
 			@GET
 			  @Path("/prova")
