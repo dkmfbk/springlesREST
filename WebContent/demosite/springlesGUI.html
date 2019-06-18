@@ -331,7 +331,7 @@ a, .delete{
 		/*INSERT THE CORRECT URL*/
 		
         var rulesets = new Array();
-        var springlesserverURL = "http://localhost:8080/openrdf-sesame";
+        var springlesserverURL = "http://localhost:8080/rdf4j-server";
      
 		$("#repoChoice").on("change",function(){
             $(".panel-collapse").hide();
@@ -352,7 +352,7 @@ a, .delete{
             }
         });
         
-		var url = ":http://localhost:8081/SpringlesREST/rest/rest/";
+		var url = ":http://localhost:8080/SpringlesREST/rest/rest/";
     	var url2 = ":8080/ToolisseSemanticQueryAnswering/toolisse/sqa/";
     	
 		if($.isEmptyObject(url))
