@@ -1,8 +1,13 @@
 package eu.fbk.dkm.springles.rest;
 
 
+import static org.eclipse.rdf4j.repository.config.RepositoryConfigSchema.REPOSITORYID;
+import static org.eclipse.rdf4j.repository.config.RepositoryConfigSchema.REPOSITORY_CONTEXT;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -37,55 +42,64 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.io.IOUtils;
-import org.openrdf.OpenRDFException;
-import org.openrdf.model.Graph;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Model;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.GraphImpl;
-import org.openrdf.model.impl.LinkedHashModel;
-import org.openrdf.model.impl.URIImpl;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.query.BindingSet;
-import org.openrdf.query.MalformedQueryException;
-import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.query.QueryLanguage;
-import org.openrdf.query.TupleQuery;
-import org.openrdf.query.TupleQueryResult;
-import org.openrdf.query.TupleQueryResultHandler;
-import org.openrdf.query.Update;
-import org.openrdf.query.UpdateExecutionException;
+import  org.eclipse.rdf4j.OpenRDFException;
+import  org.eclipse.rdf4j.model.Graph;
+import  org.eclipse.rdf4j.model.Literal;
+import  org.eclipse.rdf4j.model.Model;
+import  org.eclipse.rdf4j.model.Resource;
+import  org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.URI;
+import  org.eclipse.rdf4j.model.Value;
+import  org.eclipse.rdf4j.model.ValueFactory;
+import  org.eclipse.rdf4j.model.impl.GraphImpl;
+import  org.eclipse.rdf4j.model.impl.LinkedHashModel;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import  org.eclipse.rdf4j.model.impl.URIImpl;
+import  org.eclipse.rdf4j.model.vocabulary.RDF;
+import  org.eclipse.rdf4j.query.BindingSet;
+import  org.eclipse.rdf4j.query.MalformedQueryException;
+import  org.eclipse.rdf4j.query.QueryEvaluationException;
+import  org.eclipse.rdf4j.query.QueryLanguage;
+import  org.eclipse.rdf4j.query.TupleQuery;
+import  org.eclipse.rdf4j.query.TupleQueryResult;
+import  org.eclipse.rdf4j.query.TupleQueryResultHandler;
+import  org.eclipse.rdf4j.query.Update;
+import  org.eclipse.rdf4j.query.UpdateExecutionException;
 
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
-import org.openrdf.repository.config.ConfigTemplate;
-import org.openrdf.repository.config.RepositoryConfig;
-import org.openrdf.repository.config.RepositoryConfigException;
-import org.openrdf.repository.config.RepositoryImplConfig;
-import org.openrdf.repository.http.HTTPRepository;
-import org.openrdf.repository.manager.RemoteRepositoryManager;
-import org.openrdf.repository.manager.RepositoryInfo;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFHandler;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFParseException;
-import org.openrdf.rio.Rio;
-//import org.openrdf.rio.rdfxml.RDFXMLWriter;
-//import org.openrdf.rio.rdfxml.util.RDFXMLPrettyWriter;
-import org.openrdf.rio.trig.TriGWriter;
-import org.openrdf.rio.turtle.TurtleWriter;
+import  org.eclipse.rdf4j.repository.Repository;
+import  org.eclipse.rdf4j.repository.RepositoryConnection;
+import  org.eclipse.rdf4j.repository.RepositoryException;
+import  org.eclipse.rdf4j.repository.RepositoryResult;
+import  org.eclipse.rdf4j.repository.config.ConfigTemplate;
+import  org.eclipse.rdf4j.repository.config.RepositoryConfig;
+import  org.eclipse.rdf4j.repository.config.RepositoryConfigException;
+import org.eclipse.rdf4j.repository.config.RepositoryConfigUtil;
+import  org.eclipse.rdf4j.repository.config.RepositoryImplConfig;
+import  org.eclipse.rdf4j.repository.http.HTTPRepository;
+import  org.eclipse.rdf4j.repository.manager.RemoteRepositoryManager;
+import  org.eclipse.rdf4j.repository.manager.RepositoryInfo;
+import org.eclipse.rdf4j.repository.manager.RepositoryManager;
+import org.eclipse.rdf4j.repository.manager.SystemRepository;
+import  org.eclipse.rdf4j.rio.RDFFormat;
+import  org.eclipse.rdf4j.rio.RDFHandler;
+import  org.eclipse.rdf4j.rio.RDFHandlerException;
+import  org.eclipse.rdf4j.rio.RDFParseException;
+import  org.eclipse.rdf4j.rio.Rio;
+//import  org.eclipse.rdf4j.rio.rdfxml.RDFXMLWriter;
+//import  org.eclipse.rdf4j.rio.rdfxml.util.RDFXMLPrettyWriter;
+import  org.eclipse.rdf4j.rio.trig.TriGWriter;
+import  org.eclipse.rdf4j.rio.turtle.TurtleWriter;
 
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
 
 import eu.fbk.dkm.internal.springles.config.SpringlesRepositoryFactory;
-import info.aduna.io.IOUtil;
-import info.aduna.iteration.Iterations;
+import  org.eclipse.rdf4j.common.io.IOUtil;
+import  org.eclipse.rdf4j.common.iteration.Iterations;
+import org.eclipse.rdf4j.http.client.RDF4JProtocolSession;
+import org.eclipse.rdf4j.http.client.SharedHttpClientSessionManager;
+import org.eclipse.rdf4j.http.protocol.Protocol;
+import org.eclipse.rdf4j.http.protocol.UnauthorizedException;
 
 
 
@@ -174,7 +188,7 @@ public class SpringlesService {
 			
 			RepositoryConfig repConfig = new RepositoryConfig(springlesrepositoryID, repositoryTypeSpec);
 		
-			repConfig.parse(g, g.filter(null, RDF.TYPE, new URIImpl("http://www.openrdf.org/config/repository#Repository")).subjectResource());
+			repConfig.parse(g, g.filter(null, RDF.TYPE, new URIImpl("http://www.openrdf.org/config/repository#Repository")).subjectResource().orElse(null));
 			manager.addRepositoryConfig(repConfig);
 			 
 		} catch (RepositoryException |RDFParseException| IOException|RepositoryConfigException e) {
@@ -442,17 +456,30 @@ public class SpringlesService {
 	  }	  
 	  private void changeInferenceParameters(String serverURL,String repoID,String rulesetURI,String inferencer,String bind, String inferenceprefix){
 		  try {
-			  	RemoteRepositoryManager manager = new RemoteRepositoryManager(serverURL);
+			  RemoteRepositoryManager manager = new RemoteRepositoryManager(serverURL);
 				manager.initialize();
+				Repository rep =manager.getRepository(repoID);
 				boolean persist = true;
 				
 				RepositoryImplConfig repositoryTypeSpec = manager.getRepositoryConfig(repoID).getRepositoryImplConfig();
-				Model	g =null;
+			//	SpringlesRepositoryFactory srf=new SpringlesRepositoryFactory();
+			//s	RepositoryImplConfig repositoryTypeSpec = srf.getConfig();
+				
+				Model g = new LinkedHashModel();
+				
 		
-		
-				try(
+				RepositoryConnection con =rep.getConnection();
+			//	RepositoryResult<Statement> result = con.getStatements(null, null, null);
+				
+				
+			//	while (result.hasNext()) {
+			//		Statement st = result.next();
+			//		System.out.println("db contains: " + st);
+			//	}
+				
+			
 						InputStream url=getClass().getClassLoader().getResourceAsStream("springles.ttl");
-					){
+			
 					
 					String template = IOUtil.readString(new InputStreamReader(url,
 							"UTF-8"));
@@ -466,20 +493,64 @@ public class SpringlesService {
 					valueMap.put("Inferred context prefix", inferenceprefix);
 					valueMap.put("Bindings", bind);
 					String configString = ct.render(valueMap);
-					//System.out.println(configString);
+					System.out.println("configString="+configString);
+				
+				
+                    URI repoid= new URIImpl("http://www.openrdf.org/config/repository#Repository");							
+						
+					
+					
 		           g = Rio.parse(IOUtils.toInputStream(configString, "UTF-8"),"",RDFFormat.TURTLE);		
 					
 					
-				}
+			
 				RepositoryConfig repConfig = new RepositoryConfig(repoID, repositoryTypeSpec);
 			
-				repConfig.parse(g, g.filter(null, RDF.TYPE, new URIImpl("http://www.openrdf.org/config/repository#Repository")).subjectResource());
-				manager.addRepositoryConfig(repConfig);
-		  } catch (RepositoryException |RDFParseException| IOException|RepositoryConfigException e) {
-				e.printStackTrace();
-			}
-			 
-	  }
+				repConfig.parse(g, g.filter(null, RDF.TYPE, new URIImpl("http://www.openrdf.org/config/repository#Repository")).subjectResource().orElse(null));
+			//	manager.addRepositoryConfig(repConfig);
+				
+				
+				RepositoryConfigUtil.updateRepositoryConfigs(manager.getSystemRepository(), repConfig);
+		  
+				
+				
+				
+			} catch (RepositoryException | MalformedQueryException |QueryEvaluationException | UpdateExecutionException | IOException e) {
+				// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
+				
+			
+				
+				
+				
+				
+	
+				}	  
+	  
+
+
+
+
+
+
+
+
+
+
+
+
+	  
+	  
+	  
+	  
+	  
+	  
+	  
+	  
+	  
+	  
+	
 	  
 	  /**
 	   * Method to clear statements of a springles repository -
@@ -574,7 +645,7 @@ public class SpringlesService {
 			  @QueryParam("springlesserverURL") String springlesserverURL) 
 	  {
 
-		  
+		  System.out.println("Repository deleted");
 		  String result="Fail";
 		  Repository	myRepository = new HTTPRepository(springlesserverURL, springlesrepositoryID);
 		  File dataRepo = myRepository.getDataDir();
@@ -690,8 +761,11 @@ public class SpringlesService {
 			RepositoryResult<Statement> st =  myRepository.getConnection().getStatements(null, null, null, true);
 				Model mod  = Iterations.addAll(st, new LinkedHashModel());
 			
-			Graph g = new GraphImpl();
-			rc.export(g);
+		//	Model g =  new GraphImpl();
+			
+			Model g= new  LinkedHashModel();
+			
+			rc.export( g);
 			Iterator<Statement> conf = g.iterator();
 			ArrayList<Statement> sts = new ArrayList<Statement>();
 			
@@ -1015,7 +1089,7 @@ public class SpringlesService {
 				if(inferencer.compareTo("RDFProInferencer")==0){
 					 String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
 					 
-					 springles_url = springles_url.substring(5,springles_url.indexOf("webapps"+separator)+8)+"openrdf-sesame"+separator+"WEB-INF"
+					 springles_url = springles_url.substring(5,springles_url.indexOf("webapps"+separator)+8)+"rdf4j-server"+separator+"WEB-INF"
 							 +separator+"classes"+separator;
 					 
 					 File file = new File(springles_url.replace("%20", " ")+filename);
@@ -1040,9 +1114,9 @@ public class SpringlesService {
 					 return "Error!";
 				 }else if(inferencer.compareTo("NaiveInferencer")==0){
 					 String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
-					 springles_url = springles_url.substring(5,springles_url.indexOf("webapps"+separator)+8)+"openrdf-sesame"+separator+"WEB-INF"
+					 springles_url = springles_url.substring(5,springles_url.indexOf("webapps"+separator)+8)+"rdf4j-server"+separator+"WEB-INF"
 							 +separator+"classes"+separator;
-					 
+					 System.out.println("naivespringles_url="+springles_url.replace("%20", " ")+filename);
 					 File file = new File(springles_url.replace("%20", " ")+filename);
 					 if (file.exists()){
 						 return "Ruleset with the same name is just in memory";
@@ -1096,7 +1170,7 @@ public class SpringlesService {
 				 if(inferencer.compareTo("RDFProInferencer")==0){
 					 String result = "";
 					 String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
-					 springles_url = springles_url.substring(5,springles_url.indexOf("webapps"+separator)+8)+"openrdf-sesame"+separator+"WEB-INF"
+					 springles_url = springles_url.substring(5,springles_url.indexOf("webapps"+separator)+8)+"rdf4j-server"+separator+"WEB-INF"
 					 +separator+"classes"+separator;
 					 
 					 System.out.println(springles_url);
@@ -1120,7 +1194,8 @@ public class SpringlesService {
 								myRepository.initialize();
 								RepositoryConnection connection = myRepository.getConnection();
 						try {
-							TupleQuery tupleQuery = connection.prepareTupleQuery(QueryLanguage.SPARQL,  "SELECT ?listOfRuleset {}");
+							//TupleQuery tupleQuery = connection.prepareTupleQuery(QueryLanguage.SPARQL,  "SELECT ?listOfRuleset {}");
+							TupleQuery tupleQuery = connection.prepareTupleQuery(QueryLanguage.SPARQL,  "select?listofruleset{}");
 							TupleQueryResult qresult = tupleQuery.evaluate();
 							try {
 								while (qresult.hasNext()) {
@@ -1137,16 +1212,19 @@ public class SpringlesService {
 					}
 					
 					String list = "";
-					System.out.println(tuples.size());
+					System.out.println("tuple size="+tuples.size());
 					for (BindingSet s : tuples) {						 
 						list+= s.getValue("listofruleset").stringValue();
 					}
-					System.out.println(list);
+					System.out.println("List="+list);
 					if(list.replaceAll("\\s+", "").compareTo("no-ruleset")==0)
 						return "";
+					System.out.println("List="+list);
+					
 					for(String s : list.split("\n"))
 					{
-						 result += s.split("--")[1]+"&"+s.split("--")[0]+"\n";
+					 result += s.split("--")[1]+"&"+s.split("--")[0]+"\n";
+						
 					}
 					return result;
 					 
@@ -1176,7 +1254,7 @@ public class SpringlesService {
 				 String separator = "/";
 				 if(inferencer.compareTo("RDFProInferencer")==0){
 					 String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
-					 springles_url = springles_url.substring(5,springles_url.indexOf("webapps"+separator)+8)+"openrdf-sesame"+separator+"WEB-INF"
+					 springles_url = springles_url.substring(5,springles_url.indexOf("webapps"+separator)+8)+"rdf4j-server"+separator+"WEB-INF"
 							 +separator+"classes"+separator;
 					 File ruleset = new File(filename);
 					
@@ -1199,7 +1277,7 @@ public class SpringlesService {
 				 }else if(inferencer.compareTo("NaiveInferencer")==0){
 					 String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
 					 System.out.println(separator);
-					 springles_url = springles_url.substring(5,springles_url.indexOf("webapps"+separator)+8)+"openrdf-sesame"+separator+"WEB-INF"
+					 springles_url = springles_url.substring(5,springles_url.indexOf("webapps"+separator)+8)+"rdf4j-server"+separator+"WEB-INF"
 							 +separator+"classes"+separator;
 					 File ruleset = new File(filename);
 					
@@ -2003,7 +2081,7 @@ public class SpringlesService {
 											
 					
 					) {
-				 String springlesserverURL = "http://localhost:8080/openrdf-sesame";
+				 String springlesserverURL = "http://localhost:8080/rdf4j-server";
 				 String springlesrepositoryID ="georeporter";
 				 
 				
