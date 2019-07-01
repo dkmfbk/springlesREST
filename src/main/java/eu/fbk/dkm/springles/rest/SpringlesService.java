@@ -255,12 +255,12 @@ public class SpringlesService {
 				
 				Writer writer = new BufferedWriter(new FileWriter(tempFile));
 			//	RDFHandler rdfxmlWriter = new RDFXMLWriter(writer);
-			//	TriGWriter trigWriter= new TriGWriter(writer);
+			TriGWriter trigWriter= new TriGWriter(writer);
 				TurtleWriter ttlWriter = new TurtleWriter(writer);
 				
 				
 				if(exportformat.equals("trig")){
-			//	 con.exportStatements(null, null, null, persist, trigWriter);
+				 con.exportStatements(null, null, null, persist, trigWriter);
 				}else if(exportformat.equals("ttl")){
 					 con.exportStatements(null, null, null, persist, ttlWriter);
 					}else{
@@ -1252,7 +1252,7 @@ public class SpringlesService {
 			  {
 				 System.out.println("DELETE "+ filename + " "+inferencer);
 				 String separator = "/";
-				 if(inferencer.compareTo("RDFProInferencer")==0){
+				 if(inferencer.equals("RDFProInferencer")){
 					 String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
 					 springles_url = springles_url.substring(5,springles_url.indexOf("webapps"+separator)+8)+"rdf4j-server"+separator+"WEB-INF"
 							 +separator+"classes"+separator;
@@ -1274,7 +1274,8 @@ public class SpringlesService {
 					 if(!replaceToFile(springles_url.replace("%20", " ")+"META-INF"+separator+"rdfpro-rulesets", contenuto))
 						 return "Deleting Error!";
 					 return "Ruleset was deleted!";
-				 }else if(inferencer.compareTo("NaiveInferencer")==0){
+					 
+				 }else if(inferencer.equals("NaiveInferencer")){
 					 String springles_url = getClass().getClassLoader().getResource("springles.ttl").toString();
 					 System.out.println(separator);
 					 springles_url = springles_url.substring(5,springles_url.indexOf("webapps"+separator)+8)+"rdf4j-server"+separator+"WEB-INF"
